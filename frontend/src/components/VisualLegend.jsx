@@ -1,0 +1,206 @@
+import React from "react";
+import { PREREQUISITE_EDGE_COLOURS } from "../utils/prerequisiteEdges.js";
+import {
+    mapTypeForProgram,
+    layeredTypeShadow,
+    stateVisualByStatus,
+} from "../utils/courseVisuals.js";
+
+const BACHELOR_PROGRAM_CODE = "033 521";
+
+export default function VisualLegend({ programCode, onClose }) {
+    const isBachelor = programCode === BACHELOR_PROGRAM_CODE;
+    const mandatory = mapTypeForProgram("mandatory", programCode);
+    const core = mapTypeForProgram("core", programCode);
+    const elective = mapTypeForProgram("elective", programCode);
+    const todoState = stateVisualByStatus("todo");
+    const plannedState = stateVisualByStatus("in_plan");
+    const doneState = stateVisualByStatus("done");
+    const subjectColor = "#2563eb";
+    const moduleTint = "rgba(37, 99, 235, 0.2)";
+
+    const sampleCard = (title, state, borderLayers = 1, borderColor = "#2563eb") => (
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 8, background: "#fff" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+            <div
+                style={{
+                    height: 58,
+                    borderRadius: 10,
+                    border: `1px solid ${state.borderColor || borderColor}`,
+                    background: state.background,
+                    boxShadow: `${layeredTypeShadow(borderColor, borderLayers, state.background || "transparent")}${state.extraShadow && state.extraShadow !== "none" ? `, ${state.extraShadow}` : ""}`,
+                    opacity: state.opacity,
+                }}
+            />
+        </div>
+    );
+
+    const structureSample = (title, style) => (
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 8, background: "#fff" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+            <div
+                style={{
+                    height: 58,
+                    borderRadius: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    ...style,
+                }}
+            />
+        </div>
+    );
+
+    const typeCard = (title, layers, color) => (
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: 8, background: "#fff" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+            <div
+                style={{
+                    height: 58,
+                    borderRadius: 10,
+                    border: `1px solid ${color}`,
+                    background: "#ffffff",
+                    boxShadow: layeredTypeShadow(color, layers, "#ffffff"),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            />
+        </div>
+    );
+
+    return (
+        <div style={{ border: "1px solid #e5e7eb", borderRadius: 10, background: "#ffffff", padding: 10, width: 330, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 800 }}>Visual Legend</div>
+                {onClose && (
+                    <button
+                        onClick={onClose}
+                        style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: 14,
+                            fontWeight: "bold",
+                            color: "#9ca3af",
+                            padding: "2px 6px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            lineHeight: 1,
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "#4b5563")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "#9ca3af")}
+                        title="Close Legend"
+                        aria-label="Close Legend"
+                    >
+                        ✕
+                    </button>
+                )}
+            </div>
+            <div style={{ display: "grid", gap: 8 }}>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                    {sampleCard("Not Planned", todoState, 1)}
+                    {sampleCard("Planned", plannedState, 1)}
+                    {sampleCard("Done", doneState, 1, "#9ca3af")}
+                </div>
+
+                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 8, display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, color: "#4b5563", fontWeight: 700 }}>Structure</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                        {structureSample(
+                            "Exam Subject",
+                            {
+                                border: `1px solid ${subjectColor}`,
+                                background: subjectColor,
+                                color: "#ffffff",
+                                boxShadow: "none",
+                            }
+                        )}
+                        {structureSample(
+                            "Module",
+                            {
+                                border: `1px solid ${subjectColor}`,
+                                background: moduleTint,
+                                color: "#1f2937",
+                            }
+                        )}
+                        {structureSample(
+                            "Course",
+                            {
+                                border: `1px solid ${subjectColor}`,
+                                background: "transparent",
+                                color: "#1f2937",
+                            }
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 8, display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, color: "#4b5563", fontWeight: 700 }}>Type Borders</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                        {typeCard(mandatory.label, 3, subjectColor)}
+                        {typeCard(core.label, 2, subjectColor)}
+                        {typeCard(elective.label, 1, subjectColor)}
+                    </div>
+                </div>
+
+                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 8, display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, color: "#4b5563", fontWeight: 700 }}>Edges</div>
+                    <div style={{ display: "grid", gap: 4, fontSize: 11, color: "#4b5563" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <svg width="34" height="8" aria-hidden="true">
+                                <line x1="0" y1="4" x2="34" y2="4" stroke="#9ca3af" strokeWidth="1.6" />
+                            </svg>
+                            <span>Contains (subject → module → course)</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <svg width="34" height="8" aria-hidden="true">
+                                <line x1="0" y1="4" x2="34" y2="4" stroke={PREREQUISITE_EDGE_COLOURS.soft} strokeWidth="2" strokeDasharray="6 4" />
+                            </svg>
+                            <span>Recommended before</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <svg width="34" height="8" aria-hidden="true">
+                                <line x1="0" y1="4" x2="34" y2="4" stroke={PREREQUISITE_EDGE_COLOURS.hard} strokeWidth="2" />
+                            </svg>
+                            <span>Required before</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <svg width="34" height="8" aria-hidden="true">
+                                <line x1="0" y1="4" x2="34" y2="4" stroke={PREREQUISITE_EDGE_COLOURS.recommended} strokeWidth="1.5" strokeDasharray="2 4" />
+                            </svg>
+                            <span>Expected knowledge</span>
+                        </div>
+                        <div style={{ color: "#9ca3af" }}>
+                            The first two are switched on together, under “Show prerequisites” in the filter panel.
+                            Expected knowledge is stated per module in the curriculum, so it is revealed one node at a
+                            time with the ⇠ button on the node itself.
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 8, display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, color: "#4b5563", fontWeight: 700 }}>Semester Offerings</div>
+                    <div style={{ display: "flex", gap: 16, fontSize: 11, color: "#4b5563" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <span style={{ filter: "grayscale(100%) brightness(0.4) opacity(0.7)", display: "inline-flex", alignItems: "center", lineHeight: 1 }}>☀️</span>
+                            <span>Summer</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <span style={{ filter: "grayscale(100%) brightness(0.4) opacity(0.7)", display: "inline-flex", alignItems: "center", lineHeight: 1 }}>❄️</span>
+                            <span>Winter</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <span style={{ filter: "grayscale(100%) brightness(0.4) opacity(0.7)", display: "inline-flex", alignItems: "center", lineHeight: 1 }}>☀️❄️</span>
+                            <span>Both</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

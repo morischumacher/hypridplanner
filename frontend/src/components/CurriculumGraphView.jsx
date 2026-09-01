@@ -1,0 +1,2124 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactFlow, { applyNodeChanges, Background, ControlButton, Controls, MarkerType, MiniMap, SelectionMode, useNodesState } from "reactflow";
+import "reactflow/dist/style.css";
+import { CARD_WIDTH, NODE_HEIGHT } from "../domain/layout.ts";
+import {
+    GraphCourseNode,
+    GraphModuleNode,
+    GraphRootNode,
+    GraphSubjectNode,
+} from "./graphNodes/index.js";
+import VisualLegend from "./VisualLegend.jsx";
+import RecommendationPanel from "./RecommendationPanel.jsx";
+import GraphFilterEngine from "../domain/filters.ts";
+import {
+    buildPrerequisiteEdges,
+    countRecommendedByNode,
+    GLOBAL_PREREQUISITE_KINDS,
+    PREREQUISITE_EDGE_COLOURS,
+} from "../utils/prerequisiteEdges.js";
+import { fetchPrerequisites } from "../lib/api.js";
+
+const X_BY_LEVEL = {
+    root: 40,
+    subject: 340,
+    module: 660,
+    courseDirect: 660,
+    course: 980,
+};
+
+const GRAPH_NODE_WIDTH = CARD_WIDTH;
+const GRAPH_NODE_HEIGHT = NODE_HEIGHT;
+const LEAF_VERTICAL_SPACING = NODE_HEIGHT + 36;
+const NODE_COLLISION_GAP = 12;
+const MAX_PERSISTED_ABS_X = 10000;
+
+const NODE_TYPES = {
+    graphRoot: GraphRootNode,
+    graphSubject: GraphSubjectNode,
+    graphModule: GraphModuleNode,
+    graphCourse: GraphCourseNode,
+};
+
+function nodeTypeForLevel(level) {
+    if (level === "root") return "graphRoot";
+    if (level === "subject") return "graphSubject";
+    if (level === "module") return "graphModule";
+    return "graphCourse";
+}
+
+function buildTree(catalog, subjectColors, termAvailabilityForCode) {
+    const subjects = (catalog || []).map((pf, pfIdx) => {
+        const subjectName = pf?.pruefungsfach ?? `Pruefungsfach ${pfIdx + 1}`;
+        const subjectColor = subjectColors?.[subjectName] ?? "#4b5563";
+        const sourceModules = pf?.modules || [];
+        const modules = sourceModules.flatMap((mod, modIdx) => {
+            const rawCourses = Array.isArray(mod?.courses) ? mod.courses : [];
+            const hasNoCourses = rawCourses.length === 0;
+            const courses = rawCourses;
+
+            // Match table behavior: module wrapper only if module has multiple courses.
+            // For modules without explicit child courses (e.g. FWTS), also render as
+            // direct course node like table/sidebar.
+            if (hasNoCourses || courses.length === 1) {
+                const course = courses[0];
+                const resolvedCode = hasNoCourses ? (mod?.code ?? "") : (course?.code ?? mod?.code ?? "");
+                return [{
+                    id: `course-${pfIdx}-${modIdx}-single-${course?.code || mod?.code || "course"}`,
+                    label: `${hasNoCourses ? (mod?.name || "Course") : (course?.name || mod?.name || "Course")}`,
+                    level: "courseDirect",
+                    color: subjectColor,
+                    courseCode: resolvedCode,
+                    courseName: hasNoCourses ? (mod?.name ?? "Course") : (course?.name ?? mod?.name ?? "Course"),
+                    ects: hasNoCourses ? (mod?.ects ?? null) : (course?.ects ?? mod?.ects ?? null),
+                    courseType: hasNoCourses
+                        ? null
+                        : (course?.type ?? null),
+                    category: mod?.category ?? null,
+                    examSubject: mod?.module_exam_subject ?? subjectName ?? null,
+                    isMandatory: Boolean(mod?.is_mandatory),
+                    termAvailability: typeof termAvailabilityForCode === "function" ? termAvailabilityForCode(resolvedCode) : null,
+                    children: [],
+                }];
+            }
+
+            const modulePayload = {
+                code: mod?.code ?? "",
+                name: mod?.name ?? "Module",
+                category: mod?.category ?? null,
+                examSubject: mod?.module_exam_subject ?? subjectName ?? null,
+                isMandatory: Boolean(mod?.is_mandatory),
+                subjectColor,
+                courses: courses.map((course) => ({
+                    code: course?.code ?? "",
+                    name: course?.name ?? "Course",
+                    ects: course?.ects ?? null,
+                    type: course?.type ?? null,
+                })),
+            };
+
+            return [{
+                id: `module-${pfIdx}-${modIdx}-${mod?.code || mod?.name || "module"}`,
+                label: `${mod?.name || "Module"}`,
+                level: "module",
+                color: subjectColor,
+                moduleCode: mod?.code ?? "",
+                moduleEcts: mod?.ects ?? null,
+                moduleCourseCount: courses.length,
+                category: mod?.category ?? null,
+                examSubject: mod?.module_exam_subject ?? subjectName ?? null,
+                isMandatory: Boolean(mod?.is_mandatory),
+                modulePayload,
+                moduleCourseCodes: courses.map((course) => course?.code).filter(Boolean),
+                moduleCourseTypes: courses
+                    .map((course) => GraphFilterEngine.normalizeCourseType(course?.type, course?.code))
+                    .filter(Boolean),
+                moduleCourseEcts: courses
+                    .map((course) => Number(course?.ects))
+                    .filter((ects) => Number.isFinite(ects)),
+                moduleCourseTermAvailabilities: courses
+                    .map((course) => typeof termAvailabilityForCode === "function" ? termAvailabilityForCode(course?.code) : null)
+                    .filter(Boolean),
+                children: courses.map((course, courseIdx) => ({
+                    id: `course-${pfIdx}-${modIdx}-${courseIdx}-${course?.code || "course"}`,
+                    label: `${course?.name || "Course"}`,
+                    level: "course",
+                    color: subjectColor,
+                    courseCode: course?.code ?? "",
+                    courseName: course?.name ?? "Course",
+                    ects: course?.ects ?? null,
+                    courseType: course?.type ?? null,
+                    category: mod?.category ?? null,
+                    examSubject: mod?.module_exam_subject ?? subjectName ?? null,
+                    isMandatory: Boolean(mod?.is_mandatory),
+                    parentModulePayload: modulePayload,
+                    termAvailability: typeof termAvailabilityForCode === "function" ? termAvailabilityForCode(course?.code) : null,
+                    children: [],
+                })),
+            }];
+        });
+
+        return {
+            id: `subject-${pfIdx}-${subjectName}`,
+            label: subjectName,
+            level: "subject",
+            color: subjectColor,
+            moduleCount: sourceModules.length,
+            children: modules,
+        };
+    });
+
+    return {
+        id: "curriculum-root",
+        label: "Curriculum",
+        level: "root",
+        color: "#111827",
+        children: subjects,
+    };
+}
+
+function collectCollapsibleIds(node, out = new Set()) {
+    const children = Array.isArray(node?.children) ? node.children : [];
+    if (node?.level !== "root" && children.length > 0) out.add(node.id);
+    for (const child of children) collectCollapsibleIds(child, out);
+    return out;
+}
+
+function findTreeNodeById(node, targetId) {
+    if (!node) return null;
+    if (node.id === targetId) return node;
+    const children = Array.isArray(node.children) ? node.children : [];
+    for (const child of children) {
+        const found = findTreeNodeById(child, targetId);
+        if (found) return found;
+    }
+    return null;
+}
+
+function collectDescendants(node, out = []) {
+    const children = Array.isArray(node?.children) ? node.children : [];
+    for (const child of children) {
+        out.push(child);
+        collectDescendants(child, out);
+    }
+    return out;
+}
+
+function computeTreeNodeStatus(node, getCourseStatus) {
+    if (!node) return null;
+    if (node.level === "course" || node.level === "courseDirect") {
+        return getCourseStatus?.(node?.courseCode) ?? "todo";
+    }
+    if (node.level === "module") {
+        const codes = Array.isArray(node?.moduleCourseCodes)
+            ? node.moduleCourseCodes
+            : (Array.isArray(node?.children) ? node.children.map((c) => c?.courseCode).filter(Boolean) : []);
+        const statuses = codes.map((code) => getCourseStatus?.(code) ?? "todo");
+        if (statuses.length === 0) return "todo";
+        if (statuses.every((s) => s === "done")) return "done";
+        if (statuses.some((s) => s === "in_plan" || s === "done")) return "in_plan";
+        if (statuses.some((s) => s === "parked")) return "parked";
+        return "todo";
+    }
+    return null;
+}
+
+function toFilterCandidateNode(treeNode, getCourseStatus) {
+    return {
+        data: {
+            level: treeNode?.level,
+            label: treeNode?.label,
+            subjectName: treeNode?.level === "subject" ? treeNode?.label : null,
+            courseCode: treeNode?.courseCode ?? null,
+            courseType: treeNode?.courseType ?? null,
+            ects: treeNode?.ects ?? null,
+            moduleEcts: treeNode?.moduleEcts ?? null,
+            moduleCourseTypes: treeNode?.moduleCourseTypes ?? [],
+            moduleCourseEcts: treeNode?.moduleCourseEcts ?? [],
+            category: treeNode?.category ?? null,
+            examSubject: treeNode?.examSubject ?? (treeNode?.level === "subject" ? treeNode?.label : null),
+            isMandatory: Boolean(treeNode?.isMandatory),
+            status: computeTreeNodeStatus(treeNode, getCourseStatus),
+            termAvailability: treeNode?.termAvailability ?? null,
+            moduleCourseTermAvailabilities: treeNode?.moduleCourseTermAvailabilities ?? [],
+        },
+    };
+}
+
+function relaxFiltersForExpandedSubtree({
+    root,
+    expandedNodeId,
+    currentFilters,
+    ectsBounds,
+    programCode,
+    getCourseStatus,
+}) {
+    const subtreeRoot = findTreeNodeById(root, expandedNodeId);
+    if (!subtreeRoot) return currentFilters;
+    const descendants = collectDescendants(subtreeRoot, []);
+    if (descendants.length === 0) return currentFilters;
+    const descendantNodes = descendants.map((treeNode) => toFilterCandidateNode(treeNode, getCourseStatus));
+
+    let next = GraphFilterEngine.normalizeFilters(currentFilters, ectsBounds, programCode);
+    const addUnique = (key, value) => {
+        if (!value) return false;
+        const list = Array.isArray(next?.[key]) ? next[key] : [];
+        if (list.includes(value)) return false;
+        next = { ...next, [key]: [...list, value] };
+        return true;
+    };
+
+    for (let pass = 0; pass < 3; pass += 1) {
+        const hiddenCandidates = descendantNodes
+            .filter((node) => !GraphFilterEngine.nodeMatchesFilters(node, next, programCode));
+        if (hiddenCandidates.length === 0) break;
+
+        let changed = false;
+        for (const node of hiddenCandidates) {
+            const data = node?.data || {};
+
+            if (Array.isArray(next?.examSubjects) && next.examSubjects.length > 0) {
+                const subject = data?.examSubject ?? data?.subjectName ?? null;
+                changed = addUnique("examSubjects", subject) || changed;
+            }
+
+            if (Array.isArray(next?.obligationTypes) && next.obligationTypes.length > 0) {
+                const obligation = GraphFilterEngine.obligationForNodeData(data, programCode);
+                changed = addUnique("obligationTypes", obligation) || changed;
+            }
+
+            if (Array.isArray(next?.progressStates) && next.progressStates.length > 0) {
+                const status = String(data?.status || "");
+                changed = addUnique("progressStates", status) || changed;
+            }
+
+            if (Array.isArray(next?.courseTypes)) {
+                if (data?.level === "module") {
+                    const types = Array.isArray(data?.moduleCourseTypes) ? data.moduleCourseTypes : [];
+                    for (const type of types) {
+                        changed = addUnique("courseTypes", type) || changed;
+                    }
+                } else if (data?.level === "course" || data?.level === "courseDirect") {
+                    const type = GraphFilterEngine.normalizeCourseType(data?.courseType, data?.courseCode);
+                    changed = addUnique("courseTypes", type) || changed;
+                }
+            }
+
+            if (Array.isArray(next?.termAvailabilities) && next.termAvailabilities.length > 0) {
+                if (data?.level === "module") {
+                    const terms = Array.isArray(data?.moduleCourseTermAvailabilities) ? data.moduleCourseTermAvailabilities : [];
+                    for (const term of terms) {
+                        changed = addUnique("termAvailabilities", String(term || "both").trim().toLowerCase()) || changed;
+                    }
+                } else if (data?.level === "course" || data?.level === "courseDirect") {
+                    const term = String(data?.termAvailability || "both").trim().toLowerCase();
+                    changed = addUnique("termAvailabilities", term) || changed;
+                }
+            }
+
+            const range = next?.ectsRange;
+            if (range && Number.isFinite(Number(range.min)) && Number.isFinite(Number(range.max))) {
+                const currentMin = Number(range.min);
+                const currentMax = Number(range.max);
+                const ectsValues = data?.level === "module"
+                    ? (Array.isArray(data?.moduleCourseEcts) ? data.moduleCourseEcts : [])
+                    : [data?.ects ?? data?.moduleEcts];
+                const finiteValues = ectsValues
+                    .map((x) => Number(x))
+                    .filter((x) => Number.isFinite(x));
+                if (finiteValues.length > 0) {
+                    const minValue = Math.min(...finiteValues);
+                    const maxValue = Math.max(...finiteValues);
+                    const nextMin = Math.min(currentMin, minValue);
+                    const nextMax = Math.max(currentMax, maxValue);
+                    if (nextMin !== currentMin || nextMax !== currentMax) {
+                        next = {
+                            ...next,
+                            ectsRange: { min: nextMin, max: nextMax },
+                        };
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        if (!changed) break;
+    }
+
+    // Force-unblock progress/obligation/terms for manually expanded subtree.
+    // This avoids a dead-end where strict empty selections hide all children.
+    const stillHidden = descendantNodes
+        .filter((node) => !GraphFilterEngine.nodeMatchesFilters(node, next, programCode));
+    if (stillHidden.length > 0) {
+        if (Array.isArray(next?.progressStates) && next.progressStates.length === 0) {
+            const statuses = new Set(
+                stillHidden
+                    .map((node) => String(node?.data?.status || ""))
+                    .filter(Boolean)
+            );
+            const safeStatuses = statuses.size > 0 ? Array.from(statuses) : ["todo", "in_plan", "done", "parked"];
+            next = { ...next, progressStates: safeStatuses };
+        }
+
+        if (Array.isArray(next?.obligationTypes) && next.obligationTypes.length === 0) {
+            const obligations = new Set();
+            for (const node of stillHidden) {
+                const obligation = GraphFilterEngine.obligationForNodeData(node?.data || {}, programCode);
+                if (obligation) obligations.add(obligation);
+            }
+            const safeObligations = obligations.size > 0
+                ? Array.from(obligations)
+                : GraphFilterEngine.obligationOptionsForProgram(programCode).map((x) => x.value).filter(Boolean);
+            next = { ...next, obligationTypes: safeObligations };
+        }
+
+        if (Array.isArray(next?.termAvailabilities) && next.termAvailabilities.length === 0) {
+            const terms = new Set();
+            for (const node of stillHidden) {
+                if (node?.data?.level === "module") {
+                    const moduleTerms = Array.isArray(node?.data?.moduleCourseTermAvailabilities) ? node?.data?.moduleCourseTermAvailabilities : [];
+                    for (const t of moduleTerms) {
+                        if (t) terms.add(String(t).trim().toLowerCase());
+                    }
+                } else {
+                    const term = String(node?.data?.termAvailability || "both").trim().toLowerCase();
+                    if (term) terms.add(term);
+                }
+            }
+            const safeTerms = terms.size > 0 ? Array.from(terms) : ["summer", "winter", "both"];
+            next = { ...next, termAvailabilities: safeTerms };
+        }
+    }
+
+    return next;
+}
+
+function collectDescendantCourses(treeNode) {
+    const list = [];
+    const visitNode = (n) => {
+        if (n.level === "course" || n.level === "courseDirect") {
+            list.push(n);
+        }
+        if (Array.isArray(n.children)) {
+            n.children.forEach(visitNode);
+        }
+    };
+    visitNode(treeNode);
+    return list;
+}
+
+function layoutTree(root, collapsedIds, options = {}) {
+    const getCourseStatus = options?.getCourseStatus;
+    const getCourseMeta = options?.getCourseMeta;
+    const onUpdateCourseMeta = options?.onUpdateCourseMeta;
+    const onAddToPlan = options?.onAddToPlan;
+    const onToggleDone = options?.onToggleDone;
+    const onAddModuleToPlan = options?.onAddModuleToPlan;
+    const onToggleModuleDone = options?.onToggleModuleDone;
+    const onRemoveFromPlan = options?.onRemoveFromPlan;
+    const onRemoveModuleFromPlan = options?.onRemoveModuleFromPlan;
+    const programCode = options?.programCode ?? "";
+    const semesterOptions = Array.isArray(options?.semesterOptions) ? options.semesterOptions : [];
+    const getValidSemestersForCourse = options?.getValidSemestersForCourse;
+    const getValidSemestersForModule = options?.getValidSemestersForModule;
+    const recommendedCourseMap = options?.recommendedCourseMap instanceof Map ? options.recommendedCourseMap : new Map();
+    const nodes = [];
+    const edges = [];
+    let leafIndex = 0;
+
+    const visit = (node, parentId = null, depth = 0, currentSubjectId = null) => {
+        const canExpand = Array.isArray(node.children) && node.children.length > 0;
+        const descendants = collectDescendantCourses(node);
+        const isCollapsed = collapsedIds.has(node.id);
+        const visibleChildren = canExpand && !isCollapsed ? node.children : [];
+        const subjectId = node.level === "subject" ? node.id : currentSubjectId;
+
+        let y;
+        if (visibleChildren.length === 0) {
+            y = leafIndex * LEAF_VERTICAL_SPACING;
+            leafIndex += 1;
+        } else {
+            const childYs = visibleChildren.map((child) => visit(child, node.id, depth + 1, subjectId));
+            y = (Math.min(...childYs) + Math.max(...childYs)) / 2;
+        }
+
+        const prefix = node.level !== "root" && canExpand ? (isCollapsed ? "▶ " : "▼ ") : "";
+        const x = X_BY_LEVEL[node.level] ?? depth * 320;
+        let status = null;
+        const courseMeta = node?.courseCode ? (getCourseMeta?.(node.courseCode) || {}) : {};
+        if (node.level === "course" || node.level === "courseDirect") {
+            status = getCourseStatus?.(node?.courseCode) ?? "todo";
+        } else if (node.level === "module") {
+            const codes = Array.isArray(node?.moduleCourseCodes) ? node.moduleCourseCodes : [];
+            const statuses = codes.map((code) => getCourseStatus?.(code) ?? "todo");
+            if (statuses.length === 0) status = "todo";
+            else if (statuses.every((s) => s === "done")) status = "done";
+            else if (statuses.some((s) => s === "in_plan" || s === "done")) status = "in_plan";
+            else if (statuses.some((s) => s === "parked")) status = "parked";
+            else status = "todo";
+        }
+        const semestersForCourse =
+            typeof getValidSemestersForCourse === "function" && node?.courseCode
+                ? (getValidSemestersForCourse(node.courseCode) || [])
+                : semesterOptions;
+        const moduleCourseList =
+            Array.isArray(node?.modulePayload?.courses) && node.modulePayload.courses.length > 0
+                ? node.modulePayload.courses
+                : (Array.isArray(node?.moduleCourseCodes)
+                    ? node.moduleCourseCodes.map((code) => ({ code }))
+                    : []);
+        const semestersForModule =
+            typeof getValidSemestersForModule === "function"
+                ? (getValidSemestersForModule(moduleCourseList) || [])
+                : semesterOptions;
+        nodes.push({
+            id: node.id,
+            type: nodeTypeForLevel(node.level),
+            position: { x, y },
+            data: {
+                label: `${prefix}${node.label}`,
+                subjectName: node.level === "subject" ? node.label : null,
+                level: node.level,
+                hasChildren: canExpand,
+                color: node.color,
+                subjectId,
+                courseCode: node?.courseCode ?? null,
+                courseName: node?.courseName ?? null,
+                ects: node?.ects ?? null,
+                category: node?.category ?? null,
+                examSubject: node?.examSubject ?? null,
+                isMandatory: Boolean(node?.isMandatory),
+                programCode,
+                moduleCount: node?.moduleCount ?? null,
+                status,
+                notes: String(courseMeta?.notes ?? ""),
+                estimatedHours: String(courseMeta?.estimatedHours ?? ""),
+                grade: String(courseMeta?.grade ?? ""),
+                onUpdateCourseMeta: (node.level === "course" || node.level === "courseDirect") ? onUpdateCourseMeta : null,
+                courseType: node?.courseType ?? null,
+                onAddToPlan: (node.level === "course" || node.level === "courseDirect") ? onAddToPlan : null,
+                onToggleDone: (node.level === "course" || node.level === "courseDirect") ? onToggleDone : null,
+                semesters: (node.level === "course" || node.level === "courseDirect") ? semestersForCourse : null,
+                modulePayload: node?.modulePayload ?? null,
+                moduleCourseCodes: node?.moduleCourseCodes ?? null,
+                moduleCode: node?.moduleCode ?? null,
+                moduleEcts: node?.moduleEcts ?? null,
+                moduleCourseCount: node?.moduleCourseCount ?? null,
+                moduleCourseTypes: node?.moduleCourseTypes ?? [],
+                moduleCourseEcts: node?.moduleCourseEcts ?? [],
+                parentModulePayload: node?.parentModulePayload ?? null,
+                onAddModuleToPlan: (node.level === "module" || node.level === "course") ? onAddModuleToPlan : null,
+                onToggleModuleDone: node.level === "module" ? onToggleModuleDone : null,
+                onRemoveFromPlan: (node.level === "course" || node.level === "courseDirect") ? onRemoveFromPlan : null,
+                onRemoveModuleFromPlan: (node.level === "module" || node.level === "course") ? onRemoveModuleFromPlan : null,
+                semestersForModule: node.level === "module" ? semestersForModule : null,
+                isRecommended: (node.level === "course" || node.level === "courseDirect") && node?.courseCode ? recommendedCourseMap.has(String(node.courseCode)) : false,
+                recommendationType: (node.level === "course" || node.level === "courseDirect") && node?.courseCode ? (recommendedCourseMap.get(String(node.courseCode)) ?? null) : null,
+                termAvailability: node?.termAvailability ?? null,
+                moduleCourseTermAvailabilities: node?.moduleCourseTermAvailabilities ?? [],
+                descendantCourses: descendants.map((c) => ({
+                    courseCode: c.courseCode,
+                    courseName: c.courseName,
+                    ects: c.ects,
+                    courseType: c.courseType,
+                    category: c.category,
+                    examSubject: c.examSubject,
+                    isMandatory: c.isMandatory,
+                    status: typeof getCourseStatus === "function" ? getCourseStatus(c.courseCode) : "todo",
+                    termAvailability: c.termAvailability,
+                })),
+            },
+            sourcePosition: "right",
+            targetPosition: "left",
+        });
+
+        if (parentId) {
+            const isRootToSubject = parentId === "curriculum-root";
+            edges.push({
+                id: `e-${parentId}-${node.id}`,
+                source: parentId,
+                target: node.id,
+                type: isRootToSubject ? "straight" : "smoothstep",
+                style: { stroke: "#9ca3af", strokeWidth: 1.6 },
+                markerEnd: { type: MarkerType.ArrowClosed, color: "#9ca3af" },
+            });
+        }
+        return y;
+    };
+
+    visit(root, null, 0);
+    return { nodes, edges };
+}
+
+function mergeNodesWithPinnedPositions(nextNodes, prevNodes, edges, persistedPosById = {}) {
+    const prevById = new Map((prevNodes || []).map((n) => [n.id, n]));
+    const nextById = new Map((nextNodes || []).map((n) => [n.id, n]));
+    const parentByChild = new Map((edges || []).map((e) => [e.target, e.source]));
+    const persisted = persistedPosById && typeof persistedPosById === "object" ? persistedPosById : {};
+
+    return (nextNodes || []).map((nextNode) => {
+        const persistedValue = persisted?.[nextNode.id];
+        const persistedX = Number(persistedValue?.x);
+        if (Number.isFinite(persistedX) && Math.abs(persistedX) < MAX_PERSISTED_ABS_X) {
+            return {
+                ...nextNode,
+                position: {
+                    x: persistedX,
+                    y: nextNode.position.y,
+                },
+            };
+        }
+
+        const prevNode = prevById.get(nextNode.id);
+        if (prevNode) {
+            return {
+                ...nextNode,
+                position: {
+                    x: prevNode.position.x,
+                    y: nextNode.position.y,
+                },
+            };
+        }
+
+        // New node (e.g. after expand): inherit parent's horizontal shift if parent moved.
+        const parentId = parentByChild.get(nextNode.id);
+        if (!parentId) return nextNode;
+
+        const prevParent = prevById.get(parentId);
+        const nextParent = nextById.get(parentId);
+        if (!prevParent || !nextParent) return nextNode;
+
+        const dx = prevParent.position.x - nextParent.position.x;
+        return {
+            ...nextNode,
+            position: { x: nextNode.position.x + dx, y: nextNode.position.y },
+        };
+    });
+}
+
+function nodesOverlap(a, b, gap = NODE_COLLISION_GAP) {
+    return (
+        a.position.x < b.position.x + GRAPH_NODE_WIDTH + gap &&
+        a.position.x + GRAPH_NODE_WIDTH + gap > b.position.x &&
+        a.position.y < b.position.y + GRAPH_NODE_HEIGHT + gap &&
+        a.position.y + GRAPH_NODE_HEIGHT + gap > b.position.y
+    );
+}
+
+function resolveNodeOverlaps(inputNodes) {
+    const nodes = (inputNodes || []).map((n) => ({ ...n, position: { ...n.position } }));
+    nodes.sort((a, b) => (a.position.y - b.position.y) || (a.position.x - b.position.x));
+
+    // Push overlapping nodes downward until all collisions are resolved.
+    for (let i = 0; i < nodes.length; i += 1) {
+        let moved = true;
+        while (moved) {
+            moved = false;
+            for (let j = 0; j < i; j += 1) {
+                if (!nodesOverlap(nodes[i], nodes[j])) continue;
+                nodes[i].position.y = nodes[j].position.y + GRAPH_NODE_HEIGHT + NODE_COLLISION_GAP;
+                moved = true;
+            }
+        }
+    }
+
+    return nodes;
+}
+
+function enforceHierarchicalOrder(nodes, subjectOrder, movedNodeIds) {
+    const moved = movedNodeIds || new Set();
+    const byId = new Map((nodes || []).map((n) => [n.id, { ...n, position: { ...n.position } }]));
+    const subjectIds = subjectOrder || [];
+
+    const overlapAgainstEarlier = (group, idx) => {
+        let y = group[idx].position.y;
+        for (let j = 0; j < idx; j += 1) {
+            while (nodesOverlap({ ...group[idx], position: { ...group[idx].position, y } }, group[j])) {
+                y = group[j].position.y + GRAPH_NODE_HEIGHT + NODE_COLLISION_GAP;
+            }
+        }
+        return y;
+    };
+
+    // 1) Resolve overlaps within each subject, but keep manually moved nodes pinned.
+    for (const subjectId of subjectIds) {
+        const group = Array.from(byId.values())
+            .filter((n) => n?.data?.subjectId === subjectId)
+            .sort((a, b) => (a.position.y - b.position.y) || (a.position.x - b.position.x));
+
+        for (let i = 0; i < group.length; i += 1) {
+            if (moved.has(group[i].id)) continue;
+            group[i].position.y = overlapAgainstEarlier(group, i);
+            byId.set(group[i].id, group[i]);
+        }
+    }
+
+    // 2) Keep exam-subject order strict: subject bands are stacked from top to bottom.
+    let cursorY = 0;
+    for (const subjectId of subjectIds) {
+        const group = Array.from(byId.values()).filter((n) => n?.data?.subjectId === subjectId);
+        if (!group.length) continue;
+
+        const minY = Math.min(...group.map((n) => n.position.y));
+        const needsShift = minY < cursorY;
+        if (needsShift) {
+            const dy = cursorY - minY;
+            for (const node of group) {
+                if (moved.has(node.id)) continue;
+                const shifted = {
+                    ...node,
+                    position: { x: node.position.x, y: node.position.y + dy },
+                };
+                byId.set(node.id, shifted);
+            }
+        }
+
+        const groupAfter = Array.from(byId.values()).filter((n) => n?.data?.subjectId === subjectId);
+        const bandBottom = Math.max(...groupAfter.map((n) => n.position.y + GRAPH_NODE_HEIGHT));
+        cursorY = bandBottom + NODE_COLLISION_GAP;
+    }
+
+    return Array.from(byId.values());
+}
+
+export default function CurriculumGraphView({
+    catalog,
+    subjectColors,
+    onSwitchToTable,
+    programCode,
+    setProgramCode,
+    programOptions,
+    selectedFocus,
+    setSelectedFocus,
+    bachelorProgramCode,
+    bachelorFocusOptions,
+    getCourseStatus,
+    getCourseMeta,
+    onUpdateCourseMeta,
+    onAddToPlan,
+    onToggleDone,
+    onAddModuleToPlan,
+    onToggleModuleDone,
+    onRemoveFromPlan,
+    onRemoveModuleFromPlan,
+    semesterOptions,
+    getValidSemestersForCourse,
+    getValidSemestersForModule,
+    graphViewState,
+    setGraphViewState,
+    ruleFeedback,
+    isRuleDashboardOpen,
+    onToggleRuleDashboard,
+    isRecPanelOpen,
+    onToggleRecPanel,
+    recommendations = [],
+    setRecommendations,
+    recommendationToggles = {},
+    onRecommendationToggleChange,
+    onDragStart,
+    isLegendOpen,
+    onToggleLegend,
+    recommendedCourseMap = new Map(),
+    termAvailabilityForCode,
+}) {
+    const rfRef = useRef(null);
+    const root = useMemo(() => buildTree(catalog, subjectColors, termAvailabilityForCode), [catalog, subjectColors, termAvailabilityForCode]);
+    const isDraggingRef = useRef(false);
+    const suppressCollapsedPersistRef = useRef(false);
+    const filtersDirtyRef = useRef(false);
+    const collapsedBeforeForceHierarchyRef = useRef(null);
+    const [isProgramSwitching, setIsProgramSwitching] = useState(false);
+    const [isFiltersOpen, setIsFiltersOpen] = useState(true);
+    // Prerequisite relations are fetched once per programme and drawn only on
+    // request: they are a second edge type over the containment tree, and the
+    // curricula in scope encode few of them (Section: prerequisite edges).
+    const [prerequisiteRelations, setPrerequisiteRelations] = useState([]);
+    const [showPrerequisiteEdges, setShowPrerequisiteEdges] = useState(false);
+    // The curriculum's expected prior knowledge is stated per module, so it is
+    // revealed per node rather than all at once: this holds the one node a
+    // student has asked to see it for.
+    //
+    // One at a time, rather than a set. An edge has two endpoints, so a set of
+    // revealed nodes draws the union of their relations, and a node whose only
+    // relation is already drawn by the node at the other end can be switched on
+    // and off without the picture changing at all. A control that sometimes does
+    // nothing visible reads as broken, which is exactly how it was reported.
+    const [revealedPrereqNodeId, setRevealedPrereqNodeId] = useState(null);
+    const [interactionMode, setInteractionMode] = useState("pan");
+    const [graphHorizontalSemantics, setGraphHorizontalSemantics] = useState("hierarchy");
+    const [graphHorizontalCustomText, setGraphHorizontalCustomText] = useState("");
+    const [graphVerticalSemantics, setGraphVerticalSemantics] = useState("no_meaning");
+    const [graphVerticalCustomText, setGraphVerticalCustomText] = useState("");
+    const [isGraphSemanticsPopupOpen, setIsGraphSemanticsPopupOpen] = useState(false);
+
+    const [feedbackToast, setFeedbackToast] = useState({
+        visible: false,
+        text: "",
+        bg: "#f3f4f6",
+        border: "#d1d5db",
+        color: "#374151",
+    });
+    const [hierarchyMode, setHierarchyMode] = useState("normal");
+    const filterOptions = useMemo(() => GraphFilterEngine.collectCatalogFilterOptions(catalog), [catalog]);
+    const obligationOptions = useMemo(
+        () => GraphFilterEngine.obligationOptionsForProgram(programCode),
+        [programCode]
+    );
+    const buildDefaultFilters = useCallback((filters) => {
+        const allObligationTypes = obligationOptions.map((x) => x.value).filter(Boolean);
+        const allCourseTypes = Array.isArray(filterOptions?.courseTypes) ? filterOptions.courseTypes : [];
+        const allExamSubjects = Array.isArray(filterOptions?.examSubjects) ? filterOptions.examSubjects : [];
+        return {
+            ...filters,
+            obligationTypes: allObligationTypes,
+            courseTypes: allCourseTypes,
+            examSubjects: allExamSubjects,
+            progressStates: ["todo", "in_plan", "done", "parked"],
+            termAvailabilities: ["summer", "winter", "both"],
+        };
+    }, [obligationOptions, filterOptions?.courseTypes, filterOptions?.examSubjects]);
+    const withFilterDefaults = useCallback((filters) => {
+        const hasConfiguredFilters = Boolean(graphViewState?.filtersConfigured);
+        const hasPersistedFilters =
+            graphViewState?.filters && typeof graphViewState.filters === "object";
+        // On first interaction we may set filtersConfigured before persisting filters.
+        // In that transient state, keep safe defaults instead of strict empty filters.
+        if (!hasConfiguredFilters || !hasPersistedFilters) return buildDefaultFilters(filters);
+        return filters;
+    }, [
+        graphViewState?.filtersConfigured,
+        graphViewState?.filters,
+        buildDefaultFilters,
+    ]);
+    const [graphFilters, setGraphFilters] = useState(() =>
+        withFilterDefaults(
+            GraphFilterEngine.normalizeFilters(graphViewState?.filters, filterOptions?.ectsBounds, programCode)
+        )
+    );
+    const markFiltersConfigured = useCallback((filtersSnapshot = null) => {
+        setGraphViewState?.((prev) => {
+            if (prev?.filtersConfigured && prev?.filters && typeof prev.filters === "object") return prev;
+            const normalizedSnapshot =
+                filtersSnapshot && typeof filtersSnapshot === "object"
+                    ? GraphFilterEngine.normalizeFilters(filtersSnapshot, filterOptions?.ectsBounds, programCode)
+                    : null;
+            const fallbackFromPrev =
+                prev?.filters && typeof prev.filters === "object"
+                    ? GraphFilterEngine.normalizeFilters(prev.filters, filterOptions?.ectsBounds, programCode)
+                    : GraphFilterEngine.normalizeFilters(undefined, filterOptions?.ectsBounds, programCode);
+            const nextFilters = buildDefaultFilters(normalizedSnapshot ?? fallbackFromPrev);
+            return {
+                ...prev,
+                filtersConfigured: true,
+                filters: nextFilters,
+            };
+        });
+    }, [setGraphViewState, buildDefaultFilters, filterOptions?.ectsBounds, programCode]);
+    const [collapsedIds, setCollapsedIds] = useState(() => {
+        const saved = graphViewState?.collapsedIds;
+        if (Array.isArray(saved)) return new Set(saved);
+        return collectCollapsibleIds(root);
+    });
+    const hasCatalogContent = Array.isArray(catalog) && catalog.length > 0;
+
+    useEffect(() => {
+        suppressCollapsedPersistRef.current = true;
+        setCollapsedIds((prev) => {
+            const allowed = collectCollapsibleIds(root);
+            const saved = Array.isArray(graphViewState?.collapsedIds) ? new Set(graphViewState.collapsedIds) : null;
+            if (!saved && !hasCatalogContent) {
+                suppressCollapsedPersistRef.current = false;
+                return prev;
+            }
+            const next = saved
+                ? new Set([...saved].filter((id) => allowed.has(id)))
+                : allowed;
+            const same = next.size === prev.size && [...next].every((id) => prev.has(id));
+            if (same) {
+                suppressCollapsedPersistRef.current = false;
+                return prev;
+            }
+            if (saved) {
+                return next;
+            }
+            // Program-specific default: start collapsed for this program's tree.
+            // Do not reuse previous program's collapsed set.
+            return next;
+        });
+    }, [root, graphViewState?.collapsedIds, hasCatalogContent]);
+
+    useEffect(() => {
+        if (suppressCollapsedPersistRef.current) return;
+        if (hierarchyMode !== "normal") return;
+        if (!hasCatalogContent && !Array.isArray(graphViewState?.collapsedIds)) return;
+        const next = Array.from(collapsedIds);
+        const current = Array.isArray(graphViewState?.collapsedIds) ? graphViewState.collapsedIds : [];
+        if (next.length === current.length && next.every((v, i) => v === current[i])) return;
+        setGraphViewState?.((prev) => ({ ...prev, collapsedIds: next }));
+    }, [collapsedIds, graphViewState?.collapsedIds, setGraphViewState, hierarchyMode, hasCatalogContent]);
+
+    useEffect(() => {
+        if (suppressCollapsedPersistRef.current) {
+            suppressCollapsedPersistRef.current = false;
+        }
+    }, [collapsedIds]);
+
+    useEffect(() => {
+        const next = withFilterDefaults(
+            GraphFilterEngine.normalizeFilters(graphViewState?.filters, filterOptions?.ectsBounds, programCode)
+        );
+        filtersDirtyRef.current = false;
+        setGraphFilters((prev) => (
+            JSON.stringify(prev) === JSON.stringify(next) ? prev : next
+        ));
+    }, [graphViewState?.filters, programCode, filterOptions?.ectsBounds?.min, filterOptions?.ectsBounds?.max, withFilterDefaults]);
+
+    useEffect(() => {
+        if (!filtersDirtyRef.current) return;
+        if (!graphViewState?.filtersConfigured) return;
+        setGraphViewState?.((prev) => {
+            const current = prev?.filters && typeof prev.filters === "object" ? prev.filters : {};
+            const next = graphFilters && typeof graphFilters === "object" ? graphFilters : {};
+            if (JSON.stringify(current) === JSON.stringify(next)) {
+                filtersDirtyRef.current = false;
+                return prev;
+            }
+            filtersDirtyRef.current = false;
+            return {
+                ...prev,
+                filters: next,
+            };
+        });
+    }, [graphFilters, setGraphViewState, graphViewState?.filtersConfigured]);
+
+    useEffect(() => {
+        setIsProgramSwitching(true);
+        setHierarchyMode("normal");
+        collapsedBeforeForceHierarchyRef.current = null;
+        const t = window.setTimeout(() => {
+            setIsProgramSwitching(false);
+        }, 120);
+        return () => window.clearTimeout(t);
+    }, [programCode]);
+
+    useEffect(() => {
+        const text = ruleFeedback?.text || "";
+        if (!text) return;
+        setFeedbackToast({
+            visible: true,
+            text,
+            bg: ruleFeedback?.bg || "#f3f4f6",
+            border: ruleFeedback?.border || "#d1d5db",
+            color: ruleFeedback?.color || "#374151",
+        });
+        const t = window.setTimeout(() => {
+            setFeedbackToast((prev) => ({ ...prev, visible: false }));
+        }, 6000);
+        return () => window.clearTimeout(t);
+    }, [ruleFeedback?.text, ruleFeedback?.bg, ruleFeedback?.border, ruleFeedback?.color]);
+
+    const allCollapsibleIds = useMemo(() => collectCollapsibleIds(root), [root]);
+
+    const isFilteringActive = useMemo(() => {
+        const filters = graphFilters;
+        if (!filters) return false;
+
+        // Progress states
+        if (Array.isArray(filters.progressStates) && filters.progressStates.length > 0 && filters.progressStates.length < 4) return true;
+        // Term availabilities
+        if (Array.isArray(filters.termAvailabilities) && filters.termAvailabilities.length > 0 && filters.termAvailabilities.length < 3) return true;
+        // Obligation types
+        const allObligations = obligationOptions.map((x) => x.value).filter(Boolean);
+        if (Array.isArray(filters.obligationTypes) && filters.obligationTypes.length > 0 && filters.obligationTypes.length < allObligations.length) return true;
+        // Course types
+        const allCourseTypes = Array.isArray(filterOptions?.courseTypes) ? filterOptions.courseTypes : [];
+        if (Array.isArray(filters.courseTypes) && filters.courseTypes.length > 0 && filters.courseTypes.length < allCourseTypes.length) return true;
+        // Exam subjects
+        const allSubjects = Array.isArray(filterOptions?.examSubjects) ? filterOptions.examSubjects : [];
+        if (Array.isArray(filters.examSubjects) && filters.examSubjects.length > 0 && filters.examSubjects.length < allSubjects.length) return true;
+        // ECTS range
+        if (filters.ectsRange && filterOptions?.ectsBounds) {
+            if (Number(filters.ectsRange.min) > Number(filterOptions.ectsBounds.min) ||
+                Number(filters.ectsRange.max) < Number(filterOptions.ectsBounds.max)) {
+                return true;
+            }
+        }
+        return false;
+    }, [graphFilters, obligationOptions, filterOptions]);
+
+    const effectiveCollapsedIds = useMemo(
+        () => {
+            let base;
+            if (hierarchyMode === "force_expanded") base = new Set();
+            else if (hierarchyMode === "force_collapsed") base = new Set(allCollapsibleIds);
+            else base = new Set(collapsedIds);
+
+            if (isFilteringActive) {
+                const nextCollapsed = new Set(base);
+
+                // Auto-expand any subject/module node in the tree that contains at least one course node matching the active filters
+                const allTreeNodes = [];
+                const collectNodes = (n) => {
+                    if (n.level === "subject" || n.level === "module") {
+                        allTreeNodes.push(n);
+                    }
+                    if (Array.isArray(n.children)) {
+                        n.children.forEach(collectNodes);
+                    }
+                };
+                collectNodes(root);
+
+                for (const treeNode of allTreeNodes) {
+                    const descendants = collectDescendantCourses(treeNode);
+                    const hasMatch = descendants.some((c) => {
+                        const syntheticNode = {
+                            data: {
+                                level: "course",
+                                courseCode: c.courseCode,
+                                courseName: c.courseName,
+                                ects: c.ects,
+                                courseType: c.courseType,
+                                category: c.category,
+                                examSubject: c.examSubject,
+                                isMandatory: c.isMandatory,
+                                status: typeof getCourseStatus === "function" ? getCourseStatus(c.courseCode) : "todo",
+                                termAvailability: c.termAvailability,
+                            }
+                        };
+                        return GraphFilterEngine.nodeMatchesFilters(syntheticNode, graphFilters, programCode);
+                    });
+                    if (hasMatch) {
+                        nextCollapsed.delete(treeNode.id);
+                    }
+                }
+                return nextCollapsed;
+            }
+
+            return base;
+        },
+        [hierarchyMode, collapsedIds, allCollapsibleIds, isFilteringActive, root, graphFilters, programCode, getCourseStatus]
+    );
+
+    useEffect(() => {
+        let cancelled = false;
+        if (!programCode) {
+            setPrerequisiteRelations([]);
+            return () => { cancelled = true; };
+        }
+        fetchPrerequisites(programCode)
+            .then((payload) => {
+                if (cancelled) return;
+                const relations = Array.isArray(payload?.relations) ? payload.relations : [];
+                setPrerequisiteRelations(relations);
+            })
+            .catch(() => {
+                // The graph is usable without them; an unavailable list simply
+                // draws no prerequisite edges rather than blocking the view.
+                if (!cancelled) setPrerequisiteRelations([]);
+            });
+        return () => { cancelled = true; };
+    }, [programCode]);
+
+    const { nodes, edges: autoEdges } = useMemo(() => {
+        return layoutTree(root, effectiveCollapsedIds, {
+            getCourseStatus,
+            getCourseMeta,
+            onUpdateCourseMeta,
+            onAddToPlan,
+            onToggleDone,
+            onAddModuleToPlan,
+            onToggleModuleDone,
+            onRemoveFromPlan,
+            onRemoveModuleFromPlan,
+            semesterOptions,
+            getValidSemestersForCourse,
+            getValidSemestersForModule,
+            programCode,
+            recommendedCourseMap,
+        });
+    }, [
+        root,
+        effectiveCollapsedIds,
+        getCourseStatus,
+        getCourseMeta,
+        onUpdateCourseMeta,
+        onAddToPlan,
+        onToggleDone,
+        onAddModuleToPlan,
+        onToggleModuleDone,
+        onRemoveFromPlan,
+        onRemoveModuleFromPlan,
+        semesterOptions,
+        getValidSemestersForCourse,
+        getValidSemestersForModule,
+        programCode,
+        recommendedCourseMap,
+    ]);
+    const subjectOrder = useMemo(
+        () => (root?.children || []).map((s) => s.id),
+        [root]
+    );
+    const [displayNodes, setDisplayNodes] = useNodesState(nodes);
+    const exitForcedHierarchyOnFilterInteraction = useCallback(() => {
+        if (hierarchyMode === "normal") return;
+        const baseCollapsed = new Set(effectiveCollapsedIds);
+        setHierarchyMode("normal");
+        collapsedBeforeForceHierarchyRef.current = null;
+        setCollapsedIds(baseCollapsed);
+    }, [hierarchyMode, effectiveCollapsedIds]);
+    const visibleNodeIds = useMemo(
+        () => GraphFilterEngine.computeVisibleNodeIds(nodes, autoEdges, graphFilters, programCode),
+        [nodes, autoEdges, graphFilters, programCode]
+    );
+    // The sidebar's switch owns the enforced and advisory relations, which belong
+    // to the whole graph. The expected-knowledge relations are drawn only around
+    // the nodes a student has opened them on.
+    const prerequisiteEdges = useMemo(
+        () => [
+            ...(showPrerequisiteEdges
+                ? buildPrerequisiteEdges(prerequisiteRelations, nodes, visibleNodeIds, {
+                      kinds: GLOBAL_PREREQUISITE_KINDS,
+                  })
+                : []),
+            ...(revealedPrereqNodeId
+                ? buildPrerequisiteEdges(prerequisiteRelations, nodes, visibleNodeIds, {
+                      kinds: ["recommended"],
+                      anchorIds: [revealedPrereqNodeId],
+                  })
+                : []),
+        ],
+        [showPrerequisiteEdges, revealedPrereqNodeId, prerequisiteRelations, nodes, visibleNodeIds]
+    );
+    const recommendedCountByNodeId = useMemo(
+        () => countRecommendedByNode(prerequisiteRelations, nodes),
+        [prerequisiteRelations, nodes]
+    );
+    const globalPrerequisiteCount = useMemo(
+        () => prerequisiteRelations.filter((r) => GLOBAL_PREREQUISITE_KINDS.includes(r?.kind)).length,
+        [prerequisiteRelations]
+    );
+    const recommendedRelationCount = useMemo(
+        () => prerequisiteRelations.filter((r) => r?.kind === "recommended").length,
+        [prerequisiteRelations]
+    );
+    const revealedPrereqNodeLabel = useMemo(() => {
+        if (!revealedPrereqNodeId) return null;
+        const node = (displayNodes || []).find((n) => n.id === revealedPrereqNodeId);
+        return String(node?.data?.label ?? "").replace(/^[▶▼]\s*/, "") || null;
+    }, [revealedPrereqNodeId, displayNodes]);
+    const toggleRecommendedPrereqs = useCallback((nodeId) => {
+        setRevealedPrereqNodeId((prev) => (prev === nodeId ? null : nodeId));
+    }, []);
+    const edges = useMemo(
+        () => [
+            ...autoEdges.filter((e) => visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target)),
+            ...prerequisiteEdges,
+        ],
+        [autoEdges, visibleNodeIds, prerequisiteEdges]
+    );
+    // The expected-knowledge control is attached here rather than in the layout,
+    // because whether a node has anything to reveal depends on which other nodes
+    // are currently laid out, and the layout does not know about the relations.
+    const filteredDisplayNodes = useMemo(
+        () =>
+            (displayNodes || []).map((n) => {
+                const recommendedPrereqCount = recommendedCountByNodeId.get(n.id) ?? 0;
+                return {
+                    ...n,
+                    hidden: !visibleNodeIds.has(n.id),
+                    data: {
+                        ...(n?.data || {}),
+                        recommendedPrereqCount,
+                        showsRecommendedPrereqs: revealedPrereqNodeId === n.id,
+                        onToggleRecommendedPrereqs:
+                            recommendedPrereqCount > 0 ? toggleRecommendedPrereqs : null,
+                    },
+                    style: {
+                        ...(n?.style || {}),
+                        opacity: 1,
+                    },
+                };
+            }),
+        [displayNodes, visibleNodeIds, recommendedCountByNodeId, revealedPrereqNodeId, toggleRecommendedPrereqs]
+    );
+
+    const onNodesChange = useCallback((changes) => {
+        setDisplayNodes((prevNodes) => {
+            const prevById = new Map((prevNodes || []).map((n) => [n.id, n]));
+            const clampedChanges = (changes || []).map((change) => {
+                if (change?.type !== "position" || !change?.position || !change?.id) {
+                    return change;
+                }
+                const prevNode = prevById.get(change.id);
+                const lockedY = Number(prevNode?.position?.y);
+                if (!Number.isFinite(lockedY)) return change;
+                return {
+                    ...change,
+                    position: {
+                        ...change.position,
+                        y: lockedY,
+                    },
+                };
+            });
+            return applyNodeChanges(clampedChanges, prevNodes);
+        });
+    }, [setDisplayNodes]);
+
+    useEffect(() => {
+        if (isDraggingRef.current) return;
+        setDisplayNodes((prev) => {
+            const merged = mergeNodesWithPinnedPositions(nodes, prev, autoEdges, graphViewState?.nodePosById);
+            const noOverlap = resolveNodeOverlaps(merged);
+            return enforceHierarchicalOrder(noOverlap, subjectOrder, new Set());
+        });
+    }, [nodes, autoEdges, subjectOrder, setDisplayNodes, graphViewState?.nodePosById]);
+
+    useEffect(() => {
+        setDisplayNodes((prev) => {
+            const merged = mergeNodesWithPinnedPositions(nodes, prev, autoEdges, graphViewState?.nodePosById);
+            const noOverlap = resolveNodeOverlaps(merged);
+            return enforceHierarchicalOrder(noOverlap, subjectOrder, new Set());
+        });
+    }, [hierarchyMode, nodes, autoEdges, subjectOrder, setDisplayNodes, graphViewState?.nodePosById]);
+
+    const onNodeClick = useCallback((_, node) => {
+        if (node?.data?.level === "root" || !node?.data?.hasChildren) return;
+        const wasForced = hierarchyMode !== "normal";
+        const wasCollapsed = effectiveCollapsedIds.has(node.id);
+        if (wasForced) {
+            setHierarchyMode("normal");
+            collapsedBeforeForceHierarchyRef.current = null;
+        }
+        if (wasCollapsed) {
+            markFiltersConfigured(graphFilters);
+            filtersDirtyRef.current = true;
+            setGraphFilters((prev) => {
+                return relaxFiltersForExpandedSubtree({
+                    root,
+                    expandedNodeId: node.id,
+                    currentFilters: prev,
+                    ectsBounds: filterOptions?.ectsBounds,
+                    programCode,
+                    getCourseStatus,
+                });
+            });
+        }
+        setCollapsedIds((prev) => {
+            const next = wasForced ? new Set(effectiveCollapsedIds) : new Set(prev);
+            if (next.has(node.id)) next.delete(node.id);
+            else next.add(node.id);
+            return next;
+        });
+    }, [
+        hierarchyMode,
+        effectiveCollapsedIds,
+        root,
+        graphFilters,
+        getCourseStatus,
+        filterOptions?.ectsBounds,
+        markFiltersConfigured,
+        programCode,
+    ]);
+
+    const dragStartPosById = useRef(new Map());
+    const dragLeaderIdRef = useRef(null);
+
+    const onNodeDragStart = useCallback((_, node) => {
+        if (!node?.id) return;
+        isDraggingRef.current = true;
+        dragLeaderIdRef.current = node.id;
+        const selectedNodes = (displayNodes || []).filter((n) => n?.selected);
+        const group = selectedNodes.length > 0 ? selectedNodes : (displayNodes || []).filter((n) => n.id === node.id);
+        const startMap = new Map();
+        for (const n of group) {
+            startMap.set(n.id, { x: Number(n?.position?.x ?? 0), y: Number(n?.position?.y ?? 0) });
+        }
+        // Ensure leader is always present.
+        if (!startMap.has(node.id)) {
+            startMap.set(node.id, { x: Number(node?.position?.x ?? 0), y: Number(node?.position?.y ?? 0) });
+        }
+        dragStartPosById.current = startMap;
+    }, [displayNodes]);
+
+    const onNodeDrag = useCallback((_, node) => {
+        if (!node?.id) return;
+        const leaderId = dragLeaderIdRef.current || node.id;
+        const leaderStart = dragStartPosById.current.get(leaderId);
+        if (!leaderStart) return;
+        const dx = Number(node?.position?.x ?? 0) - Number(leaderStart.x ?? 0);
+        setDisplayNodes((prev) =>
+            prev.map((n) =>
+                dragStartPosById.current.has(n.id)
+                    ? {
+                        ...n,
+                        position: {
+                            x: Number(dragStartPosById.current.get(n.id)?.x ?? n.position.x) + dx,
+                            y: Number(dragStartPosById.current.get(n.id)?.y ?? n.position.y),
+                        },
+                    }
+                    : n
+            )
+        );
+    }, [setDisplayNodes]);
+
+    const onNodeDragStop = useCallback((_, node) => {
+        if (!node?.id) return;
+        isDraggingRef.current = false;
+        const startPosById = dragStartPosById.current;
+        const movedNodeIds = Array.from(dragStartPosById.current.keys());
+        dragLeaderIdRef.current = null;
+        dragStartPosById.current = new Map();
+        if (movedNodeIds.length === 0) return;
+
+        // Enforce horizontal-only drag for single and multi-selection drags.
+        setDisplayNodes((prev) =>
+            prev.map((n) =>
+                movedNodeIds.includes(n.id)
+                    ? {
+                        ...n,
+                        position: {
+                            x: Number(n?.position?.x ?? 0),
+                            y: Number(startPosById.get(n.id)?.y ?? n?.position?.y ?? 0),
+                        },
+                    }
+                    : n
+            )
+        );
+
+        setGraphViewState?.((prev) => {
+            const currentPosById = prev?.nodePosById ?? {};
+            const byId = new Map((displayNodes || []).map((n) => [n.id, n]));
+            const nextPosById = { ...currentPosById };
+            let changed = false;
+            for (const id of movedNodeIds) {
+                const n = byId.get(id);
+                const x = Number(n?.position?.x);
+                if (!Number.isFinite(x) || Math.abs(x) >= MAX_PERSISTED_ABS_X) continue;
+                const prevEntry = currentPosById?.[id] ?? null;
+                const prevY = Number(prevEntry?.y);
+                const y = Number.isFinite(prevY) ? prevY : Number(n?.position?.y ?? 0);
+                const prevX = Number(prevEntry?.x);
+                if (Number.isFinite(prevX) && prevX === x && Number(prevEntry?.y) === y) continue;
+                nextPosById[id] = { x, y };
+                changed = true;
+            }
+            if (!changed) return prev;
+            return {
+                ...prev,
+                nodePosById: nextPosById,
+            };
+        });
+    }, [displayNodes, setGraphViewState]);
+
+    const toggleFilterValue = useCallback((key, value) => {
+        exitForcedHierarchyOnFilterInteraction();
+        markFiltersConfigured();
+        filtersDirtyRef.current = true;
+        setGraphFilters((prev) => {
+            const current = Array.isArray(prev?.[key]) ? prev[key] : [];
+            const nextSet = new Set(current);
+            if (nextSet.has(value)) nextSet.delete(value);
+            else nextSet.add(value);
+            return { ...prev, [key]: Array.from(nextSet) };
+        });
+    }, [exitForcedHierarchyOnFilterInteraction, markFiltersConfigured]);
+
+    const setEctsMin = useCallback((value) => {
+        exitForcedHierarchyOnFilterInteraction();
+        markFiltersConfigured();
+        filtersDirtyRef.current = true;
+        const nextMin = Number(value);
+        setGraphFilters((prev) => {
+            const current = GraphFilterEngine.normalizeFilters(prev, filterOptions?.ectsBounds, programCode);
+            const minBound = Number(filterOptions?.ectsBounds?.min);
+            const maxBound = Number(filterOptions?.ectsBounds?.max);
+            const max = Number(current?.ectsRange?.max ?? maxBound);
+            const min = Math.max(minBound, Math.min(nextMin, max));
+            return { ...current, ectsRange: { min, max } };
+        });
+    }, [filterOptions?.ectsBounds, programCode, exitForcedHierarchyOnFilterInteraction, markFiltersConfigured]);
+
+    const setEctsMax = useCallback((value) => {
+        exitForcedHierarchyOnFilterInteraction();
+        markFiltersConfigured();
+        filtersDirtyRef.current = true;
+        const nextMax = Number(value);
+        setGraphFilters((prev) => {
+            const current = GraphFilterEngine.normalizeFilters(prev, filterOptions?.ectsBounds, programCode);
+            const minBound = Number(filterOptions?.ectsBounds?.min);
+            const maxBound = Number(filterOptions?.ectsBounds?.max);
+            const min = Number(current?.ectsRange?.min ?? minBound);
+            const max = Math.min(maxBound, Math.max(nextMax, min));
+            return { ...current, ectsRange: { min, max } };
+        });
+    }, [filterOptions?.ectsBounds, programCode, exitForcedHierarchyOnFilterInteraction, markFiltersConfigured]);
+
+    const persistGraphSnapshot = useCallback(() => {
+        const currentNodePosById = graphViewState?.nodePosById ?? {};
+        const nextNodePosById = {};
+        for (const node of displayNodes || []) {
+            if (!node?.id) continue;
+            const x = Number(node?.position?.x);
+            if (!Number.isFinite(x) || Math.abs(x) >= MAX_PERSISTED_ABS_X) continue;
+            const prevY = Number(currentNodePosById?.[node.id]?.y);
+            const y = Number.isFinite(prevY) ? prevY : Number(node?.position?.y ?? 0);
+            nextNodePosById[node.id] = { x, y };
+        }
+        setGraphViewState?.((prev) => ({
+            ...prev,
+            collapsedIds: Array.from(collapsedIds),
+            nodePosById: nextNodePosById,
+        }));
+    }, [displayNodes, graphViewState?.nodePosById, collapsedIds, setGraphViewState]);
+
+    const scheduleFitToGraph = useCallback(() => {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                try {
+                    rfRef.current?.fitView({ padding: 0.2, includeHiddenNodes: true });
+                } catch {
+                    // no-op
+                }
+            });
+        });
+    }, []);
+
+    useEffect(() => {
+        if (!rfRef.current) return;
+        if (!Array.isArray(displayNodes) || displayNodes.length === 0) return;
+        window.requestAnimationFrame(() => {
+            try {
+                rfRef.current.fitView({ padding: 0.2, includeHiddenNodes: true });
+            } catch {
+                // no-op
+            }
+        });
+    }, [displayNodes.length, programCode]);
+
+    const topControlsTop = 12;
+    const filterPanelTop = topControlsTop + 78;
+    const filterPanelWidth = 333;
+    const programBoxWidth = 333;
+    const topButtonStyle = {
+        border: "1px solid #d1d5db",
+        background: "#ffffff",
+        borderRadius: 8,
+        padding: "6px 8px",
+        fontWeight: 600,
+        cursor: "pointer",
+        boxSizing: "border-box",
+        flex: 1,
+        textAlign: "center",
+        whiteSpace: "nowrap",
+    };
+
+    return (
+        <div id="graph-flow-container" style={{ height: "100%", width: "100%", position: "relative", background: "#f9fafb" }}>
+            <div
+                style={{
+                    position: "absolute",
+                    top: topControlsTop,
+                    left: 12,
+                    width: programBoxWidth,
+                    zIndex: 6,
+                    display: "grid",
+                    gap: 6,
+                    gridTemplateColumns: "1fr 1fr",
+                }}
+            >
+                <button
+                    onClick={() => {
+                        persistGraphSnapshot();
+                        onSwitchToTable?.();
+                    }}
+                    style={{
+                        ...topButtonStyle,
+                        gridColumn: "1 / -1",
+                    }}
+                >
+                    ⇆ Table View
+                </button>
+                <button
+                    onClick={() => setIsFiltersOpen((v) => !v)}
+                    style={{
+                        ...topButtonStyle,
+                    }}
+                >
+                    {isFiltersOpen ? "☰ Hide Filters" : "☰ Show Filters"}
+                </button>
+                <button
+                    onClick={() => onToggleRecPanel?.()}
+                    style={{
+                        ...topButtonStyle,
+                    }}
+                >
+                    {isRecPanelOpen ? "★ Hide Recs" : "★ Show Recs"}
+                </button>
+            </div>
+            {isFiltersOpen && (
+                <div
+                    id="graph-filters-panel"
+                    style={{
+                        position: "absolute",
+                        top: filterPanelTop,
+                        left: 12,
+                        zIndex: 5,
+                        width: filterPanelWidth,
+                        maxHeight: "calc(100% - 92px)",
+                        overflow: "auto",
+                        border: "1px solid #d1d5db",
+                        borderRadius: 8,
+                        background: "#ffffff",
+                        padding: 10,
+                        boxSizing: "border-box",
+                        display: "grid",
+                        gap: 10,
+                    }}
+                >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700 }}>Filters</div>
+                    <div id="graph-interaction-instructions" style={{ display: "flex", gap: 6 }}>
+                        <button
+                            onClick={() => {
+                                isDraggingRef.current = false;
+                                setGraphViewState?.((prev) => ({
+                                    ...prev,
+                                    nodePosById: {},
+                                }));
+                                setDisplayNodes(nodes);
+                            }}
+                            style={{
+                                border: "1px solid #d1d5db",
+                                background: "#ffffff",
+                                borderRadius: 6,
+                                padding: "4px 8px",
+                                fontSize: 11,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                            }}
+                        >
+                            ↺ Align
+                        </button>
+                        <button
+                            onClick={() => {
+                                markFiltersConfigured();
+                                filtersDirtyRef.current = true;
+                                setGraphFilters((prev) => {
+                                    const normalized = GraphFilterEngine.normalizeFilters(
+                                        prev,
+                                        filterOptions?.ectsBounds,
+                                        programCode
+                                    );
+                                    const reset = buildDefaultFilters(normalized);
+                                    return {
+                                        ...reset,
+                                        examSubjects: Array.isArray(normalized?.examSubjects)
+                                            ? normalized.examSubjects
+                                            : [],
+                                    };
+                                });
+                                setHierarchyMode("force_expanded");
+                                scheduleFitToGraph();
+                            }}
+                            style={{
+                                border: "1px solid #d1d5db",
+                                background: hierarchyMode === "force_expanded" ? "#dbeafe" : "#ffffff",
+                                borderRadius: 6,
+                                padding: "4px 8px",
+                                fontSize: 11,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                            }}
+                        >
+                            ▾ Expand
+                        </button>
+                        <button
+                            onClick={() => {
+                                markFiltersConfigured();
+                                filtersDirtyRef.current = true;
+                                setGraphFilters((prev) => {
+                                    const normalized = GraphFilterEngine.normalizeFilters(
+                                        prev,
+                                        filterOptions?.ectsBounds,
+                                        programCode
+                                    );
+                                    return {
+                                        ...normalized,
+                                        obligationTypes: [],
+                                        courseTypes: [],
+                                        examSubjects: Array.isArray(normalized?.examSubjects)
+                                            ? normalized.examSubjects
+                                            : [],
+                                        progressStates: [],
+                                        termAvailabilities: [],
+                                    };
+                                });
+                                setHierarchyMode("force_collapsed");
+                                scheduleFitToGraph();
+                            }}
+                            style={{
+                                border: "1px solid #d1d5db",
+                                background: hierarchyMode === "force_collapsed" ? "#dbeafe" : "#ffffff",
+                                borderRadius: 6,
+                                padding: "4px 8px",
+                                fontSize: 11,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                            }}
+                        >
+                            ▸ Collapse
+                        </button>
+                    </div>
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Course relations</div>
+                    <label
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            fontSize: 11,
+                            color: globalPrerequisiteCount === 0 ? "#9ca3af" : "#374151",
+                            cursor: globalPrerequisiteCount === 0 ? "default" : "pointer",
+                        }}
+                        title={
+                            globalPrerequisiteCount === 0
+                                ? "This curriculum encodes no course-to-course prerequisites."
+                                : "Draw the curriculum's prerequisite relations between courses."
+                        }
+                    >
+                        <input
+                            type="checkbox"
+                            checked={showPrerequisiteEdges}
+                            disabled={globalPrerequisiteCount === 0}
+                            onChange={(e) => setShowPrerequisiteEdges(e.target.checked)}
+                        />
+                        <span>
+                            Show prerequisites
+                            {globalPrerequisiteCount > 0
+                                ? ` (${globalPrerequisiteCount})`
+                                : " (none in this curriculum)"}
+                        </span>
+                    </label>
+                    {recommendedRelationCount > 0 && (
+                        <div style={{ fontSize: 10, color: "#6b7280", lineHeight: 1.45 }}>
+                            {revealedPrereqNodeLabel ? (
+                                <>
+                                    Showing what <strong style={{ color: "#4338ca" }}>{revealedPrereqNodeLabel}</strong>{" "}
+                                    expects to be known already.{" "}
+                                    <button
+                                        onClick={() => setRevealedPrereqNodeId(null)}
+                                        style={{
+                                            border: "none",
+                                            background: "none",
+                                            padding: 0,
+                                            color: "#4338ca",
+                                            fontSize: 10,
+                                            fontWeight: 700,
+                                            cursor: "pointer",
+                                            textDecoration: "underline",
+                                        }}
+                                    >
+                                        Hide
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    The curriculum also states expected prior knowledge per module. Reveal one
+                                    node&apos;s with the ⇠ button on the node.
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Obligation type</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {obligationOptions.map(({ value, label }) => {
+                            const active = graphFilters.obligationTypes.includes(value);
+                            return (
+                                <button
+                                    key={value}
+                                    onClick={() => toggleFilterValue("obligationTypes", value)}
+                                    style={{
+                                        border: "1px solid #d1d5db",
+                                        background: active ? "#dbeafe" : "#ffffff",
+                                        borderRadius: 6,
+                                        padding: "4px 8px",
+                                        fontSize: 11,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>
+                        ECTS range: {Number(graphFilters?.ectsRange?.min ?? 0)} - {Number(graphFilters?.ectsRange?.max ?? 0)}
+                    </div>
+                    <div style={{ position: "relative", height: 28 }}>
+                        <div
+                            style={{
+                                position: "absolute",
+                                left: 0,
+                                right: 0,
+                                top: "50%",
+                                height: 4,
+                                transform: "translateY(-50%)",
+                                background: "#e5e7eb",
+                                borderRadius: 999,
+                            }}
+                        />
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: "50%",
+                                height: 4,
+                                transform: "translateY(-50%)",
+                                background: "#93c5fd",
+                                borderRadius: 999,
+                                left: `${(
+                                    ((Number(graphFilters?.ectsRange?.min ?? filterOptions?.ectsBounds?.min ?? 0) - Number(filterOptions?.ectsBounds?.min ?? 0)) /
+                                        Math.max(1, Number(filterOptions?.ectsBounds?.max ?? 0) - Number(filterOptions?.ectsBounds?.min ?? 0))) * 100
+                                )}%`,
+                                width: `${(
+                                    ((Number(graphFilters?.ectsRange?.max ?? filterOptions?.ectsBounds?.max ?? 0) - Number(graphFilters?.ectsRange?.min ?? filterOptions?.ectsBounds?.min ?? 0)) /
+                                        Math.max(1, Number(filterOptions?.ectsBounds?.max ?? 0) - Number(filterOptions?.ectsBounds?.min ?? 0))) * 100
+                                )}%`,
+                            }}
+                        />
+                        <input
+                            className="dual-range-input"
+                            type="range"
+                            min={Number(filterOptions?.ectsBounds?.min ?? 0)}
+                            max={Number(filterOptions?.ectsBounds?.max ?? 0)}
+                            step="0.5"
+                            value={Number(graphFilters?.ectsRange?.min ?? filterOptions?.ectsBounds?.min ?? 0)}
+                            onChange={(e) => setEctsMin(e.target.value)}
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                background: "transparent",
+                            }}
+                        />
+                        <input
+                            className="dual-range-input"
+                            type="range"
+                            min={Number(filterOptions?.ectsBounds?.min ?? 0)}
+                            max={Number(filterOptions?.ectsBounds?.max ?? 0)}
+                            step="0.5"
+                            value={Number(graphFilters?.ectsRange?.max ?? filterOptions?.ectsBounds?.max ?? 0)}
+                            onChange={(e) => setEctsMax(e.target.value)}
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                background: "transparent",
+                            }}
+                        />
+                    </div>
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Course type</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {(filterOptions?.courseTypes || []).map((type) => {
+                            const active = graphFilters.courseTypes.includes(type);
+                            return (
+                                <button
+                                    key={type}
+                                    onClick={() => toggleFilterValue("courseTypes", type)}
+                                    style={{
+                                        border: "1px solid #d1d5db",
+                                        background: active ? "#dbeafe" : "#ffffff",
+                                        borderRadius: 6,
+                                        padding: "4px 8px",
+                                        fontSize: 11,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    {type}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Exam subjects</div>
+                    <div style={{ display: "grid", gap: 6, justifyItems: "start" }}>
+                        {(filterOptions?.examSubjects || []).map((subject) => {
+                            const active = graphFilters.examSubjects.includes(subject);
+                            const subjectColor = subjectColors?.[subject] ?? "#6b7280";
+                            return (
+                                <button
+                                    key={subject}
+                                    onClick={() => toggleFilterValue("examSubjects", subject)}
+                                    style={{
+                                        border: active ? `1px solid ${subjectColor}` : "1px solid #d1d5db",
+                                        background: active ? subjectColor : "#ffffff",
+                                        color: active ? "#ffffff" : "#6b7280",
+                                        borderRadius: 6,
+                                        padding: "6px 8px",
+                                        fontSize: 11,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        textAlign: "left",
+                                        width: "fit-content",
+                                    }}
+                                >
+                                    {subject}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Course state</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {[
+                            ["todo", "Not Planned"],
+                            ["in_plan", "Planned"],
+                            ["done", "Done"],
+                            ["parked", "Parked"],
+                        ].map(([state, label]) => {
+                            const active = graphFilters.progressStates.includes(state);
+                            return (
+                                <button
+                                    key={state}
+                                    onClick={() => toggleFilterValue("progressStates", state)}
+                                    style={{
+                                        border: "1px solid #d1d5db",
+                                        background: active ? "#dbeafe" : "#ffffff",
+                                        borderRadius: 6,
+                                        padding: "4px 8px",
+                                        fontSize: 11,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div style={{ display: "grid", gap: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Semester</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {[
+                            ["summer", "☀️ Summer"],
+                            ["winter", "❄️ Winter"],
+                            ["both", "☀️❄️ Both"],
+                        ].map(([term, label]) => {
+                            const active = (graphFilters.termAvailabilities || []).includes(term);
+                            return (
+                                <button
+                                    key={term}
+                                    onClick={() => toggleFilterValue("termAvailabilities", term)}
+                                    style={{
+                                        border: "1px solid #d1d5db",
+                                        background: active ? "#dbeafe" : "#ffffff",
+                                        borderRadius: 6,
+                                        padding: "4px 8px",
+                                        fontSize: 11,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: 4,
+                                    }}
+                                >
+                                    <span 
+                                        style={{ 
+                                            display: "inline-flex", 
+                                            alignItems: "center", 
+                                            filter: "grayscale(100%) brightness(0.4) opacity(0.7)", 
+                                            fontSize: 10,
+                                            lineHeight: 1
+                                        }}
+                                    >
+                                        {term === "summer" ? "☀️" : term === "winter" ? "❄️" : "☀️❄️"}
+                                    </span>
+                                    <span>{term === "summer" ? "Summer" : term === "winter" ? "Winter" : "Both"}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+                </div>
+            )}
+            {feedbackToast.visible && feedbackToast.text && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 12,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        zIndex: 7,
+                        border: `1px solid ${feedbackToast.border || "#d1d5db"}`,
+                        background: feedbackToast.bg || "#f3f4f6",
+                        color: feedbackToast.color || "#374151",
+                        borderRadius: 8,
+                        padding: "8px 10px",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        maxWidth: 520,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                    }}
+                >
+                    <span style={{ flex: 1 }}>{feedbackToast.text}</span>
+                    <button
+                        onClick={() => setFeedbackToast((prev) => ({ ...prev, visible: false }))}
+                        style={{
+                            border: "1px solid #d1d5db",
+                            background: "#ffffff",
+                            borderRadius: 6,
+                            padding: "2px 6px",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            color: "#374151",
+                        }}
+                        aria-label="Close feedback"
+                        title="Close"
+                    >
+                        x
+                    </button>
+                </div>
+            )}
+            {isRecPanelOpen && (
+                <RecommendationPanel
+                    recommendations={recommendations}
+                    onDismiss={(id) => setRecommendations?.((prev) => prev.filter((r) => r.id !== id))}
+                    onAddToPlan={(payload, laneIndex) => {
+                        onAddToPlan?.(payload, laneIndex, { allowDirectLaneSelection: true });
+                    }}
+                    semesterOptions={semesterOptions}
+                    getValidSemestersForCourse={getValidSemestersForCourse}
+                    termAvailabilityForCode={termAvailabilityForCode}
+                    toggles={recommendationToggles}
+                    onToggleChange={onRecommendationToggleChange}
+                    width={280}
+                    leftOffset={isFiltersOpen ? (filterPanelWidth + 24) : 12}
+                    topOffset={80}
+                    bottomOffset={12}
+                    programCode={programCode}
+                    getCourseStatus={getCourseStatus}
+                    onDragStart={onDragStart}
+                    subjectColors={subjectColors}
+                    onToggleCourseDone={onToggleDone}
+                    onRemoveCourseFromPlan={onRemoveFromPlan}
+                    getCourseMeta={getCourseMeta}
+                    onUpdateCourseMeta={onUpdateCourseMeta}
+                />
+            )}
+            {isLegendOpen && (
+                <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5 }}>
+                    <VisualLegend programCode={programCode} onClose={() => onToggleLegend?.()} />
+                </div>
+            )}
+            {isProgramSwitching ? (
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "grid",
+                        placeItems: "center",
+                        color: "#6b7280",
+                        fontSize: 13,
+                        fontWeight: 600,
+                    }}
+                >
+                    Loading graph...
+                </div>
+            ) : (
+                <ReactFlow
+                    onInit={(instance) => {
+                        rfRef.current = instance;
+                    }}
+                    nodes={filteredDisplayNodes}
+                    edges={edges}
+                    nodeTypes={NODE_TYPES}
+                    onNodeClick={onNodeClick}
+                    onNodesChange={onNodesChange}
+                    onNodeDragStart={onNodeDragStart}
+                    onNodeDrag={onNodeDrag}
+                    onNodeDragStop={onNodeDragStop}
+                    fitView
+                    fitViewOptions={{ padding: 0.2 }}
+                    minZoom={0.2}
+                    nodesConnectable={false}
+                    nodesDraggable
+                    elementsSelectable
+                    selectNodesOnDrag={interactionMode === "select"}
+                    selectionOnDrag={interactionMode === "select"}
+                    selectionKeyCode="Shift"
+                    selectionMode={SelectionMode.Partial}
+                    multiSelectionKeyCode={["Meta", "Shift", "Control"]}
+                    panOnDrag={interactionMode === "pan"}
+                    proOptions={{ hideAttribution: true }}
+                >
+                    <MiniMap pannable zoomable />
+                    <Controls position="bottom-left">
+                        <ControlButton
+                            onClick={() => setInteractionMode((m) => (m === "pan" ? "select" : "pan"))}
+                            title={`Mode: ${interactionMode === "select" ? "Select" : "Pan"}`}
+                            aria-label={`Mode: ${interactionMode === "select" ? "Select" : "Pan"}`}
+                        >
+                            <span style={{ fontSize: 13, lineHeight: 1 }}>{interactionMode === "select" ? "▣" : "✋"}</span>
+                        </ControlButton>
+                        <ControlButton
+                            onClick={() => onToggleLegend?.()}
+                            title={isLegendOpen ? "Close Legend" : "Show Legend"}
+                            aria-label={isLegendOpen ? "Close Legend" : "Show Legend"}
+                        >
+                            <span style={{ fontSize: 14, lineHeight: 1 }}>ℹ</span>
+                        </ControlButton>
+                    </Controls>
+                    <Background gap={18} />
+                </ReactFlow>
+            )}
+
+            {/* Graph Layout Semantics Pill */}
+            <div
+                style={{
+                    position: "absolute",
+                    bottom: 16,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    zIndex: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "rgba(255, 255, 255, 0.9)",
+                    backdropFilter: "blur(8px)",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 9999,
+                    padding: "6px 14px",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: "#374151",
+                }}
+            >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <span style={{ color: "#4f46e5", fontWeight: 700 }}>↔ Horizontal:</span> 
+                    {graphHorizontalSemantics === "hierarchy" && <span>Curriculum Hierarchy Level</span>}
+                    {graphHorizontalSemantics === "no_meaning" && (
+                        <span style={{ color: "#9ca3af", fontStyle: "italic" }}>
+                            no meaning
+                        </span>
+                    )}
+                    {graphHorizontalSemantics === "custom" && (
+                        <span style={{ fontWeight: 600, color: "#1f2937" }}>{graphHorizontalCustomText || "Custom meaning"}</span>
+                    )}
+                </span>
+                <span style={{ color: "#d1d5db" }}>|</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <span style={{ color: "#4f46e5", fontWeight: 700 }}>↕ Vertical:</span> Exam Subject
+                </span>
+                <button
+                    onClick={() => setIsGraphSemanticsPopupOpen(true)}
+                    style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        color: "#4f46e5",
+                        fontWeight: 700,
+                        fontSize: 11,
+                        marginLeft: 6,
+                        textDecoration: "underline",
+                    }}
+                >
+                    Edit
+                </button>
+            </div>
+
+            {isGraphSemanticsPopupOpen && (
+                <div
+                    style={{
+                        position: "absolute",
+                        bottom: 50,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        zIndex: 11,
+                        width: 320,
+                        background: "#ffffff",
+                        border: "1px solid #d1d5db",
+                        borderRadius: 12,
+                        padding: 14,
+                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                        display: "grid",
+                        gap: 12,
+                    }}
+                >
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#1f2937" }}>Configure Graph Axis Semantics</div>
+                    
+                    {/* Horizontal Axis */}
+                    <div style={{ display: "grid", gap: 6 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563" }}>Horizontal Axis Semantics</div>
+                        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151", cursor: "pointer" }}>
+                            <input
+                                type="radio"
+                                name="graphHorizontalSemantics"
+                                checked={graphHorizontalSemantics === "hierarchy"}
+                                onChange={() => setGraphHorizontalSemantics("hierarchy")}
+                            />
+                            Curriculum Hierarchy Level
+                        </label>
+                        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151", cursor: "pointer" }}>
+                            <input
+                                type="radio"
+                                name="graphHorizontalSemantics"
+                                checked={graphHorizontalSemantics === "no_meaning"}
+                                onChange={() => setGraphHorizontalSemantics("no_meaning")}
+                            />
+                            No meaning
+                        </label>
+                        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151", cursor: "pointer" }}>
+                            <input
+                                type="radio"
+                                name="graphHorizontalSemantics"
+                                checked={graphHorizontalSemantics === "custom"}
+                                onChange={() => setGraphHorizontalSemantics("custom")}
+                            />
+                            Custom meaning...
+                        </label>
+                        {graphHorizontalSemantics === "custom" && (
+                            <input
+                                type="text"
+                                placeholder="Enter custom horizontal meaning"
+                                value={graphHorizontalCustomText}
+                                onChange={(e) => setGraphHorizontalCustomText(e.target.value)}
+                                style={{
+                                    border: "1px solid #d1d5db",
+                                    borderRadius: 6,
+                                    padding: "4px 8px",
+                                    fontSize: 11,
+                                    width: "100%",
+                                    boxSizing: "border-box",
+                                }}
+                            />
+                        )}
+                    </div>
+
+                    <hr style={{ border: "0", borderTop: "1px solid #e5e7eb", margin: "4px 0" }} />
+
+                    {/* Vertical Axis */}
+                    <div style={{ display: "grid", gap: 4 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563" }}>Vertical Axis Semantics</div>
+                        <div style={{ fontSize: 11, color: "#6b7280", fontStyle: "italic" }}>
+                            Exam Subject (fixed by layout)
+                        </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 4 }}>
+                        <button
+                            onClick={() => setIsGraphSemanticsPopupOpen(false)}
+                            style={{
+                                background: "#4f46e5",
+                                color: "#ffffff",
+                                border: "none",
+                                borderRadius: 6,
+                                padding: "4px 10px",
+                                fontSize: 11,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                            }}
+                        >
+                            Done
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
