@@ -104,7 +104,7 @@ def build(catalogue: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     ordered = [c for c in catalogue if c.get("ects")]
     cases: dict[str, dict[str, Any]] = {}
 
-    # --- degenerate inputs, which is where an unguarded refactor breaks first
+    # --- degenerate inputs, which is where an unguarded change breaks first
     cases["empty-plan"] = payload()
     cases["empty-plan-master"] = payload(programCode=MASTER)
     cases["missing-program-code"] = payload(programCode=None)

@@ -1,10 +1,9 @@
 """
 Contract tests for the HTTP surface.
 
-The refactor moves route handlers into services and repositories. Nothing about
-the wire format may change while that happens, so this pins the shape of every
-endpoint: status codes, the set of keys in each response, and the types behind
-them.
+Nothing about the wire format may change without a deliberate decision, so this
+pins the shape of every endpoint: status codes, the set of keys in each
+response, and the types behind them.
 
 Values that legitimately differ between runs, such as identifiers and
 timestamps, are replaced by a marker before comparison. What is asserted is the

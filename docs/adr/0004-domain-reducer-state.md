@@ -4,16 +4,14 @@
 
 ## Context
 
-`App.jsx` holds 207 hooks. Domain logic, view state, server communication and
-rendering share one scope, and the only way to test a placement rule is to
-render the whole application. Breaking the component up does not by itself fix
-this: state scattered across twelve components is harder to reason about than
-state scattered across one.
-
 The planner is a state machine. A course is placed, rejected, parked, marked
 done; a plan moves between well-defined configurations. The evaluation study
 modelled it as exactly that, and the transitions reported in the thesis are the
-transitions the application implements.
+transitions the application implements. Domain logic, view state, server
+communication and rendering must not share one scope, or the only way to test a
+placement rule is to render the whole application; and breaking a component up
+does not by itself fix that, since state scattered across twelve components is
+harder to reason about than state scattered across one.
 
 ## Decision
 

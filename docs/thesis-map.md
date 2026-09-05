@@ -32,9 +32,8 @@ which finding each one comes from. `planning.spec.js` covers placement,
 refusal, parking and the checklist; `editing.spec.js` covers moving a course
 between semesters and the asynchronous rollback when the rule engine refuses.
 
-The version the eleven participants used is tagged `v1.0-evaluated`. Everything
-after that tag is restructuring, and the golden masters exist so that the
-restructuring did not change the answers the thesis reports.
+The golden masters in `backend/tests/golden/` record the answers the thesis
+reports, so that a later change cannot alter them unnoticed.
 
 ## Known gaps between the thesis and the code
 

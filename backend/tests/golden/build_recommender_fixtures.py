@@ -329,7 +329,7 @@ def build(pools: dict[str, list[dict[str, Any]]]) -> dict[str, dict[str, Any]]:
             ruleChecker=False,
         )
 
-    # --- degenerate inputs, which is where an unguarded refactor breaks first
+    # --- degenerate inputs, which is where an unguarded change breaks first
     cases["unknown-programme-code"] = scenario(programCode="999 999")
     cases["missing-programme-code"] = scenario(programCode=None)
     cases["empty-candidate-pool"] = scenario(pools=[])

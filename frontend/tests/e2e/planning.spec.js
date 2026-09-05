@@ -4,8 +4,8 @@
  * The evaluation study watched eleven students plan a degree, and the loop they
  * spent almost all of their time in was: read the catalogue, drop a course into a
  * semester, get told whether it is allowed, and park what does not fit yet. That
- * loop is what these tests pin down, because it has to survive the refactor
- * unchanged even though every file it touches is going to move.
+ * loop is what these tests pin down, because it has to survive every later
+ * change unchanged.
  *
  * Each test drives the real frontend against the real API and database. They are
  * slower than the unit tests on purpose: what they check is precisely the wiring

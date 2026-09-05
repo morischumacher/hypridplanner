@@ -9,10 +9,9 @@ a careful deployment possible and a careless one confusing.
 Most of a deployment is boring. Two things are not.
 
 **The database is the only piece that cannot be rolled back by redeploying.**
-The API applies outstanding migrations on start-up, and the first start-up of a
-newer API also renames the ledger rows that record which migrations have run,
-because migrations are now identified by the time they were written rather than
-by a sequence number. That rename is idempotent and it re-runs nothing, but it
+The API applies outstanding migrations on start-up, and the first start-up of an
+API that identifies migrations by the time they were written also renames the
+ledger rows of a database that still records them by sequence number. That rename is idempotent and it re-runs nothing, but it
 writes to the database, and the database holds the evaluation study's data.
 Everything else here follows from that.
 
@@ -31,8 +30,6 @@ rehearsal for a deployment.
 ### Against an empty database, to see that it runs
 
 ```bash
-git checkout refactor/architecture
-
 eval "$(./scripts/dev-db.sh up)"             # Postgres, migrations, and DATABASE_URL
 
 cd backend
@@ -146,9 +143,9 @@ exists.
 ## What a deployment does not need
 
 No new environment variables. `DATABASE_URL` and `CORS_ORIGIN` are what they
-were. The migrations directory is now resolved relative to the backend package
-rather than the working directory, which makes the API start correctly wherever
-it is launched from, so `MIGRATIONS_DIR` can stay unset.
+were. The migrations directory is resolved relative to the backend package rather
+than the working directory, which makes the API start correctly wherever it is
+launched from, so `MIGRATIONS_DIR` can stay unset.
 
-The client is TypeScript now, and the production build does not type-check; that
+The client is TypeScript, and the production build does not type-check; that
 happens in CI, which is the right place for it. A Vercel build behaves as it did.

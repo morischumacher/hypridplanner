@@ -5,13 +5,11 @@
 ## Context
 
 Schema changes are plain SQL files applied in lexical order and recorded in a
-`migration_history` table keyed by filename. The files are numbered `001` to
-`011`.
-
-Two problems follow from that scheme. Sequential numbers collide: two branches
-both add `012`, and whichever merges second is silently renumbered or silently
-skipped. And the ledger records only that a filename ran, not what it contained,
-so a migration edited after it was applied leaves no trace anywhere.
+`migration_history` table keyed by filename. Sequential numbers collide: two
+branches both add the next one, and whichever merges second is silently
+renumbered or silently skipped. And a ledger that records only that a filename
+ran, not what it contained, lets a migration edited after it was applied leave
+no trace anywhere.
 
 ## Decision
 
@@ -34,7 +32,7 @@ autogenerating migrations from ORM models that do not exist here.
 
 ## Consequences
 
-The existing eleven files are renamed, and a one-time remap rewrites the
-matching `migration_history` rows so that databases already carrying data,
-including the one holding the evaluation study's records, are not re-migrated.
-That remap is itself a migration and runs before the ledger check.
+A one-time remap in `sql/_ledger.psql` rewrites `migration_history` rows that a
+database still records under sequential names, so that databases already
+carrying data, including the one holding the evaluation study's records, are not
+re-migrated. The remap runs before the ledger check.

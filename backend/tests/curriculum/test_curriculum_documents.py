@@ -57,11 +57,10 @@ def test_every_bachelor_course_maps_to_a_module_that_exists() -> None:
     titles = {module["title"] for module in curriculum.modules.values()}
     unknown = set(curriculum.course_to_module.values()) - titles
 
-    # Six do not, and this pins that rather than asserting it away. They came
-    # over from the constructor exactly as they were, so the gap predates the
-    # refactor: these courses resolve to a module that was never defined, and
-    # their module kind therefore falls back to a default. It belongs on the
-    # defect branch with the findings from the evaluation, not here.
+    # Six do not, and this pins that rather than asserting it away: these
+    # courses resolve to a module that was never defined, and their module kind
+    # therefore falls back to a default. It is a defect to be fixed deliberately
+    # with the findings from the evaluation, not here.
     assert sorted(unknown) == [
         "Abstrakte Maschinen",
         "Audio and Video Production",

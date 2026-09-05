@@ -4,8 +4,8 @@
  * This module decides which semester a course may be placed in, which is the
  * mechanism behind the single most frequent friction the evaluation recorded:
  * students guess a term, the drop is rejected, and they place again. The rules
- * themselves are correct, so the refactor must not disturb them while the
- * surrounding code moves.
+ * themselves are correct, so no change to the surrounding code may disturb
+ * them.
  */
 import { describe, expect, it } from "vitest";
 

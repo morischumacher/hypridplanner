@@ -141,10 +141,10 @@ pick it up.
 
 ## What holds it together
 
-The refactor that produced this structure happened after the system had been
-evaluated with eleven students, so behaviour had to be preserved exactly. Three
-layers of test make that checkable: a golden master over the rule engine and the
-recommender, a contract test over every endpoint's status and response shape, and
-end-to-end flows over what the study actually observed. See
-[`adr/0006`](adr/0006-characterisation-tests-before-refactor.md) for why they
-were written before anything was moved.
+The system was evaluated with eleven students, and the thesis reports what they
+experienced, so behaviour has to be preserved exactly. Three layers of test make
+that checkable: a golden master over the rule engine and the recommender, a
+contract test over every endpoint's status and response shape, and end-to-end
+flows over what the study actually observed. See
+[`adr/0006`](adr/0006-characterisation-tests.md) for why they are recordings
+rather than assertions.

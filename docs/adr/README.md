@@ -15,4 +15,4 @@ a record that does not get written.
 | [0003](0003-typescript-frontend.md) | The frontend moves to TypeScript in full | Accepted |
 | [0004](0004-domain-reducer-state.md) | Planner state is a pure reducer behind a React adapter | Accepted |
 | [0005](0005-migration-identifiers.md) | Migrations are timestamped and checksummed | Accepted |
-| [0006](0006-characterisation-tests-before-refactor.md) | Characterisation tests come before the refactor | Accepted |
+| [0006](0006-characterisation-tests.md) | Characterisation tests pin the evaluated behaviour | Accepted |
