@@ -90,10 +90,14 @@ docstring already promised.
 
 ### Recommendations
 
-**Two of the six channels can never fire against real data.** Fixed, and worth
-reading twice, because it changes how the evaluation should be read: **four
-channels were live during the study, not six.** The hand-written knowledge graph
-named courses that exist in neither catalogue. The sequence channel now reads the
+**Two of the six channels can never fire against real data.** Fixed. This entry
+used to add that four channels were therefore live during the study rather than
+six. That does not follow from anything here: the repository has one commit and
+no history, so nothing in it dates the fixture relative to the sessions, and the
+author's own account of the sessions disagrees. The defect stands as recorded;
+the inference about the study is open, and the thesis is where it has to be
+settled. The hand-written knowledge graph named courses that exist in neither
+catalogue. The sequence channel now reads the
 curriculum's own ordering, which is also what the compliance engine checks, and
 the completed channel derives its co-occurrence from the same deterministic
 synthetic cohort the peer channel builds, so both match on real codes. The

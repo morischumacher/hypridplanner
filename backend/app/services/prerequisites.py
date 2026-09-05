@@ -8,8 +8,9 @@ the engine and the graph cannot disagree about what the curriculum says.
 
 Two things are worth stating plainly, because the numbers are small and the
 smallness is the point. The Bachelor programme encodes two soft prerequisite
-pairs across its 101 courses, and the Master programme encodes the thesis before
-its defence and its seminar. What the curricula otherwise encode are eligibility
+pairs across its 84 courses, and the Master programme encodes the thesis before
+its defence and its seminar. (101 is the size of `course_to_module`, which is
+keyed by codes, titles and title variants, so it counts several keys per course.) What the curricula otherwise encode are eligibility
 gates, the introductory phase (StEOP) and the core-before-elective condition
 inside a focus area, which are conditions on a plan rather than edges between two
 courses, and which the compliance engine reports separately.

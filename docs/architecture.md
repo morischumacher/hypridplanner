@@ -70,11 +70,13 @@ Each is an object with a name and one method, composed by an engine. The engine
 iterates candidates outer and channels inner, because a course is recommended
 once and the first channel to claim it supplies the reason the student is shown.
 
-Two things about it are worth knowing before you trust its output. The knowledge
-graph in `knowledge.py` is a prototype fixture whose course codes do not exist in
-either catalogue, so against real data the `sequence` and `completed` channels
-never fire. And the recommender used to give different answers after every server
-restart, because it iterated sets of strings under Python's per-process hash
+Two things about it are worth knowing before you trust its output. The `sequence`
+channel reads the curriculum's own ordering and the `completed` channel the same
+synthetic cohort the `peer` channel builds, so both match on real course codes.
+There is no `knowledge.py` here; an earlier version of those two channels read a
+hand-written graph whose course codes existed in neither catalogue, which
+`known-defects.md` records along with what is and is not settled about it. And
+the recommender used to give different answers after every server restart, because it iterated sets of strings under Python's per-process hash
 randomisation; that is fixed, and the golden master would now catch it coming
 back.
 

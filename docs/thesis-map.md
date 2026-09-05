@@ -39,10 +39,14 @@ reports, so that a later change cannot alter them unnoticed.
 
 Honest notes, so that a reader does not find these unaided.
 
-- **Feature 007.** The knowledge graph in `backend/app/recommendations/knowledge.py`
-  is a prototype fixture. None of its course codes exist in either catalogue, so
-  against real data the `sequence` and `completed` channels never fire. Four of
-  the six channels were live during the evaluation, not six.
+- **Feature 007.** There is no `knowledge.py` in this repository. The `sequence`
+  channel reads the curriculum's own ordering and the `completed` channel the
+  synthetic cohort, so both match on real course codes. `known-defects.md`
+  records that an earlier version of these two channels read a hand-written
+  graph and could not fire at all, and infers from that that four of the six
+  channels were live during the evaluation. The defect is recorded; the
+  inference about the study is not settled, because nothing here dates the
+  change and the author's own account of the sessions disagrees with it.
 - **Feature 003.** Six bachelor courses map to a module that was never defined in
   the curriculum data, so their module kind falls back to a default. This is
   pinned by a test rather than fixed, so that the behaviour the study observed is
