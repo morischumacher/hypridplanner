@@ -4,11 +4,11 @@
 
 ## Context
 
-The API is a FastAPI application of roughly 3,700 lines. Route handlers hold
-their own SQL: twenty-four statements are written inline across five route
-modules, so an HTTP handler is simultaneously the transport layer, the use case
-and the data access layer. Nothing in the backend can be exercised without a
-database, and nothing about storage can change without editing HTTP handlers.
+The API is a FastAPI application whose endpoints are few and whose rules behind
+them are not. If a route handler is at once the transport layer, the use case
+and the data access layer, nothing in the backend can be exercised without a
+database and nothing about storage can change without editing HTTP handlers.
+The question is where the seams go.
 
 ## Decision
 

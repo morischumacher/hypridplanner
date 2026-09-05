@@ -1,10 +1,10 @@
 """
 Golden-master tests for the rule engine.
 
-These exist to make the architectural refactor safe. The rule checkers currently
-carry the curriculum as hand-written Python inside their constructors, and the
-plan is to replace that with a declarative rule model. That change is only
-defensible if the engine's answers stay identical, so every answer is recorded
+These exist so that no change to the rule checkers can alter a verdict
+unnoticed. The verdicts the thesis reports are the ones the study's participants
+received, so a change to the engine is only defensible if its answers stay
+identical, and every answer is therefore recorded
 here first and compared afterwards.
 
 The comparison is exact and structural. A test failure names the scenario and the

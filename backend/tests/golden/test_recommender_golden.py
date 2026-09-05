@@ -1,10 +1,10 @@
 """
 Golden-master tests for the recommender.
 
-These exist to make the channel refactor safe. `Recommender.evaluate` is one long
-method with six inline blocks, each gated on its own toggle, and the plan is to
-replace it with one composable strategy per channel. That change is only
-defensible if the recommendation lists stay identical, so every list is recorded
+These exist so that no change to the six channels can alter a recommendation
+list unnoticed. The lists the thesis reports are the ones the study's
+participants saw, so a change to a channel is only defensible if the lists stay
+identical, and every list is therefore recorded
 here first and compared afterwards.
 
 The comparison is exact and structural. A test failure names the scenario and the
@@ -132,7 +132,7 @@ def test_corpus_is_not_degenerate() -> None:
     The failure this guards against is real: while two of the six channels read a
     table of course codes the catalogue does not contain, a corpus built from
     real candidates agreed with itself almost everywhere and would have passed
-    this file unchanged no matter what the refactor broke.
+    this file unchanged no matter what a change broke.
     """
     distinct = {json.dumps(encode(value), sort_keys=True) for value in SNAPSHOTS.values()}
     assert len(distinct) >= len(SNAPSHOTS) * 0.5, (

@@ -2,8 +2,8 @@
  * Editing a plan that already exists.
  *
  * The flows in planning.spec.js get a course into the plan. These are what
- * happens to it afterwards, and they exist because of where the frontend
- * refactor is most likely to break something.
+ * happens to it afterwards, and they exist because of where a change to the
+ * frontend is most likely to break something.
  *
  * A course's horizontal position on the canvas *is* its semester: the plan is
  * derived from node geometry, and node geometry is rebuilt from the plan. Moving
@@ -176,7 +176,7 @@ test.describe("the dashboard's own state", () => {
 
     test("which sections are open survives a reload", async ({ page }) => {
         // The panel booleans are persisted in the same document as the plan, so
-        // splitting them apart during the refactor risks losing one or the other.
+        // splitting them apart risks losing one or the other.
         //
         // A section with nothing to show closes itself, and after a reload the
         // rule check has not answered yet, so the requirement and warning

@@ -7,11 +7,10 @@ The first came out of the evaluation study: eleven students planning a degree,
 their sessions coded against a usability codebook, severity rated on Nielsen's
 scale. Those are defects in what the tool does for a student.
 
-The second came out of reading the code during the architectural refactor. Most
-of them are invisible to a user until the day they are not. None of them was
-fixed while restructuring, because a restructuring that quietly changes an answer
-makes the thesis wrong; they are recorded here to be fixed deliberately, on their
-own branch, each with a regression test.
+The second came out of reading the code. Most of them are invisible to a user
+until the day they are not. They are recorded here to be fixed deliberately,
+each with a regression test, because a fix that quietly changes an answer the
+thesis reports makes the thesis wrong.
 
 ## From the evaluation study
 
@@ -216,9 +215,9 @@ is fetched again. `frontend/src/features/recommendations/`.
   callbacks, the canvas rebuild, and the planner-state load. All are harmless
   today only because of what happens to be stable.
 
-## Fixed during the refactor
+## Fixed while the characterisation tests were written
 
-Two, both because leaving them would have made the work unverifiable.
+Two, both because leaving them would have made the behaviour unrecordable.
 
 **The recommender gave different answers after every server restart.** It
 iterated sets of strings under Python's per-process hash randomisation in four
@@ -227,6 +226,6 @@ opposite. Without determinism there was nothing stable to record, so the
 recommender could not be characterised at all.
 
 **A `Decimal` was serialised as a string on the recommendations endpoint.**
-Introduced during the layering, by annotating a handler's return type: FastAPI
-builds a response model from the annotation. Caught by the contract test in the
+Introduced by annotating a handler's return type: FastAPI builds a response
+model from the annotation. Caught by the contract test in the
 same commit.

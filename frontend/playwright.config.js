@@ -7,10 +7,9 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * End-to-end coverage of the planning flows the evaluation study identified.
  *
- * These are the tests that make the frontend refactor safe. Unit tests cover the
- * pure modules, but the risk in breaking up a 6,600-line component is that the
- * pieces stop talking to each other, and only a real browser against a real
- * backend catches that.
+ * Unit tests cover the pure modules, but the risk in a frontend assembled from
+ * many feature hooks is that the pieces stop talking to each other, and only a
+ * real browser against a real backend catches that.
  *
  * Both servers are started here so `npx playwright test` works from a clean
  * checkout. The backend needs a database; `scripts/dev-db.sh up` provides one.

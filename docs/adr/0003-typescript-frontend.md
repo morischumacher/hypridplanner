@@ -4,13 +4,12 @@
 
 ## Context
 
-The frontend is about 13,000 lines of JavaScript, 6,664 of them in a single
-component. Its central data structure is a plan: semesters holding courses,
-each with a status, a term availability, a credit weight and a category. That
-structure is passed through dozens of functions, and nothing anywhere states its
-shape. The end-to-end suite found this the hard way: the first attempt at unit
-tests for the filter engine failed six times over because the node shape had to
-be inferred from reading the implementation.
+The frontend's central data structure is a plan: semesters holding courses, each
+with a status, a term availability, a credit weight and a category. That
+structure is passed through dozens of functions, and a language that does not
+state its shape leaves the shape to be inferred from reading the implementation,
+which is how the first attempt at unit tests for the filter engine failed six
+times over.
 
 ## Decision
 
@@ -26,11 +25,10 @@ and would invite exactly the question it was meant to avoid.
 
 ## Consequences
 
-The plan structure becomes stated rather than implied, and the compiler catches
-the class of error that made the refactor risky in the first place: a field
-renamed in one place and read under the old name somewhere else.
+The plan structure is stated rather than implied, and the compiler catches the
+class of error that is otherwise found late: a field renamed in one place and
+read under the old name somewhere else.
 
-The cost is time, and it is the largest single cost in the refactor. It is
-affordable only because the characterisation tests came first: the migration is
-mechanical, and a mechanical change is safe exactly when there is something to
-verify it against.
+The cost is time. It is affordable because the characterisation tests exist: a
+type migration is mechanical, and a mechanical change is safe exactly when there
+is something to verify it against.

@@ -11,8 +11,7 @@ Wien currently means assembling the answer from a PDF curriculum, a course
 catalogue, a spreadsheet and a calendar.
 
 This is the software artefact of a diploma thesis. It was evaluated with eleven
-students in a within-subjects study; the version they used is tagged
-`v1.0-evaluated`.
+students in a within-subjects study.
 
 ## Running it
 

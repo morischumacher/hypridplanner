@@ -18,8 +18,8 @@ both servers, so it needs no setup beyond a checkout.
 
 **Behaviour does not change unless a commit says it is changing it.** This
 system was evaluated with eleven students, and the thesis reports what they
-experienced. A restructuring that quietly alters an answer makes the thesis
-wrong, which is a worse failure than a bug.
+experienced. A change that quietly alters an answer makes the thesis wrong,
+which is a worse failure than a bug.
 
 That is what the golden masters are for. `backend/tests/golden/` holds 38
 recorded rule-engine scenarios and 85 recorded recommender scenarios, compared
