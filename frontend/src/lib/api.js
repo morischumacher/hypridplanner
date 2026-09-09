@@ -52,7 +52,19 @@ export async function sendRuleCheckUpdate(payload) {
 async function parseJsonOrError(res, fallbackMessage) {
     if (!res.ok) {
         const text = await res.text().catch(() => "");
-        throw new Error(`${fallbackMessage}: ${res.status} ${res.statusText} ${text}`);
+        let detail = "";
+        try {
+            detail = String(JSON.parse(text)?.detail || "");
+        } catch {
+            detail = "";
+        }
+        const error = new Error(`${fallbackMessage}: ${res.status} ${res.statusText} ${text}`);
+        // The status and the service's own sentence, carried beside the
+        // developer-facing message so a caller can say something a person can
+        // act on rather than printing the transport at them.
+        error.status = res.status;
+        error.detail = detail;
+        throw error;
     }
     return res.json().catch(() => ({}));
 }

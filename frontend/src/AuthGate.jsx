@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { signIn, signUp } from "./lib/api.js";
+import { authErrorMessage } from "./features/auth/authErrorMessage.ts";
 
 export default function AuthGate({ onAuthenticated }) {
     const [mode, setMode] = useState("signin");
@@ -29,7 +30,7 @@ export default function AuthGate({ onAuthenticated }) {
                 onAuthenticated?.(result?.user ?? null, { openSignupSetupOnEntry: true });
             }
         } catch (e) {
-            setError(String(e?.message || e));
+            setError(authErrorMessage(mode, e));
         } finally {
             setSubmitting(false);
         }
