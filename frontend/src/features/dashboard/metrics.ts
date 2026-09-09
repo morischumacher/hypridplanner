@@ -156,7 +156,15 @@ export function computeDashboardMetrics({
     // Planned dashboard should show all selected courses, even after marking some as done.
     const plannedEctsKpi = allPlannedCourses.reduce((sum, c) => sum + Number(c?.ects || 0), 0);
     const totalEctsKpi = plannedEctsKpi;
-    const targetEctsKpi = isBachelorDashboard ? 180 : Number(ectsStats?.target_total ?? 120);
+    // What the degree is measured against comes from the curriculum in force,
+    // which is what the checker reports. The literals are the last resort for a
+    // response that predates the field, not the normal path: a milestone banner
+    // computed against a hardcoded denominator states a percentage the plan's
+    // own ECTS figures contradict.
+    const reportedTargetEcts = Number(ectsStats?.target_total);
+    const targetEctsKpi = Number.isFinite(reportedTargetEcts) && reportedTargetEcts > 0
+        ? reportedTargetEcts
+        : (isBachelorDashboard ? 180 : 120);
     const buckets = ruleStats?.buckets ?? {};
     const perSemester = isBachelorDashboard ? (ruleStats?.ectsPerSemester ?? {}) : (ruleStats?.per_semester ?? {});
     const byCategory = isBachelorDashboard ? (ruleStats?.ectsByCategory ?? {}) : (ruleStats?.by_category ?? {});
