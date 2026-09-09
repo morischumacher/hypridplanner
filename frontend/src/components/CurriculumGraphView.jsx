@@ -13,9 +13,6 @@ import RecommendationPanel from "./RecommendationPanel.jsx";
 import GraphFilterEngine from "../domain/filters.ts";
 import {
     buildPrerequisiteEdges,
-    countRecommendedByNode,
-    GLOBAL_PREREQUISITE_KINDS,
-    PREREQUISITE_EDGE_COLOURS,
 } from "../utils/prerequisiteEdges.js";
 import { fetchPrerequisites } from "../lib/api.js";
 
@@ -724,7 +721,6 @@ export default function CurriculumGraphView({
     // relation is already drawn by the node at the other end can be switched on
     // and off without the picture changing at all. A control that sometimes does
     // nothing visible reads as broken, which is exactly how it was reported.
-    const [revealedPrereqNodeId, setRevealedPrereqNodeId] = useState(null);
     const [interactionMode, setInteractionMode] = useState("pan");
     const [graphHorizontalSemantics, setGraphHorizontalSemantics] = useState("hierarchy");
     const [graphHorizontalCustomText, setGraphHorizontalCustomText] = useState("");
@@ -1051,45 +1047,18 @@ export default function CurriculumGraphView({
         () => GraphFilterEngine.computeVisibleNodeIds(nodes, autoEdges, graphFilters, programCode),
         [nodes, autoEdges, graphFilters, programCode]
     );
-    // The sidebar's switch owns the enforced and advisory relations, which belong
-    // to the whole graph. The expected-knowledge relations are drawn only around
-    // the nodes a student has opened them on.
+    // The sidebar's switch owns the curriculum's course-to-course relations,
+    // enforced and advisory alike, which belong to the whole graph.
     const prerequisiteEdges = useMemo(
-        () => [
-            ...(showPrerequisiteEdges
-                ? buildPrerequisiteEdges(prerequisiteRelations, nodes, visibleNodeIds, {
-                      kinds: GLOBAL_PREREQUISITE_KINDS,
-                  })
-                : []),
-            ...(revealedPrereqNodeId
-                ? buildPrerequisiteEdges(prerequisiteRelations, nodes, visibleNodeIds, {
-                      kinds: ["recommended"],
-                      anchorIds: [revealedPrereqNodeId],
-                  })
-                : []),
-        ],
-        [showPrerequisiteEdges, revealedPrereqNodeId, prerequisiteRelations, nodes, visibleNodeIds]
-    );
-    const recommendedCountByNodeId = useMemo(
-        () => countRecommendedByNode(prerequisiteRelations, nodes),
-        [prerequisiteRelations, nodes]
+        () => (showPrerequisiteEdges
+            ? buildPrerequisiteEdges(prerequisiteRelations, nodes, visibleNodeIds)
+            : []),
+        [showPrerequisiteEdges, prerequisiteRelations, nodes, visibleNodeIds]
     );
     const globalPrerequisiteCount = useMemo(
-        () => prerequisiteRelations.filter((r) => GLOBAL_PREREQUISITE_KINDS.includes(r?.kind)).length,
+        () => prerequisiteRelations.filter((r) => r?.kind === "hard" || r?.kind === "soft").length,
         [prerequisiteRelations]
     );
-    const recommendedRelationCount = useMemo(
-        () => prerequisiteRelations.filter((r) => r?.kind === "recommended").length,
-        [prerequisiteRelations]
-    );
-    const revealedPrereqNodeLabel = useMemo(() => {
-        if (!revealedPrereqNodeId) return null;
-        const node = (displayNodes || []).find((n) => n.id === revealedPrereqNodeId);
-        return String(node?.data?.label ?? "").replace(/^[▶▼]\s*/, "") || null;
-    }, [revealedPrereqNodeId, displayNodes]);
-    const toggleRecommendedPrereqs = useCallback((nodeId) => {
-        setRevealedPrereqNodeId((prev) => (prev === nodeId ? null : nodeId));
-    }, []);
     const edges = useMemo(
         () => [
             ...autoEdges.filter((e) => visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target)),
@@ -1097,30 +1066,17 @@ export default function CurriculumGraphView({
         ],
         [autoEdges, visibleNodeIds, prerequisiteEdges]
     );
-    // The expected-knowledge control is attached here rather than in the layout,
-    // because whether a node has anything to reveal depends on which other nodes
-    // are currently laid out, and the layout does not know about the relations.
     const filteredDisplayNodes = useMemo(
         () =>
-            (displayNodes || []).map((n) => {
-                const recommendedPrereqCount = recommendedCountByNodeId.get(n.id) ?? 0;
-                return {
-                    ...n,
-                    hidden: !visibleNodeIds.has(n.id),
-                    data: {
-                        ...(n?.data || {}),
-                        recommendedPrereqCount,
-                        showsRecommendedPrereqs: revealedPrereqNodeId === n.id,
-                        onToggleRecommendedPrereqs:
-                            recommendedPrereqCount > 0 ? toggleRecommendedPrereqs : null,
-                    },
-                    style: {
-                        ...(n?.style || {}),
-                        opacity: 1,
-                    },
-                };
-            }),
-        [displayNodes, visibleNodeIds, recommendedCountByNodeId, revealedPrereqNodeId, toggleRecommendedPrereqs]
+            (displayNodes || []).map((n) => ({
+                ...n,
+                hidden: !visibleNodeIds.has(n.id),
+                style: {
+                    ...(n?.style || {}),
+                    opacity: 1,
+                },
+            })),
+        [displayNodes, visibleNodeIds]
     );
 
     const onNodesChange = useCallback((changes) => {
@@ -1581,36 +1537,6 @@ export default function CurriculumGraphView({
                                 : " (none in this curriculum)"}
                         </span>
                     </label>
-                    {recommendedRelationCount > 0 && (
-                        <div style={{ fontSize: 10, color: "#6b7280", lineHeight: 1.45 }}>
-                            {revealedPrereqNodeLabel ? (
-                                <>
-                                    Showing what <strong style={{ color: "#4338ca" }}>{revealedPrereqNodeLabel}</strong>{" "}
-                                    expects to be known already.{" "}
-                                    <button
-                                        onClick={() => setRevealedPrereqNodeId(null)}
-                                        style={{
-                                            border: "none",
-                                            background: "none",
-                                            padding: 0,
-                                            color: "#4338ca",
-                                            fontSize: 10,
-                                            fontWeight: 700,
-                                            cursor: "pointer",
-                                            textDecoration: "underline",
-                                        }}
-                                    >
-                                        Hide
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    The curriculum also states expected prior knowledge per module. Reveal one
-                                    node&apos;s with the ⇠ button on the node.
-                                </>
-                            )}
-                        </div>
-                    )}
                 </div>
                 <div style={{ display: "grid", gap: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>Obligation type</div>

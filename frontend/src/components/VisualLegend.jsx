@@ -159,26 +159,18 @@ export default function VisualLegend({ programCode, onClose }) {
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <svg width="34" height="8" aria-hidden="true">
-                                <line x1="0" y1="4" x2="34" y2="4" stroke={PREREQUISITE_EDGE_COLOURS.soft} strokeWidth="2" strokeDasharray="6 4" />
-                            </svg>
-                            <span>Recommended before</span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <svg width="34" height="8" aria-hidden="true">
                                 <line x1="0" y1="4" x2="34" y2="4" stroke={PREREQUISITE_EDGE_COLOURS.hard} strokeWidth="2" />
                             </svg>
-                            <span>Required before</span>
+                            <span>Required before (broken: refused)</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <svg width="34" height="8" aria-hidden="true">
-                                <line x1="0" y1="4" x2="34" y2="4" stroke={PREREQUISITE_EDGE_COLOURS.recommended} strokeWidth="1.5" strokeDasharray="2 4" />
+                                <line x1="0" y1="4" x2="34" y2="4" stroke={PREREQUISITE_EDGE_COLOURS.soft} strokeWidth="2" strokeDasharray="6 4" />
                             </svg>
-                            <span>Expected knowledge</span>
+                            <span>Recommended before (broken: a warning)</span>
                         </div>
                         <div style={{ color: "#9ca3af" }}>
-                            The first two are switched on together, under “Show prerequisites” in the filter panel.
-                            Expected knowledge is stated per module in the curriculum, so it is revealed one node at a
-                            time with the ⇠ button on the node itself.
+                            Both are drawn under “Show prerequisites” in the filter panel.
                         </div>
                     </div>
                 </div>

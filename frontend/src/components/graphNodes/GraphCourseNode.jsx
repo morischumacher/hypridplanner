@@ -9,7 +9,6 @@ import {
     stateVisualByStatus,
 } from "../../utils/courseVisuals.js";
 import { displayCourseHeader, displayCourseTitle } from "../../domain/course-names.ts";
-import RecommendedPrereqButton from "./RecommendedPrereqButton.jsx";
 
 
 
@@ -112,7 +111,6 @@ export default function GraphCourseNode({ id, data }) {
                     )}
                 </div>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <RecommendedPrereqButton nodeId={id} data={data} />
                     <div style={{ position: "relative" }}>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                             <button
