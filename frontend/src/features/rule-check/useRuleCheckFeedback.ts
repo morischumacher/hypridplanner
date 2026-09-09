@@ -57,6 +57,22 @@ export function useStickyViolationExpiry(
 /** The completion percentages worth congratulating a student on. */
 const MILESTONES = [25, 50, 75, 100];
 
+/**
+ * The highest milestone a move from one percentage to another crosses, or null.
+ *
+ * A plan can cross several at once: hydration carries it from nothing to whatever
+ * was saved, and a prefill lays down a whole degree in one action. The banner then
+ * has to name the milestone the student has actually reached, not the first one
+ * they passed on the way, or it contradicts the ECTS figures printed beside it.
+ */
+export function highestMilestoneCrossed(previousPct: number, currentPct: number): number | null {
+    let highest: number | null = null;
+    for (const milestone of MILESTONES) {
+        if (previousPct < milestone && currentPct >= milestone) highest = milestone;
+    }
+    return highest;
+}
+
 export interface UseProgressMilestoneInput {
     plannerHydrated: boolean;
     programCode: string;
@@ -102,7 +118,7 @@ export function useProgressMilestone({
             progressMilestoneRef.current = { programCode, pct: roundedPct };
             return;
         }
-        const crossed = MILESTONES.find((m) => last.pct < m && roundedPct >= m);
+        const crossed = highestMilestoneCrossed(last.pct, roundedPct);
         progressMilestoneRef.current = { programCode, pct: roundedPct };
         if (!crossed) return;
         setProgressMilestone({
