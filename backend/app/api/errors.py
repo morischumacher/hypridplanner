@@ -1,9 +1,4 @@
-"""
-The one place that maps a domain failure to an HTTP status.
-
-Services raise errors named for what went wrong. Which number that becomes is a
-property of the transport, so it is decided here and nowhere else.
-"""
+"""The one place that maps a domain failure to an HTTP status."""
 from __future__ import annotations
 
 from fastapi import Request

@@ -1,9 +1,7 @@
 /**
- * The modal a student meets once, on the first entry after signing up.
- *
- * It is presentational: the programme and the start term it collects are
- * locked by the server the moment they are saved, so the component never
- * decides anything on its own, not even whether the fields are still editable.
+ * The one-time setup modal shown on first entry after signup. Purely
+ * presentational: the server locks the programme and start term on save, so
+ * this component decides nothing, not even whether the fields are editable.
  */
 
 import {

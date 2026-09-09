@@ -9,7 +9,7 @@ import { hexToRgba, MODULE_GROUP_COLOR_ALPHA } from "../utils/examSubjectColors.
 import { mapTypeForProgram, stateVisualByStatus } from "../utils/courseVisuals.js";
 import { displayCourseTitle } from "../domain/course-names.ts";
 
-/** ModuleGroupBackground — soft panel wrapping a set of course nodes. */
+// Panel drawn behind the course nodes of one module.
 export default function ModuleGroupBackground({ data }) {
     if (data?.collapsedGhost) {
         return (
@@ -162,23 +162,18 @@ export default function ModuleGroupBackground({ data }) {
                 transition: "opacity 0.2s ease-in-out",
             }}
         >
-            {/* top */}
             <Handle id="top" type="target" position={Position.Top} />
             <Handle id="top" type="source" position={Position.Top} />
 
-            {/* right */}
             <Handle id="right" type="target" position={Position.Right} />
             <Handle id="right" type="source" position={Position.Right} />
 
-            {/* bottom */}
             <Handle id="bottom" type="target" position={Position.Bottom} />
             <Handle id="bottom" type="source" position={Position.Bottom} />
 
-            {/* left */}
             <Handle id="left" type="target" position={Position.Left} />
             <Handle id="left" type="source" position={Position.Left} />
 
-            {/* Header bar */}
             <div
                 className="module-bg-drag-handle"
                 style={{

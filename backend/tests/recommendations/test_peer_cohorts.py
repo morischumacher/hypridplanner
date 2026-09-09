@@ -1,12 +1,7 @@
-"""
-The memoised peer cohorts.
+"""The memoised peer cohorts, and the bound on the store.
 
-The cohort is expensive enough to be worth keeping and is shared by every request
-the process serves, so it lives in a module-level dictionary keyed by programme
-code. What that dictionary must not do is grow: a key that is not one of the two
-programmes, arriving from a stored plan or from a programme list that has since
-changed, would otherwise hold fifty sets of course codes for the life of the
-process, and the next such key would hold fifty more.
+The store is keyed by whatever programme code a request carries, so an unknown key
+must not pin fifty sets of course codes for the life of the process.
 """
 from __future__ import annotations
 
@@ -42,7 +37,7 @@ def _fresh_cohorts():
 
 
 def test_both_real_programmes_are_held_at_once() -> None:
-    """The bound is useless if it evicts what the application actually asks for."""
+    """The bound is useless if it evicts what the application asks for."""
     for program_code in (BACHELOR, MASTER):
         assert cohort_for(program_code, POOLS[program_code])
 
@@ -67,7 +62,7 @@ def test_a_programme_still_being_asked_for_is_not_evicted() -> None:
 
 
 def test_an_evicted_programme_answers_the_same_as_before() -> None:
-    """Eviction may cost a recomputation; it may not change what a student is told."""
+    """Eviction may cost a recomputation, not a different answer."""
     before = cohort_for(BACHELOR, POOLS[BACHELOR])
     for index in range(MAX_COHORTS + 5):
         cohort_for(f"not-a-programme-{index}", POOL)

@@ -1,15 +1,8 @@
 /**
- * Semesters, seasons, and which courses may go in which.
+ * Semesters, seasons, and which courses may go in which lane.
  *
- * A degree plan is a row of lanes, and the lanes alternate between winter and
- * summer starting from whichever season the student began in. A course offered
- * only in winter can therefore go in some lanes and not others, and that single
- * rule is behind the friction the evaluation study recorded most often: students
- * guess a lane, the drop is refused, and they place again.
- *
- * Every function here is total. An unrecognised term means "offered in both",
- * never "offered in neither", because a course nobody can place is a worse
- * failure than a course placed too freely.
+ * Every function here is total. An unrecognised term falls back to "both", never
+ * to "neither", so a malformed value cannot make a course unplaceable.
  */
 
 export const BACHELOR_PROGRAM_CODE = "033 521";
@@ -32,13 +25,13 @@ export interface SemesterBounds {
 }
 
 export interface Semester {
-    /** One-based, as the student sees it. */
+    /** One-based, matching the displayed semester number. */
     id: number;
     title: string;
 }
 
 export function semesterBoundsForProgram(programCode: string | null | undefined): SemesterBounds {
-    // The spaced form is what the curriculum regulations print, and what the
+    // The spaced code form is what the curriculum regulations print and what the
     // backend rule checkers compare against.
     if (String(programCode ?? "").trim() === BACHELOR_PROGRAM_CODE) {
         return { min: 6, max: 10 };
@@ -77,8 +70,6 @@ export function normalizeStartSeason(value: unknown): Season {
 /** The season of a lane, counting from the season the plan starts in. */
 export function laneSeason(startSeason: unknown, laneIndex: unknown): Season {
     const season = normalizeStartSeason(startSeason);
-    // Lane zero is the first semester, so the index is used directly rather
-    // than tested for truth: zero is falsy, and that has caused this bug before.
     const index = Math.max(0, Math.floor(Number(laneIndex) || 0));
     if (index % 2 === 0) return season;
     return season === TERM_WINTER ? TERM_SUMMER : TERM_WINTER;
@@ -94,12 +85,7 @@ export function isLaneAllowedForTerm(
     return laneSeason(startSeason, laneIndex) === term;
 }
 
-/**
- * The first lane at or after `laneIndex` that can hold this course, or null.
- *
- * Null is a real answer: a summer course with only a winter lane left has
- * nowhere to go, and the caller has to say so rather than place it wrongly.
- */
+/** The first lane at or after `laneIndex` that can hold this course, or null if none can. */
 export function firstAllowedLaneAtOrAfter(
     termAvailability: unknown,
     startSeason: unknown,
@@ -107,8 +93,8 @@ export function firstAllowedLaneAtOrAfter(
     maxLaneIndex?: number | null
 ): number | null {
     const start = Math.max(0, Math.floor(Number(laneIndex) || 0));
-    // Without a stated maximum the search is still bounded, because a term rule
-    // repeats every two lanes: twenty is far past the point of proving it.
+    // Term availability repeats every two lanes, so an unbounded search only
+    // needs a small window to decide.
     const max = Number.isFinite(maxLaneIndex)
         ? Math.max(0, Math.floor(Number(maxLaneIndex)))
         : start + 20;

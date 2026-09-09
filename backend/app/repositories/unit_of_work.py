@@ -1,13 +1,6 @@
-"""
-The unit of work.
+"""The unit of work: a connection or transaction with every repository bound to it.
 
-A service asks for either a connection or a transaction, and gets back an object
-holding every repository already bound to it. That keeps two things out of the
-services: acquiring connections, and knowing which concrete repository class
-implements which interface.
-
-`UnitOfWork` is the protocol services depend on. A test that wants to run a
-service without a database implements this protocol with stubs and passes it in.
+`UnitOfWork` is the protocol services depend on, so tests can stub it.
 """
 from __future__ import annotations
 
@@ -55,6 +48,6 @@ class UnitOfWorkFactory:
 
     @asynccontextmanager
     async def write(self) -> AsyncIterator[UnitOfWork]:
-        """A unit of work whose statements commit together or not at all."""
+        """A unit of work whose statements commit together."""
         async with self._database.transaction() as connection:
             yield PostgresUnitOfWork(connection)

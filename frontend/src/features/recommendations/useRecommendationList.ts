@@ -1,18 +1,15 @@
 /**
- * The recommendations currently on offer, and the lookup the course cards read
- * them through.
- *
- * The list is whatever the last answer from the backend contained, so a course
- * dismissed here is dismissed only until the next answer replaces the list.
+ * The current recommendations and the lookup course cards read them through.
+ * The list is whatever the last backend answer contained, so a dismissal lasts
+ * only until the next answer replaces it.
  */
 
 import { useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 /**
- * One recommendation. Every field is optional and the rest is left open,
- * because the backend decides what a recommendation carries and the planner
- * only reads the few fields it shows.
+ * One recommendation. All fields optional and the shape left open: the backend
+ * decides what a recommendation carries, and only the displayed fields matter.
  */
 export interface Recommendation {
     id?: string | number;
@@ -22,7 +19,7 @@ export interface Recommendation {
     [key: string]: unknown;
 }
 
-/** What a course card shows when a recommendation names it. */
+/** What a course card shows when a recommendation names its course. */
 export interface RecommendedCourse {
     type: string;
     content: unknown[];

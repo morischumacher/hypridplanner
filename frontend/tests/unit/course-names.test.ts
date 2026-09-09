@@ -1,11 +1,7 @@
 /**
- * The short label a module group is headed with.
- *
- * Three sources are tried in turn, and the order is the point: an acronym of the
- * module's name, the shared prefix of its course codes, and then the module
- * itself. What the last step must not do is answer with a code while a name is
- * sitting unread in its arguments, because a header that reads as a code where
- * every other header reads as a name is worse than a long name.
+ * The short label a module group is headed with. Three sources are tried in
+ * order: an acronym of the module name, the shared prefix of its course codes,
+ * then the module itself.
  */
 import { describe, expect, it } from "vitest";
 
@@ -22,8 +18,8 @@ describe("displayModuleHeader", () => {
     });
 
     it("falls back to the module name when there is nothing else to go on", () => {
-        // Every word is a stop word, so the name yields no acronym, and there
-        // are no course codes to share a prefix.
+        // Every word is a stop word, so the name yields no acronym, and there are
+        // no course codes to share a prefix.
         expect(displayModuleHeader("MOD-1", "der die das", [])).toBe("der die das");
     });
 

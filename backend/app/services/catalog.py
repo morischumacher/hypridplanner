@@ -1,10 +1,8 @@
-"""
-Serving the course catalogue.
+"""Serving the course catalogue.
 
-The catalogue comes out of a materialised view already shaped the way the
-frontend wants it. The one thing the view cannot answer is when a course is
-offered, because that has two sources: the curriculum, and whatever the student
-has corrected for their own plan. The student's answer wins.
+The catalogue comes out of a materialised view in the shape the frontend wants.
+Term availability is the one field the view cannot answer, because it has two
+sources: the curriculum, and the student's own correction, which wins.
 """
 from __future__ import annotations
 
@@ -18,7 +16,7 @@ DEFAULT_TERM = "both"
 
 
 def normalise_term(value: Any) -> str:
-    """Anything unrecognised means 'both', so an odd value never hides a course."""
+    """Unrecognised values fall back to 'both', so a bad value never hides a course."""
     raw = str(value or "").strip().lower()
     return raw if raw in TERMS else DEFAULT_TERM
 

@@ -1,12 +1,10 @@
 /**
- * The compliance loop: the plan goes to the rule checker, and a change the rule
- * checker refuses is taken back off the canvas.
+ * The compliance loop: the plan goes to the rule checker, and a refused change
+ * is taken back off the canvas.
  *
- * The parts are exported separately because they belong at different points of
- * the planner's render. The order they are called in is the order their effects
- * run in, and the loop depends on it: the rollbacks must exist before the check
- * that may call them, and the check must be sent before the banner that reports
- * what it said is allowed to expire.
+ * The parts are exported separately because call order fixes effect order, and
+ * the loop depends on it: rollbacks must exist before the check that may call
+ * them, and the check must be sent before its banner may expire.
  */
 
 export { useRuleCheckState } from "./useRuleCheckState.ts";

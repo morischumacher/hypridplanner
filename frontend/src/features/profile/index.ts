@@ -1,11 +1,9 @@
 /**
- * The profile feature: the student's programme, start term, course term
- * overrides and recommendation preferences, together with the two modals that
- * edit them.
+ * Profile: programme, start term, course term overrides and recommendation
+ * preferences, plus the two modals that edit them.
  *
- * The two hooks are meant to be called in this order. The form reads the
- * mirror the settings hook holds, and seeds its drafts from it whenever a
- * modal opens.
+ * Call the hooks in this order. The form seeds its drafts from the mirror the
+ * settings hook holds whenever a modal opens.
  */
 
 export { default as ProfileModal } from "./ProfileModal.tsx";

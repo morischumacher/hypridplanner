@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="")
 
     def cors_origins(self) -> List[str]:
-        # With allow_credentials=True, using wildcard "*" is problematic for browsers.
-        # Default to local frontend origins for development.
+        # Browsers reject a wildcard origin when allow_credentials=True, so the
+        # development default is an explicit list of local frontend origins.
         if not self.CORS_ORIGIN:
             return [
                 "http://localhost:5173",

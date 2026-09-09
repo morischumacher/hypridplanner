@@ -1,12 +1,11 @@
 /**
  * The editable copy of the profile: the drafts both modals bind to, and the
- * saves that put them back on the server.
+ * saves that write them back.
  *
- * Every field the student types into is held here as its own piece of state
- * rather than read from the mirror, so the mirror only ever moves when a save
- * succeeds. The one place where that matters is the start term: the server
- * locks it after the first save, and the draft has to keep showing the locked
- * value rather than the one the student was in the middle of typing.
+ * Every editable field is separate state rather than a read of the mirror, so
+ * the mirror moves only on a successful save. That matters for the start term,
+ * which the server locks after the first save: the draft has to show the locked
+ * value, not the half-typed one.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -41,14 +40,14 @@ export interface ProfileCourseRow {
     examSubject: string | null;
 }
 
-/** The banner the planner shows when a save is refused. */
+/** The banner shown when a save is refused. */
 export interface StickyViolation {
     message: string;
     until: number;
     tone: string;
 }
 
-/** The planner snapshot, as far as this module needs to know it. */
+/** The part of the planner snapshot this module reads. */
 export interface PlannerSnapshot {
     selectedFocusByProgram?: Record<string, string>;
     [key: string]: unknown;
@@ -70,7 +69,7 @@ export interface UseProfileFormInput {
     buildPersistSnapshot: () => PlannerSnapshot;
     setRecommendations: (recommendations: unknown[]) => void;
     setStickyViolation: (violation: StickyViolation) => void;
-    /** True on the first entry after signup, when the setup modal has to open itself. */
+    /** True on the first entry after signup, when the setup modal opens itself. */
     openSignupSetupOnEntry: boolean;
     onSignupSetupPromptConsumed?: (() => void) | undefined;
     profileSettingsForProgram: ProfileSettings;
@@ -189,10 +188,9 @@ export function useProfileForm({
         selectedFocus,
     ]);
 
-    // Course term edits that were never saved are dropped when the programme
-    // changes or the modal closes. That is deliberate rather than incidental:
-    // the edits are keyed by course code against one programme's catalogue, so
-    // carrying them across would write a term onto a course from another one.
+    // Unsaved course term edits are dropped on a programme change or modal
+    // close. They are keyed by course code against one programme's catalogue,
+    // so carrying them over would write a term onto another programme's course.
     useEffect(() => {
         setPendingCourseTermUpdateByCode({});
         setProfileSearch("");
@@ -301,8 +299,8 @@ export function useProfileForm({
                     courseTermOverrides: prev?.[selectedProgramCode]?.courseTermOverrides || {},
                 },
             }));
-            // The programme choice is written straight into the snapshot: the
-            // planner state that would carry it has not re-rendered yet.
+            // Written straight into the snapshot, since the planner state that
+            // would carry it has not re-rendered yet.
             const snapshot = buildPersistSnapshot();
             const nextSnapshot = {
                 ...(snapshot || {}),
@@ -424,8 +422,8 @@ export function useProfileForm({
             });
             setIsProfileOpen(false);
 
-            // The recommendations that are on screen were built from the
-            // interests the student has just replaced.
+            // The recommendations on screen were built from the interests that
+            // have just been replaced.
             const doneSet = new Set(doneCourseCodes || []);
             const allCourses = Object.values(coursesBySemester || {})
                 .flat()

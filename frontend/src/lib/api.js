@@ -9,10 +9,7 @@ function getAuthHeaders(extraHeaders = {}) {
     return headers;
 }
 
-/**
- * Fetch the catalog for a single program by its code (e.g. "066 937").
- * Returns the catalog array (subjects ...), exactly as the backend returns for a single program.
- */
+/** Fetch the catalog array for one program code, as the backend returns it. */
 export async function fetchCatalog(programCode) {
     const url = new URL("/catalog", BASE);
     if (programCode) url.searchParams.set("program_code", programCode);
@@ -26,7 +23,7 @@ export async function fetchCatalog(programCode) {
         const text = await res.text().catch(() => "");
         throw new Error(`Catalog fetch failed: ${res.status} ${res.statusText} ${text}`);
     }
-    return res.json(); // backend sends real JSON
+    return res.json();
 }
 
 export async function sendRuleCheckUpdate(payload) {
@@ -59,9 +56,8 @@ async function parseJsonOrError(res, fallbackMessage) {
             detail = "";
         }
         const error = new Error(`${fallbackMessage}: ${res.status} ${res.statusText} ${text}`);
-        // The status and the service's own sentence, carried beside the
-        // developer-facing message so a caller can say something a person can
-        // act on rather than printing the transport at them.
+        // Carried alongside the developer-facing message so callers can render
+        // the service's own wording instead of the transport error.
         error.status = res.status;
         error.detail = detail;
         throw error;
@@ -230,14 +226,7 @@ export async function fetchRecommendations(payload) {
     return parseJsonOrError(res, "Fetch recommendations failed");
 }
 
-/**
- * Fetch the prerequisite relations of one programme.
- *
- * The compliance engine enforces these relations; the graph view draws them, so
- * both read the same list from the service rather than holding their own copy.
- * A programme that encodes no prerequisites returns an empty list, which is an
- * answer rather than a failure.
- */
+/** Fetch the prerequisite relations of one programme; an empty list is a valid answer. */
 export async function fetchPrerequisites(programCode) {
     const url = new URL("/curriculum/prerequisites", BASE);
     if (programCode) url.searchParams.set("program_code", programCode);

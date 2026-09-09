@@ -1,9 +1,6 @@
 /**
- * The six sections of the done half of the dashboard.
- *
- * They mirror the planned half, and the StEOP and focus-area sections share
- * their expanded state with it: a checklist left open on one tab is open on
- * the other, which is why both halves read the same panel flags.
+ * The six sections of the done half of the dashboard. The StEOP and focus-area
+ * sections share their expanded state with the planned half.
  */
 
 import { FOCUS_INFO_TEXT, STEOP_RULES_TEXT } from "../../domain/programmes.ts";

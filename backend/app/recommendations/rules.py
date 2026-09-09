@@ -1,20 +1,7 @@
-"""
-Discarding recommendations the curriculum would refuse.
+"""Discards recommendations the curriculum would refuse.
 
-A recommendation the planner would immediately reject is worse than no
-recommendation, so each one is tried against the rule checker as if the student
-had added it. What counts as a refusal is measured against the plan as it already
-stands: a plan that is already over its credit ceiling would otherwise reject
-everything, so only violations the candidate itself introduces count.
-
-A course can appear in the catalogue more than once, under different modules, and
-a recommendation carries no semester of its own. Both are placements the filter
-has to invent, and a candidate survives if any one of them is acceptable.
-
-A checker that raises has said nothing, and silence is not consent: a candidate
-whose trial the checker could not answer is dropped, because the premise above
-only holds for candidates that were actually checked. A checker that cannot
-answer for the plan itself is a different case, and is handled where it arises.
+Each candidate is tried against the rule checker as if added. Only violations the
+candidate itself introduces count, measured against the plan's existing result.
 """
 from __future__ import annotations
 
@@ -27,13 +14,11 @@ logger = logging.getLogger(__name__)
 
 RESULT_LIMIT = 15
 
-# Rule checking is the expensive part, so only the strongest recommendations are
-# put through it. Anything past this point could not reach the result anyway.
+# Rule checking is expensive, and anything past this rank cannot reach the result.
 _CHECK_LIMIT = 100
 
-# A semester of the candidate's own, past any the student is actually using, so
-# that its credits are judged on their own merits rather than on whichever
-# semester it happened to land in.
+# A semester past any the student uses, so a candidate's credits are judged on
+# their own rather than on whichever semester it landed in.
 _LATE_TRIAL_LANE = 99
 
 
@@ -50,15 +35,10 @@ def _lane_of(course: dict[str, Any]) -> int:
 
 
 def _trial_lanes(plan: PlanContext) -> tuple[int, ...]:
-    """The semesters a candidate is tried in, in the order they are tried.
+    """The semesters a candidate is tried in, in order.
 
-    The late semester alone would decide the curriculum's ordering against every
-    course put forward because a planned course needs it first: such a course
-    would be read as arriving after the course that needs it, and refused for a
-    position the student never asked it to take. So it is also tried in the
-    earliest semester the plan uses, which is no later than anything already
-    planned. Between them the two cover both directions of the ordering, and a
-    candidate is refused only when neither semester would have it.
+    The late lane alone would refuse any course a planned course needs first, so
+    the earliest lane in use is tried too. Between them both orderings are covered.
     """
     lanes = [_lane_of(c) for c in plan.planned_courses + plan.done_courses]
     if not lanes:
@@ -84,10 +64,8 @@ def filter_by_rules(
     try:
         base = rule_checker.evaluate(_payload(plan))
     except Exception:
-        # Without a baseline there is nothing to measure a candidate against, and
-        # an empty one would count every complaint the plan already has as one the
-        # candidate introduced. The filter stands down instead, leaving the list
-        # the engine shows when no checker is configured at all.
+        # Without a baseline, every existing complaint would be charged to the
+        # candidate, so the filter stands down rather than reject everything.
         logger.exception("rule checker could not evaluate the plan; recommendations are unfiltered")
         return recommendations[:RESULT_LIMIT]
 
@@ -103,8 +81,7 @@ def filter_by_rules(
     for recommendation in recommendations[:_CHECK_LIMIT]:
         rows = variants.get(recommendation["courseCode"], [])
         if not rows:
-            # Nothing to place, so nothing to object to. This does not count
-            # towards the limit, which only bounds the checking.
+            # Nothing to place, so nothing to object to.
             kept.append(recommendation)
             continue
         if any(

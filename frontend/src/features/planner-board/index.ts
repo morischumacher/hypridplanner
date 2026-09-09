@@ -1,17 +1,16 @@
 /**
- * The planning canvas: the node array, everything that edits it, and the
- * component that draws it.
+ * The planning canvas: the node array, its mutations, and the component that
+ * draws it.
  *
- * The parts are exported separately because the order they are called in is the
- * order their effects run in, and the planner depends on that order. The lane
- * backgrounds have to be spliced in before anything reads a lane's height; the
- * placement mutations have to exist before the cards that call them are
- * patched; the pending-save commit has to run before the status roll-up that
- * would otherwise write over it; and the rebuild from a stored plan has to come
- * last, after every handler it wires onto a card exists.
+ * The parts are exported separately because call order fixes effect order, and
+ * the planner depends on it: lane backgrounds are spliced in before anything
+ * reads a lane height, placement mutations exist before the cards calling them
+ * are patched, the pending-save commit runs before the status roll-up that
+ * would overwrite it, and the rebuild from a stored plan comes last, after
+ * every handler it wires onto a card exists.
  *
- * The node array is the record of what the student decided. The plan is derived
- * from it, and writes back to it only when the programme changes.
+ * The node array is the source of truth; the plan is derived from it, and
+ * writes back only on a programme change.
  */
 
 export { useBoardSemesters } from "./useBoardSemesters.ts";

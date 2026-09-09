@@ -1,14 +1,9 @@
-"""
-The per-programme profile.
+"""The per-programme profile.
 
-Two things here are locks rather than settings. The programme is chosen once,
-because a plan built against one curriculum is meaningless under another. The
-start term is fixed once, because it sets the winter/summer parity of every lane
-and moving it would silently invalidate every placement already made.
-
-Everything else is editable, and the order matters: the profile row is created
-by the start term, so saving interests before a start term exists is refused
-rather than quietly creating a half-formed profile.
+Programme and start term are locks rather than settings: the start term sets the
+winter/summer parity of every lane, so moving it would invalidate placements.
+The start term also creates the profile row, so saving interests before one
+exists is refused rather than creating a half-formed profile.
 """
 from __future__ import annotations
 
@@ -24,8 +19,8 @@ from ..domain.errors import (
 )
 from ..repositories import UnitOfWorkFactory
 
-# The two defaults differ, and always have: the settings screen has no peer
-# channel to show, while the recommender does have one to run.
+# The defaults differ: the settings screen has no peer channel to show, the
+# recommender has one to run.
 SETTINGS_TOGGLES = {
     "interest": True,
     "similarity": True,
@@ -97,8 +92,8 @@ class ProfileService:
     ) -> None:
         code = normalise_programme(program_code)
         async with self._unit_of_work.write() as work:
-            # Taken before reading the lock, so two first-time setups racing each
-            # other cannot both see an unlocked account.
+            # Taken before reading the lock, so two concurrent first-time setups
+            # cannot both see an unlocked account.
             await work.users.lock(user_id)
 
             locked = await work.profiles.first_programme(user_id)
@@ -135,8 +130,8 @@ class ProfileService:
                 await work.course_term_overrides.upsert(
                     user_id, code, course_code, update["term_availability"]
                 )
-        # Counts what was asked for rather than what was written, which is what
-        # this endpoint has always reported.
+        # Counts what was asked for, not what was written, as the endpoint has
+        # always reported.
         return len(updates)
 
     async def set_recommendation_profile(

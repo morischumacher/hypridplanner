@@ -1,15 +1,13 @@
 /**
- * Moving courses that a change of term has stranded.
+ * Relocates courses stranded by a change of term.
  *
- * The plan is kept term-valid at all times rather than being allowed to hold a
- * course in a semester it is not taught in, so changing the start season or a
- * course's availability relocates whatever no longer fits. That makes this the
- * one plan mutation nobody asks for: it runs off a change to the profile, and
- * it writes the plan through in the same pass so that the rule check sees one
- * change rather than a shift followed by a save.
+ * The plan is kept term-valid at all times, so changing the start season or a
+ * course's availability moves whatever no longer fits. It runs off a profile
+ * change rather than a user action, and writes the plan through in the same
+ * pass so the rule check sees one change rather than a shift plus a save.
  *
- * A course is moved to the first lane at or after the one it is in, and only
- * backwards when the plan has nothing left in front of it.
+ * A course moves to the first lane at or after its current one, and backwards
+ * only when nothing later fits.
  */
 
 import { useEffect } from "react";
@@ -22,7 +20,7 @@ import type { StickyViolation } from "../rule-check/index.ts";
 import { recomputeGroupFromChildren } from "./node-layout.ts";
 import type { BoardNode } from "./types.ts";
 
-/** What one pass of the shift did, before anything is written anywhere. */
+/** The result of one shift pass, before anything is written. */
 interface TermShiftResult {
     resolved: BoardNode[];
     shiftedCount: number;
@@ -39,9 +37,9 @@ interface TermShiftInput {
 }
 
 /**
- * Works out where every term-invalid course has to go, and settles the canvas
- * around the moves. Parked courses are left alone, since the parking stage is
- * not a semester and nothing there is being taken.
+ * Computes the destination of every term-invalid course and settles the canvas
+ * around the moves. Parked courses are skipped, as the parking stage has no
+ * season.
  */
 function shiftTermInvalidCourses(nodes: BoardNode[], {
     maxSemesterCount,
@@ -116,8 +114,8 @@ function shiftTermInvalidCourses(nodes: BoardNode[], {
     }
     resolved = resolveLaneCollisions(resolved);
 
-    // Only horizontal movement counts as a change worth writing: settling the
-    // lanes can nudge a card downwards without any course changing semester.
+    // Only horizontal movement counts as a change: settling the lanes can nudge
+    // a card downwards without any course changing semester.
     const changed = resolved.some((node, idx) => {
         const before = nodes[idx];
         if (!before) return true;
@@ -137,7 +135,7 @@ export interface UseTermAutoShiftInput {
     nodeDragInProgressRef: MutableRefObject<boolean>;
     maxSemesterCount: number;
     startTermSeason: string;
-    /** In the dependencies because a changed override is what starts a shift. */
+    /** A dependency: a changed override is what triggers a shift. */
     effectiveCourseTermByCode: Record<string, TermAvailability>;
     termAvailabilityForCode: (courseCode: string) => TermAvailability;
     isCourseAllowedInLane: (courseCode: string | null | undefined, laneIndex: number) => boolean;
@@ -163,7 +161,7 @@ export function useTermAutoShift({
 }: UseTermAutoShiftInput): void {
     useEffect(() => {
         if (!plannerHydrated) return;
-        // Relocating a card mid-drag would take it out from under the pointer.
+        // Relocating a card mid-drag would move it out from under the pointer.
         if (nodeDragInProgressRef.current) return;
         if (!Array.isArray(nodes) || nodes.length === 0) return;
 

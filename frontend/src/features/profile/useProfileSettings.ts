@@ -1,13 +1,13 @@
 /**
- * The student's stored profile, mirrored from the server one programme at a time.
+ * The stored profile, mirrored from the server one programme at a time.
  *
- * The mirror is a map keyed by programme code rather than a single record,
- * because the planner switches programme without unmounting and a programme
- * already fetched has to keep answering for its start term while the fetch for
- * the next one is still in flight. Nothing derived from it is memoised: a
- * programme with no entry yet reads as a fresh empty object on every render,
- * and the callbacks downstream are rebuilt just as often, so memoising here
- * would quietly change how often the rest of the planner reacts.
+ * The mirror is keyed by programme code rather than a single record, because
+ * the planner switches programme without unmounting and an already-fetched
+ * programme must keep answering while the next fetch is in flight.
+ *
+ * Nothing derived from it is memoised: a programme with no entry reads as a
+ * fresh empty object each render, and memoising here would change how often the
+ * rest of the planner reacts.
  */
 
 import { useEffect, useState } from "react";
@@ -22,16 +22,15 @@ import {
     type TermAvailability,
 } from "../../domain/terms.ts";
 
-/** The semester a student began a programme in. */
+/** The semester a programme was begun in. */
 export interface StartTerm {
     season: Season;
     year: number;
 }
 
 /**
- * One programme's profile. Every field is optional because the mirror is
- * written in pieces: a save updates only the part it saved, and the entry for
- * a programme can exist before its fetch has answered.
+ * One programme's profile. All fields are optional: the mirror is written in
+ * pieces, and an entry can exist before its fetch has answered.
  */
 export interface ProfileSettings {
     startTerm?: StartTerm | null;
@@ -39,7 +38,7 @@ export interface ProfileSettings {
     courseTermOverrides?: Record<string, TermAvailability>;
     interests?: string[];
     careerDirection?: string;
-    /** The backend's own name, read under it throughout the planner. */
+    /** The backend's field name, kept as-is throughout the planner. */
     recommendation_toggles?: Record<string, boolean>;
 }
 
@@ -102,8 +101,8 @@ export function useProfileSettings({
                 );
                 const nextLockedProgramCode = String(payload?.locked_program_code || "").trim() || null;
                 setLockedProgramCode(nextLockedProgramCode);
-                // The locked programme is the one the student settled on at
-                // signup, so it wins over whatever the planner was showing.
+                // A locked programme was fixed at signup, so it wins over
+                // whatever the planner was showing.
                 if (nextLockedProgramCode && nextLockedProgramCode !== programCode) {
                     setProgramCode?.(nextLockedProgramCode);
                 }

@@ -1,22 +1,21 @@
 /**
- * The semester keys a plan is filed under, and how a stored plan is read back.
+ * Semester keys of a plan.
  *
- * A plan always carries at least the semesters the programme is designed to
- * take, even where they are empty, because a lane has to exist before a course
- * can be dropped into it. Semesters beyond that appear only once something is
- * placed in them, and never past the programme's maximum.
+ * A plan always carries at least the programme's designed semesters, empty or
+ * not, since a lane must exist before a course can be dropped into it. Later
+ * semesters appear only once occupied, and never past the programme maximum.
  */
 
 import type { CoursesBySemester, PlanCourse, PlanCourseInSemester } from "./state.ts";
 
-/** A plan with the designed number of semesters and nothing in any of them. */
+/** An empty plan with the designed number of semesters. */
 export function emptyCoursesOnlyPlan(minCount: unknown = 6): CoursesBySemester {
     const bySem: CoursesBySemester = {};
     for (let i = 1; i <= Math.max(1, Number(minCount) || 1); i += 1) bySem[i] = [];
     return bySem;
 }
 
-/** The semesters a plan is read over, in order: the designed ones plus any used. */
+/** The semesters a plan is read over, in order: the designed ones plus any occupied. */
 export function numericSemesterIds(bySemester: unknown, minCount: unknown, maxCount: unknown): number[] {
     const ids = new Set<number>();
     const min = Math.max(1, Number(minCount) || 1);
@@ -32,9 +31,8 @@ export function numericSemesterIds(bySemester: unknown, minCount: unknown, maxCo
 }
 
 /**
- * A stored plan, keyed by number and padded to the designed length. The courses
- * themselves are taken as they are: they were written by this application, and
- * the diff re-checks the few fields it depends on.
+ * A stored plan, keyed by number and padded to the designed length. Course
+ * objects are taken as-is; the diff re-checks the fields it depends on.
  */
 export function normalizeBySemesterMap(value: unknown, minCount: unknown, maxCount: unknown): CoursesBySemester {
     const next = emptyCoursesOnlyPlan(minCount);
@@ -47,7 +45,7 @@ export function normalizeBySemesterMap(value: unknown, minCount: unknown, maxCou
     return next;
 }
 
-/** Every course in a plan, each carrying the semester it was found in. */
+/** Every course in a plan, each tagged with the semester it was found in. */
 export function flattenBySemester(
     bySemester: unknown,
     minCount: unknown,

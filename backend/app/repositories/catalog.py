@@ -1,10 +1,7 @@
-"""
-The course catalogue.
+"""The course catalogue, served from a materialised view holding the nested JSON.
 
-The catalogue itself is served from a materialised view that already contains
-the nested JSON the frontend expects. Term availability is not part of that view
-because it is answered twice: once by the curriculum, and once by whatever the
-student has overridden for their own plan.
+Term availability sits outside that view because it is answered twice, by the
+curriculum and by the student's own overrides.
 """
 from __future__ import annotations
 
@@ -49,19 +46,11 @@ class CatalogRepository:
         return {row["code"]: row["term_availability"] for row in rows}
 
     async def candidates(self, program_code: str) -> list[dict[str, Any]]:
-        """
-        Every course in a programme, flat.
+        """Every course in a programme, flat, for the recommender.
 
-        The recommender needs the courses without the catalogue's nesting. Going
-        through the JSON view instead would mean materialising the whole
-        document only to take it apart again.
-
-        The order is part of the answer. Candidates are considered in the order
-        they arrive in and the recommender's final sort by score is stable, so
-        ties keep it; without a stated order two students with the same plan can
-        be shown different courses. The four ordering columns are a key of the
-        result: everything else the query selects comes from the course row and
-        is settled by its id.
+        The ORDER BY is load-bearing: the recommender's sort by score is stable,
+        so row order breaks ties, and without it two students with the same plan
+        can be shown different courses. The four columns are a key of the result.
         """
         rows = await self._connection.fetch(
             """

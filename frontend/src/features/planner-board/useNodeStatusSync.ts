@@ -1,18 +1,17 @@
 /**
- * Mirrors the plan's record of what is passed and what is parked onto the cards.
+ * Mirrors done and parked status from the plan onto the cards.
  *
- * The plan is the authority for status and the canvas is the authority for
- * position, so this is the one direction in which the plan writes to a node
- * without rebuilding it. A module panel takes the status its cards agree on and
- * keeps the one it has when they do not, which is why an empty panel is skipped
- * rather than reset.
+ * The plan owns status, the canvas owns position, so this is the one direction
+ * in which the plan patches a node without rebuilding it. A module panel takes
+ * the status its cards agree on and keeps its own when they do not, so an empty
+ * panel is skipped rather than reset.
  */
 
 import { useEffect } from "react";
 
 import type { BoardNode } from "./types.ts";
 
-/** How a module panel's cards divide up, as the roll-up counts them. */
+/** Tally of a module panel's cards by status. */
 interface GroupStatusTally {
     total: number;
     done: number;

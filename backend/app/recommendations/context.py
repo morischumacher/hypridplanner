@@ -1,15 +1,4 @@
-"""
-What a channel is allowed to look at.
-
-`PlanContext` is the plan as the channels see it: the student's profile, the
-codes already accounted for, and the candidates still open to them. Building it
-is the only place a course dictionary is read for its topics, so every channel
-compares against the same reading of the catalogue.
-
-The student's own history is derived lazily. A plan that already contains every
-course leaves no candidates, and answering that case must not cost a second pass
-over the catalogue.
-"""
+"""The plan as the channels see it: profile, codes already accounted for, and open candidates."""
 from __future__ import annotations
 
 import re
@@ -23,7 +12,7 @@ _ANY_WORD = re.compile(r"\b\w+\b")
 
 @dataclass(frozen=True)
 class CourseMetadata:
-    """One course reduced to the words a channel can match against."""
+    """One course reduced to the words a channel matches against."""
 
     skills: set[str]
     desc_words: set[str]
@@ -50,9 +39,8 @@ def course_metadata(row: dict[str, Any]) -> CourseMetadata:
     title_words = {w.lower() for w in _WORDS.findall(name)}
 
     return CourseMetadata(
-        # The topic words serve as both the skills a course teaches and the words
-        # its description is made of. The two channels that read them ask
-        # different questions of the same set.
+        # skills and desc_words are deliberately the same set, read with
+        # different questions by the two channels that use them.
         skills=content_keywords,
         desc_words=content_keywords,
         raw_desc=(name + " " + " ".join(content)).lower(),
@@ -100,7 +88,7 @@ class PlanContext:
 
     @cached_property
     def candidates(self) -> list[Course]:
-        """Everything the student could still add, in the order the pool gave us."""
+        """Everything the student could still add, in pool order."""
         accounted_for = self.already_in_plan
         return [
             Course.of(row)
@@ -110,7 +98,7 @@ class PlanContext:
 
     @cached_property
     def history(self) -> list[Course]:
-        """The catalogue rows for the courses the student has already accounted for."""
+        """The catalogue rows for courses already accounted for."""
         accounted_for = self.already_in_plan
         return [Course.of(row) for row in self.pool if row.get("code") in accounted_for]
 

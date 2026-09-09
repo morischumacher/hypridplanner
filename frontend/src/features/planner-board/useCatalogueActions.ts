@@ -1,11 +1,10 @@
 /**
- * What the sidebar and the curriculum graph do to a plan they are not drawing.
+ * Plan mutations issued by the sidebar and the curriculum graph.
  *
- * Both list courses that may already be on the canvas, so every action here has
- * to reach the canvas as well as the plan. Ticking a course off leaves the
- * canvas to be read back later, whereas dropping one writes the plan through at
- * once: a removal has to be described while the removed cards can still be
- * found, and a tick is already a change of its own.
+ * Both list courses that may already be on the canvas, so every action here
+ * reaches the canvas as well as the plan. Marking done leaves the canvas to be
+ * read back later; removing writes the plan through at once, while the removed
+ * cards can still be found.
  */
 
 import { useCallback } from "react";
@@ -35,7 +34,7 @@ export interface UseCatalogueActionsResult {
         groupId?: string
     ) => void;
     updateCourseMeta: (courseCode: string | null | undefined, patch: CourseMetaPatch) => void;
-    /** True when at least one card was found and taken off the canvas. */
+    /** True when at least one card was found and removed from the canvas. */
     removeGraphCoursesFromPlan: (courseCodes: readonly (string | null | undefined)[]) => boolean;
     removeGraphCourseFromPlan: (courseCode: string | null | undefined) => boolean;
     removeGraphModuleFromPlan: (modulePayload: ModulePayload | null | undefined) => boolean;
@@ -54,8 +53,8 @@ export function useCatalogueActions({
 }: UseCatalogueActionsInput): UseCatalogueActionsResult {
     const toggleGraphCourseDone = useCallback((courseCode: string | null | undefined, nextDone: boolean) => {
         if (!courseCode) return;
-        // A course that is not in the plan has no state to tick, and a parked
-        // one is not being taken, so neither can be marked as passed from here.
+        // Only a course placed in a lane can be marked done: one absent from the
+        // plan has no status, and a parked one is not being taken.
         const currentStatus = getCourseStatus(courseCode);
         if (currentStatus !== "in_plan" && currentStatus !== "done") return;
 

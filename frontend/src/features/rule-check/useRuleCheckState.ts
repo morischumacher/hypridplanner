@@ -1,11 +1,9 @@
 /**
- * What the rule checker last said, held one answer per programme.
+ * The rule checker's last answer, one per programme.
  *
- * The answers are filed under the programme they were asked about rather than
- * kept as a single value, because a check is in flight for some time and the
- * student may switch curriculum while it is: an answer that arrives late is
- * still written, but only under the programme that asked for it, so the
- * planner never shows one curriculum's verdict against the other's plan.
+ * Answers are filed under the programme they were asked about rather than kept
+ * as a single value: a check can still be in flight across a programme switch,
+ * and a late answer must not be shown against the other curriculum's plan.
  */
 
 import { useCallback, useState } from "react";
@@ -13,10 +11,10 @@ import { useCallback, useState } from "react";
 import { EMPTY_RULE_CHECK_STATE } from "../../domain/programmes.ts";
 import type { RuleCheckState } from "../../domain/programmes.ts";
 
-/** How a programme's entry is replaced: outright, or worked out from the current one. */
+/** A replacement entry, or a function from the current one to it. */
 export type RuleCheckStateUpdate = RuleCheckState | ((current: RuleCheckState) => RuleCheckState);
 
-/** Writes one programme's entry. Programmes that have not been asked have none. */
+/** Writes one programme's entry; an unasked programme has none. */
 export type SetProgramRuleCheckState = (
     targetProgramCode: string,
     updater: RuleCheckStateUpdate
@@ -27,7 +25,7 @@ export interface UseRuleCheckStateInput {
 }
 
 export interface UseRuleCheckStateResult {
-    /** The current programme's answer, or the empty one before it has any. */
+    /** The current programme's answer, or the empty state before it has one. */
     ruleCheckState: RuleCheckState;
     setProgramRuleCheckState: SetProgramRuleCheckState;
 }

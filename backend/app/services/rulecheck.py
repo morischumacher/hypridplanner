@@ -1,10 +1,5 @@
-"""
-Checking a plan against its curriculum.
-
-The rule sets live in `app/rules`; this is the use case around them. It exists
-so that the HTTP layer never touches a checker directly, and so that the one
-place a rule set can raise is wrapped in something the API knows how to answer.
-"""
+"""Use case around the rule sets in `app/rules`, wrapping their failures in a
+domain error the API can answer with."""
 from __future__ import annotations
 
 from dataclasses import asdict, is_dataclass

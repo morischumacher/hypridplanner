@@ -1,9 +1,6 @@
 /**
- * The sign-in and sign-up failures a student can act on.
- *
- * The form printed the transport at them — status line, status text and the
- * JSON body — which is what E-P41 records. Every branch here has to name the
- * problem and the next step, and no branch may echo the response.
+ * Every branch names the problem and the next step, and none echoes the
+ * response's status or body.
  */
 import { describe, expect, it } from "vitest";
 

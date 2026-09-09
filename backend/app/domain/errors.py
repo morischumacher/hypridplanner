@@ -1,15 +1,9 @@
-"""
-What can go wrong, named for what it is rather than for its status code.
-
-Services raise these. The HTTP layer owns the single table that turns them into
-responses, which is the only place in the application that knows about status
-codes at all.
-"""
+"""Domain errors, named for what went wrong. The HTTP layer maps them to status codes."""
 from __future__ import annotations
 
 
 class DomainError(Exception):
-    """Base class, so one handler can catch everything the services raise."""
+    """Base class, so one handler catches everything the services raise."""
 
 
 class InvalidRequest(DomainError):

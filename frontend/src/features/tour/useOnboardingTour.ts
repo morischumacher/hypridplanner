@@ -1,17 +1,15 @@
 /**
- * The guided tour: which step is showing, whether the student has finished the
- * tour before, and the arrangement each step needs the planner to be in.
+ * The guided tour: the current step, whether the tour has been completed
+ * before, and the planner arrangement each step needs.
  *
- * Only the steps that name a panel move one. A step that says nothing about the
- * sidebar, the recommendation panel, the dashboard or the profile leaves it as
- * the previous step left it, so the tour reads as one continuous walk rather
- * than as a sequence of resets.
+ * A step moves only the panels it names; anything it says nothing about is left
+ * as the previous step left it.
  */
 
 import { useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
-/** The signed-in student, as far as the tour needs to know them. */
+/** The part of the signed-in user the tour reads. */
 export interface TourUser {
     username?: string | null;
 }
@@ -41,9 +39,9 @@ export function useOnboardingTour({
     const [activeTourStep, setActiveTourStep] = useState<number | null>(null);
     const [tourCompleted, setTourCompleted] = useState(true);
 
-    // The tour writes the flag itself on the way out rather than reporting back,
-    // so it is read again on every step change; that is what makes finishing the
-    // tour settle the help button as soon as the last step closes.
+    // The tour writes the completion flag on the way out rather than reporting
+    // back, so it is re-read on every step change and the help button settles
+    // as soon as the last step closes.
     useEffect(() => {
         if (currentUser?.username) {
             const completedKey = "study-planner-tour-completed-" + currentUser.username;

@@ -1,11 +1,6 @@
 /**
- * The shapes the domain modules hand to one another.
- *
- * Every type here is derived from what the code already builds and reads rather
- * than from what a curriculum ought to look like. The catalogue types describe
- * the output of `normalizeCatalog` and nothing else: the backend payload is
- * narrowed once on the way in, so no module downstream has to guess whether it
- * is holding raw JSON or a catalogue.
+ * Shared domain types. The catalogue types describe the output of
+ * `normalizeCatalog`, not the raw backend payload.
  */
 
 /** A point in React Flow's coordinate space, not in screen pixels. */
@@ -21,15 +16,11 @@ export interface CatalogueCourse {
     ects: number | null;
     /** Teaching format such as "VU". Null where the backend left it blank. */
     type: string | null;
-    /** Still in whatever case the backend used; `normalizeTermAvailability` settles it. */
+    /** Unnormalised case; run through `normalizeTermAvailability` before comparing. */
     termAvailability: string;
 }
 
-/**
- * A module is the unit a requirement is written against, and it holds the
- * courses that can satisfy it. The snake_case fields are the backend's own and
- * are read under those names throughout the planner.
- */
+/** The unit a requirement is written against. snake_case fields are the backend's own. */
 export interface CatalogueModule {
     code: string;
     name: string;
@@ -49,9 +40,8 @@ export interface CatalogueSubject {
 export type Catalogue = CatalogueSubject[];
 
 /**
- * A catalogue course lifted out of its module, carrying the normalised strings
- * the prefill matcher compares against. Those strings are precomputed because
- * matching runs every alias of every template entry against every course.
+ * A catalogue course lifted out of its module. The `_norm*` strings are
+ * precomputed because prefill matches every alias against every course.
  */
 export interface FlattenedCourse {
     code: string;
@@ -100,11 +90,7 @@ export interface BachelorPlannedCourse extends PlannedCourse {
     module: PlannedModule;
 }
 
-/**
- * What a course card carries about the module it belongs to. Only the id is
- * certain: a card whose module panel has been collapsed away keeps the id and
- * loses the rest.
- */
+/** Module data on a course card. Only the id survives a collapsed module panel. */
 export interface CourseModuleMeta {
     id: string;
     title?: string | undefined;
@@ -116,9 +102,8 @@ export interface CourseModuleMeta {
 }
 
 /**
- * What the planner stores on a canvas node. A node is a course card, the panel
- * behind a module group, or a lane background, and the three kinds read
- * disjoint fields, which is why every field is optional.
+ * Data on a canvas node. Course cards, module panels and lane backgrounds share
+ * this shape but read disjoint fields, hence all-optional.
  */
 export interface PlanNodeData {
     groupId?: string | undefined;

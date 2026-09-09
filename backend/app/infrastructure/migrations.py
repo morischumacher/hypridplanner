@@ -1,16 +1,8 @@
-"""
-Schema migrations.
+"""Schema migrations, forward-only.
 
-A migration is a SQL file named `YYYYMMDDHHMM_slug.sql`. Lexical order is
-therefore chronological order, and two people working in parallel cannot produce
-the same identifier by accident, which sequential numbering could not promise.
-
-Migrations are forward-only. There are no down-migrations, because one that is
-never exercised is not a rollback path, it is an untested claim.
-
-Each applied file is recorded with a checksum. Editing a migration after it has
-run means the database and the repository disagree about the schema, and that is
-reported rather than discovered later.
+A migration is a SQL file named `YYYYMMDDHHMM_slug.sql`, so lexical order is
+chronological and parallel work cannot collide on an identifier. Each applied file
+is recorded with a checksum, and later edits are reported as drift.
 """
 from __future__ import annotations
 
@@ -43,12 +35,9 @@ def migrations_directory(configured: str) -> str:
 async def _verify(
     connection: asyncpg.Connection, applied: dict[str, str | None], files: dict[str, str]
 ) -> None:
-    """
-    Compare recorded checksums against the files, and fill in the missing ones.
+    """Compare recorded checksums against the files, backfilling missing ones.
 
-    Rows written before checksums existed have none. Those are backfilled from
-    what is on disk now, which is the truthful best guess: whether they matched
-    at the time cannot be recovered.
+    Rows written before checksums existed have none; those take what is on disk.
     """
     drifted = []
     for name, recorded in applied.items():
@@ -85,9 +74,8 @@ async def apply_pending(connection: asyncpg.Connection, directory: str) -> None:
 
     pending = [path for path in paths if path.name not in applied]
 
-    # Said even when there is nothing to do. Someone watching a deployment needs
-    # to know the difference between a database that was already current and one
-    # whose migrations did not run at all, and silence does not distinguish them.
+    # Printed even when there is nothing to do, so a deployment log distinguishes
+    # an already-current database from one whose migrations never ran.
     print(
         f"migrations: {len(applied & files.keys())} already applied, "
         f"{len(pending)} to apply"

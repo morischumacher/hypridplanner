@@ -1,11 +1,9 @@
 /**
- * The two moments the planner offers a prebuilt plan: when the planner is
- * empty, and when the student picks a different focus area for a bachelor plan
- * they have already started.
+ * The two points a prebuilt plan is offered: an empty planner, and a focus-area
+ * change on a bachelor plan already started.
  *
- * The second offer is made only when the focus changed on its own. A programme
- * switch changes the focus as well, and the plan on screen after a switch is a
- * different plan, not one whose focus the student has just reconsidered.
+ * The second offer fires only on a focus change alone. A programme switch also
+ * changes the focus, but that is a different plan, not a reconsidered one.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -13,21 +11,20 @@ import type { Dispatch, SetStateAction } from "react";
 
 import { BACHELOR_PROGRAM_CODE } from "../../domain/programmes.ts";
 
-/** The focus the offer is about, or null when no offer is standing. */
+/** The focus the offer concerns, or null when no offer is standing. */
 export type FocusPrefillPrompt = { focus: string } | null;
 
 export interface UsePrefillPromptsResult {
     focusPrefillPrompt: FocusPrefillPrompt;
     setFocusPrefillPrompt: Dispatch<SetStateAction<FocusPrefillPrompt>>;
-    /** True once the student has answered the empty-planner offer either way. */
+    /** True once the empty-planner offer has been answered either way. */
     dismissedInitialPrefillPrompt: boolean;
     setDismissedInitialPrefillPrompt: Dispatch<SetStateAction<boolean>>;
 }
 
 /**
- * Whether either offer is standing. It is held apart from the effect that
- * raises the focus offer because the dashboard reads it while working out
- * whether the empty-planner offer is due, and that happens first.
+ * Whether either offer is standing. Kept apart from the effect that raises the
+ * focus offer, which the dashboard reads first when deciding the other offer.
  */
 export function usePrefillPrompts(): UsePrefillPromptsResult {
     const [focusPrefillPrompt, setFocusPrefillPrompt] = useState<FocusPrefillPrompt>(null);
@@ -45,7 +42,7 @@ export interface UseFocusPrefillOfferInput {
     plannerHydrated: boolean;
     programCode: string;
     selectedFocus: string;
-    /** Whether there is a plan to replace. An empty planner gets the other offer. */
+    /** Whether there is a plan to replace; an empty planner gets the other offer. */
     hasAnyPlannedOrDoneCourses: boolean;
     setFocusPrefillPrompt: Dispatch<SetStateAction<FocusPrefillPrompt>>;
     setDismissedInitialPrefillPrompt: Dispatch<SetStateAction<boolean>>;

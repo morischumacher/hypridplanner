@@ -1,10 +1,8 @@
 /**
- * Making stored or half-typed values safe to put in the state.
+ * Coercion of stored or half-typed values into valid state.
  *
- * Everything here is total: a value that cannot be understood becomes the
- * default rather than an error, because these run on plans read back from the
- * server and on fields the student is still typing into. A plan that will not
- * load is worse than a plan that loads with one note missing.
+ * Every function is total: an unusable value becomes the default rather than an
+ * error, since these run on server payloads and on fields still being typed in.
  */
 
 import type { GraphFilters } from "../filters.ts";
@@ -15,7 +13,7 @@ import {
     type SemesterLoadLimits,
 } from "./state.ts";
 
-/** Anything that is not an object is read as an empty one. */
+/** Reads any non-object as an empty record. */
 export function asRecord(value: unknown): Record<string, unknown> {
     return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 }
@@ -27,9 +25,8 @@ export function sanitizeCourseMetaEntry(value: unknown): CourseMeta {
     const estimatedHours = estimatedHoursRaw == null ? "" : String(estimatedHoursRaw);
     const gradeRaw = source.grade;
     let grade = gradeRaw == null ? "" : String(gradeRaw);
-    // Marks are entered by hand and with a comma as often as a point. Anything
-    // worse than a five is not a mark a student can hold, so it is capped
-    // rather than rejected.
+    // Grades are hand-entered, with a comma as often as a point. 5 is the worst
+    // valid grade, so anything above it is capped rather than rejected.
     const normalizedGrade = grade.trim().replace(",", ".");
     const parsedGrade = Number(normalizedGrade);
     if (normalizedGrade && Number.isFinite(parsedGrade) && parsedGrade > 5) {
@@ -39,9 +36,8 @@ export function sanitizeCourseMetaEntry(value: unknown): CourseMeta {
 }
 
 /**
- * Load limits, with the recommendation held at or below the maximum. A
- * recommendation above the maximum would mark every semester that follows it
- * as both fine and too full.
+ * Load limits, with the recommendation clamped at or below the maximum; above
+ * it, a semester would count as both within recommendation and over the limit.
  */
 export function sanitizeSemesterLoadLimits(value: unknown): SemesterLoadLimits {
     const source = asRecord(value);
@@ -72,9 +68,8 @@ export function sanitizeSemesterLoadLimits(value: unknown): SemesterLoadLimits {
 }
 
 /**
- * Graph filters, keeping the six lists the filter engine reads. An empty list
- * means "no constraint" there, so a missing one falls back to the default
- * rather than to nothing.
+ * Graph filters. An empty list means "no constraint", so a missing one falls
+ * back to the default rather than to an empty list.
  */
 export function sanitizeGraphFilters(filters: unknown): GraphFilters {
     const source = asRecord(filters);

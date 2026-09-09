@@ -1,9 +1,7 @@
 /**
- * The prebuilt plans, and the two moments they are offered.
- *
- * Applying one replaces the whole plan, which is why the offers are kept apart
- * from the appliers: an offer has to know whether there is anything to replace,
- * and that is a question about the plan the dashboard has already answered.
+ * The prebuilt plans and the two points they are offered at. Applying one
+ * replaces the whole plan, so offers are kept apart from appliers: an offer
+ * needs to know whether there is anything to replace.
  */
 
 export { default as PrefillNotifications } from "./PrefillNotifications.tsx";

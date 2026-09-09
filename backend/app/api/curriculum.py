@@ -21,12 +21,7 @@ async def get_prerequisites(
     program_code: str | None = Query(default=None, alias="program_code"),
     _user: dict[str, Any] = Depends(require_user),
 ):
-    """The prerequisite relations of one programme, for the client to draw.
-
-    The compliance engine already enforces these relations; this endpoint exists
-    so the graph view can render the same list rather than hold a second copy of
-    it. A programme that encodes none returns an empty list.
-    """
+    """The prerequisite relations of one programme; empty for a programme that encodes none."""
     code = normalise_program_code(program_code)
     if code and code not in (BACHELOR_PROGRAM_CODE, MASTER_PROGRAM_CODE):
         raise HTTPException(

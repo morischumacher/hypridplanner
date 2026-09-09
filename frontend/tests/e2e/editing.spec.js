@@ -1,19 +1,3 @@
-/**
- * Editing a plan that already exists.
- *
- * The flows in planning.spec.js get a course into the plan. These are what
- * happens to it afterwards, and they exist because of where a change to the
- * frontend is most likely to break something.
- *
- * A course's horizontal position on the canvas *is* its semester: the plan is
- * derived from node geometry, and node geometry is rebuilt from the plan. Moving
- * a card is therefore the one gesture that exercises both directions of that
- * loop at once.
- *
- * Rejection is asynchronous. The change is applied locally, sent to the rule
- * engine, and undone if the answer comes back negative. Nothing about that is
- * visible in a unit test, and getting it wrong silently loses a student's work.
- */
 import { expect, test } from "@playwright/test";
 
 import {
@@ -65,9 +49,8 @@ test.describe("moving a course", () => {
     });
 
     test("the move survives a reload", async ({ page }) => {
-        // The plan is written back from node positions, so a move that is only
-        // on the canvas and never reaches the server would pass the test above
-        // and still lose the student's work.
+        // The plan is written back from node positions, so a move that never
+        // reaches the server still passes the test above.
         await startPlanning(page, { season: "winter" });
         await expandCatalog(page);
 
@@ -87,8 +70,8 @@ test.describe("moving a course", () => {
 
 test.describe("a change the rule engine refuses", () => {
     test("is undone, and says why", async ({ page }) => {
-        // The ceiling is 42 credits in one semester. Seven six-credit courses
-        // reach it exactly; the eighth is what the rule engine has to refuse.
+        // The ceiling is 42 credits in one semester, so seven six-credit courses
+        // reach it exactly and the eighth is refused.
         await startPlanning(page, { season: "winter" });
         await expandCatalog(page, 6);
 
@@ -109,7 +92,7 @@ test.describe("a change the rule engine refuses", () => {
 
         await expect(feedback(page)).toContainText("Rejected");
         await expect(feedback(page)).toContainText("42.0 ECTS");
-        // Undone, not merely reported: the course must not be left in the plan.
+        // Undone, not merely reported.
         await expect(plannedCard(page, refused)).toHaveCount(0);
         await expectLaneEcts(page, "#semester-lane-1", 42);
     });
@@ -167,7 +150,7 @@ test.describe("a course card", () => {
 });
 
 test.describe("the dashboard's own state", () => {
-    /** The panel a plain toggle can be read off, by the heading it prints. */
+    /** A panel that is a plain toggle, addressed by the heading it prints. */
     const section = (page) =>
         page
             .locator("#planner-dashboard-container")
@@ -175,12 +158,8 @@ test.describe("the dashboard's own state", () => {
             .locator("..");
 
     test("which sections are open survives a reload", async ({ page }) => {
-        // The panel booleans are persisted in the same document as the plan, so
-        // splitting them apart risks losing one or the other.
-        //
-        // A section with nothing to show closes itself, and after a reload the
-        // rule check has not answered yet, so the requirement and warning
-        // sections are not the ones to assert on. This one is a plain toggle.
+        // The requirement and warning sections close themselves while the rule
+        // check has not answered yet, so this plain toggle is the one to assert on.
         await startPlanning(page);
         await openDashboard(page);
 
@@ -195,11 +174,9 @@ test.describe("the dashboard's own state", () => {
     });
 
     test("a save carries the programmes the student is not looking at", async ({ page }) => {
-        // The planner locks a student to the programme they chose at signup, so
-        // the second programme's panel state is written into the stored document
-        // rather than through the interface. It is read back the same way: no
-        // screen shows a programme that is not on screen, and the point of the
-        // flow is that a save must not drop it.
+        // A user is locked to the programme chosen at signup, so the second
+        // programme's panel state is written and read back through the stored
+        // document rather than through the interface.
         await startPlanning(page, { program: MASTER });
         await page.waitForTimeout(2000);
 

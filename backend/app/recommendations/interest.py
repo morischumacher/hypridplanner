@@ -1,12 +1,7 @@
-"""
-Recommending by stated interest.
+"""Recommending by stated interest.
 
-An interest matches a course three ways, and the three are not worth the same: a
-topic word the course lists outright counts for most, the interest appearing
-anywhere in the course description counts for less, and a partial word overlap
-counts for least. The score is that weighted count spread over how many interests
-the student named, so naming ten interests and matching one is not the same as
-naming one and matching it.
+Listed topic, description hit and partial word overlap are weighted 1.5/0.8/0.4,
+normalised by the number of interests named.
 """
 from __future__ import annotations
 
@@ -18,8 +13,7 @@ from .strategy import Suggestion
 
 _ANY_WORD = re.compile(r"\b\w+\b")
 
-# How much of a multi-word interest has to appear before the course counts as
-# covering it.
+# How much of a multi-word interest must appear before the course counts as covering it.
 _PARTIAL_MATCH_SHARE = 0.5
 
 
@@ -48,9 +42,8 @@ class InterestStrategy:
         ) / max(1, len(plan.interests))
         score = min(1.0, max(0.4, score))
 
-        # Sorted before slicing: these sets iterate in an order that varies per
-        # process, so without it the student is shown a different three of their
-        # matched interests on every restart.
+        # Sorted before slicing: set iteration order varies per process, and this
+        # text reaches the student.
         parts = []
         if matched_skills:
             parts.append(f"focuses on {', '.join(sorted(matched_skills)[:3])}")

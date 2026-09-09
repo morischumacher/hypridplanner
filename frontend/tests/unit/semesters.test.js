@@ -1,12 +1,4 @@
-/**
- * Term parity and lane rules.
- *
- * This module decides which semester a course may be placed in, which is the
- * mechanism behind the single most frequent friction the evaluation recorded:
- * students guess a term, the drop is rejected, and they place again. The rules
- * themselves are correct, so no change to the surrounding code may disturb
- * them.
- */
+/** Term parity and lane rules: which semester a course may be placed in. */
 import { describe, expect, it } from "vitest";
 
 import {
@@ -38,8 +30,8 @@ describe("semesterBoundsForProgram", () => {
 
     it("tolerates surrounding whitespace but not missing inner spacing", () => {
         expect(semesterBoundsForProgram("  033 521  ")).toEqual({ min: 6, max: 10 });
-        // The spaced form is the one the curriculum regulations print, and the
-        // backend rule checkers compare against it too.
+        // The spaced form is what the curriculum regulations print and what the
+        // backend rule checkers compare against.
         expect(semesterBoundsForProgram("033521")).toEqual({ min: 4, max: 8 });
     });
 });
@@ -86,7 +78,7 @@ describe("normalisation", () => {
 
     it("falls back to 'both' for anything unrecognised", () => {
         // Permissive on purpose: an unknown term must not make a course
-        // unplaceable, which would be worse than allowing it anywhere.
+        // unplaceable.
         for (const value of [undefined, null, "", "spring", 42]) {
             expect(normalizeTermAvailability(value)).toBe(TERM_BOTH);
         }
@@ -111,8 +103,8 @@ describe("laneSeason", () => {
     });
 
     it("treats lane zero as the start season, not as a falsy index", () => {
-        // Lane 0 is the first semester. An earlier version of the backend had a
-        // bug here precisely because 0 is falsy in JavaScript and Python alike.
+        // Lane 0 is the first semester, and 0 is falsy in JavaScript and Python
+        // alike.
         expect(laneSeason(TERM_SUMMER, 0)).toBe(TERM_SUMMER);
     });
 });
@@ -146,8 +138,7 @@ describe("firstAllowedLaneAtOrAfter", () => {
     });
 
     it("returns null when no lane inside the plan can hold the course", () => {
-        // A summer course with only lane 0 available has nowhere to go, and the
-        // caller has to say so rather than silently placing it wrongly.
+        // A summer course with only lane 0 available has nowhere to go.
         expect(firstAllowedLaneAtOrAfter(TERM_SUMMER, TERM_WINTER, 0, 0)).toBeNull();
     });
 

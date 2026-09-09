@@ -22,12 +22,10 @@ class Credentials(BaseModel):
 
 
 def _cross_site() -> bool:
-    """
-    True when the frontend is served from somewhere other than this machine.
+    """True when the frontend is served from another host.
 
-    A cross-site cookie has to be SameSite=None and Secure or the browser drops
-    it, and those settings would stop the cookie working over plain HTTP in
-    development, so the two cases are distinguished here.
+    A cross-site cookie needs SameSite=None and Secure, which would break the
+    cookie over plain HTTP in development, so the two cases are separated.
     """
     origin = settings.CORS_ORIGIN
     return bool(origin and "localhost" not in origin and "127.0.0.1" not in origin)

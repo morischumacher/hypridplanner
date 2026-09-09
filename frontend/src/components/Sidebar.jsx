@@ -13,7 +13,7 @@ import {
 import { resolveModuleVariantCourses } from "../domain/prefill/index.ts";
 import { displayCourseHeader, displayCourseTitle } from "../domain/course-names.ts";
 
-/** Sidebar — catalog + drag sources */
+// Course catalogue and the drag sources for the planner.
 export default function Sidebar({
     programCode,
     catalog,
@@ -313,7 +313,6 @@ export default function Sidebar({
                                 overflow: "visible",
                             }}
                         >
-                            {/* Header */}
                             <button
                                 onClick={() => togglePf(pfName)}
                                 style={{
@@ -352,7 +351,6 @@ export default function Sidebar({
                 </span>
                             </button>
 
-                            {/* Body */}
                             {isBodyOpen && (
                                 <div style={{ padding: "8px 10px 12px 10px", display: "grid", gap: 8, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
                                     {visibleModules.map((mod, modIdx) => {
@@ -361,7 +359,7 @@ export default function Sidebar({
                                         const moduleEctsFallback = Number(mod?.ects);
                                         const resolvedModuleEcts = Number.isFinite(moduleEctsFallback) && moduleEctsFallback > 0 ? moduleEctsFallback : 1;
 
-                                        // Case A: module without child courses (e.g. Transferable Skills)
+                                        // Case A: module without child courses, for example Transferable Skills.
                                         if (courses.length === 0) {
                                             const standaloneLabel = String(mod?.name || "").toLowerCase();
                                             const standaloneCategory = String(mod?.category || "").toLowerCase();
@@ -512,7 +510,7 @@ export default function Sidebar({
                                             );
                                         }
 
-                                        // Case B: single course → drag that one (use the course's code!)
+                                        // Case B: single course, dragged under the course code rather than the module code.
                                         if (courses.length === 1) {
                                             const course = courses[0] ?? {};
                                             const courseStatus = getCourseStatus?.(course.code ?? mod.code) ?? "todo";
@@ -526,7 +524,6 @@ export default function Sidebar({
                                                 <div
                                                     key={menuKey}
                                                     data-sidebar-menu-key={menuKey}
-                                                    // Lets the end-to-end suite pick a named course out of the catalogue.
                                                     data-course-code={course.code ?? mod.code ?? ""}
                                                     draggable={isAddableStatus(courseStatus)}
                                                     onDragStart={(e) => {
@@ -564,7 +561,6 @@ export default function Sidebar({
                                                      {(() => {
                                                          const code = course?.code || mod?.code;
                                                          const rec = (recommendations || []).find((r) => r.courseCode === code);
-                                                         {/* Recommendation patches intentionally omitted here (only in RP) */}
                                                         return null;
                                                      })()}
                                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -686,7 +682,7 @@ export default function Sidebar({
                                             );
                                         }
 
-                                        // Case C: multiple courses → one draggable for the whole module + individual draggables
+                                        // Case C: multiple courses, one draggable for the module plus one per course.
                                         const modulePayload = {
                                             kind: "module",
                                             code: mod.code,

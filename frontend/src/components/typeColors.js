@@ -1,13 +1,4 @@
-/**
- * The colour a course card is drawn in, by how the course counts.
- *
- * The palette is chosen for contrast against its own text at WCAG AA, which is
- * why each entry carries five values rather than one: the chip and the border
- * share a hue that the background and the faint fill deliberately do not reach.
- * An unrecognised category falls back to the neutral grey, so a course the
- * catalogue cannot classify still reads as a card.
- */
-
+// Card palette by course type. Values are picked for WCAG AA contrast against their own text.
 export const TYPE_COLORS = {
     mandatory: {
         bg: "#FDECE8",

@@ -1,10 +1,7 @@
-"""
-The missing-requirement lines name courses the checker can recognise.
+"""The missing-requirement lines name courses the matcher recognises.
 
-A student reads "StEOP Pflicht-LV fehlt: X" and goes looking for X. If the title
-in that line is not the title the matcher accepts, the student adds the course
-the line named and the line stays. The two are written down separately, in the
-message and in the recognition table, and nothing kept them in step.
+The title in the message and the title in the recognition table are written
+separately, so adding the course a line names must clear that line.
 """
 from __future__ import annotations
 

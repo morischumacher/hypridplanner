@@ -1,17 +1,8 @@
-"""
-Shared test fixtures.
+"""Shared test fixtures.
 
-Two properties of the application shape everything here.
-
-The asyncpg pool is a module-level global created on startup and never closed,
-so it stays bound to whichever event loop first touched it. Tests therefore share
-one session-scoped loop and run the lifespan exactly once; a per-test lifespan
-would hand the second test a pool belonging to a loop that has already closed.
-
-Starlette's synchronous TestClient drives the app from a worker thread with its
-own loop, which hits the same problem from the other direction. Everything here
-is async against the ASGI app instead, which is also closer to how the app runs
-under uvicorn.
+The asyncpg pool stays bound to the loop that created it, so tests share one
+session-scoped loop and run the lifespan once. That also rules out the synchronous
+TestClient, which drives the app from a worker thread with its own loop.
 """
 from __future__ import annotations
 
@@ -66,7 +57,7 @@ async def client(running_app) -> AsyncIterator["httpx.AsyncClient"]:
 
 @pytest_asyncio.fixture(loop_scope="session")
 async def signed_in(client) -> "httpx.AsyncClient":
-    """A client carrying a session for a user created only for this test."""
+    """A client carrying a session for a user created for this test."""
     username = f"test-{uuid.uuid4().hex[:12]}"
     response = await client.post(
         "/auth/signup", json={"username": username, "password": "correct horse"}

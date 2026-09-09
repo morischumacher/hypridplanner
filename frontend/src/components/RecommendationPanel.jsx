@@ -17,24 +17,6 @@ const REC_CHANNELS = [
     { key: "peer", label: "Other students" },
 ];
 
-// ── RecommendationPanel ───────────────────────────────────────────────────────
-/**
- * Props:
- *   recommendations  – array of recommendations
- *   onDismiss(id)    – remove recommendation
- *   onPark(payload)  – park course
- *   onAddToPlan(payload, laneIndex) – add to plan
- *   onRemoveCourseFromPlan(code) – remove from plan
- *   onToggleCourseDone(code, isDone) – toggle done
- *   semesterOptions  – available semesters
- *   getValidSemestersForCourse(code) – filter semesters
- *   toggles          – recommendation type toggles
- *   onToggleChange(key, val) – change toggle state
- *   getCourseStatus(code) – get current course status
- *   programCode      – current program code
- *   subjectColors    – colors for subjects
- *   onDragStart      – drag handler
- */
 export default function RecommendationPanel({
     recommendations = [],
     onDismiss,
@@ -57,8 +39,7 @@ export default function RecommendationPanel({
     termAvailabilityForCode,
     hasStatedInterests,
 }) {
-    // Track which card has its menu expanded
-    const [menuState, setMenuState] = useState({ id: null, view: "root" }); // view: 'root', 'semesters', or 'details'
+    const [menuState, setMenuState] = useState({ id: null, view: "root" }); // view: root | semesters | details
     const [plusRevealCount, setPlusRevealCount] = useState(0);
     const [expandedIds, setExpandedIds] = useState(new Set());
 
@@ -88,7 +69,6 @@ export default function RecommendationPanel({
 
     const semesterButtonLabel = (semester) => (semester?.isPlus ? `+ ${semester.title}` : semester?.title);
 
-    // ── Toggles UI ────────────────────────────────────────────────────────
     const renderToggles = () => {
         const toggleItems = REC_CHANNELS;
         return (
@@ -130,7 +110,6 @@ export default function RecommendationPanel({
         hasStatedInterests,
     });
 
-    // ── Main Card List & Empty State Unified ─────────────────────────────
     return (
         <aside
             id="recommendation-panel-container"
@@ -222,7 +201,6 @@ export default function RecommendationPanel({
                             >
                                 {renderRecommendationPatch(rec.type)}
 
-                                {/* Row 1: Code + Actions */}
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                                     <div style={{ fontSize: 11, color: "#6b7280", fontFamily: "ui-monospace, monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 4 }}>
                                         <span>{displayCourseHeader(courseCode, courseName, rec.courseType)}</span>
@@ -271,12 +249,10 @@ export default function RecommendationPanel({
                                     </div>
                                 </div>
 
-                                {/* Row 2: Title */}
                                 <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.25, color: courseStatus === "done" ? "#6b7280" : "#111827" }}>
                                     {displayCourseTitle(courseName)}
                                 </div>
 
-                                {/* Recommendation Explanation (Restored as requested) */}
                                 {rec.evidence && (
                                     <div style={{ fontSize: 12, color: "#64748b", fontStyle: "italic", lineHeight: 1.4 }}>
                                         {rec.evidence.length > 120 && !expandedIds.has(rec.id) ? (
@@ -305,7 +281,6 @@ export default function RecommendationPanel({
                                     </div>
                                 )}
 
-                                {/* Row 3: ECTS + Type Label */}
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 11 }}>
                                     <span style={{ color: "#6b7280" }}>{rec.ects ? `${rec.ects} ECTS` : "-"}</span>
                                     <span style={{ color: "#6b7280", fontWeight: 700 }}>{typeInfo.label}</span>
@@ -314,7 +289,6 @@ export default function RecommendationPanel({
                                     </span>
                                 </div>
 
-                                {/* Popover Menus */}
                                 {menuState.id === rec.id && (
                                     <div style={{ position: "absolute", top: 34, right: -8, width: menuState.view === "details" ? 240 : 190, border: "1px solid #d1d5db", borderRadius: 8, background: "#fff", boxShadow: "0 4px 12px rgba(0,0,0,0.12)", padding: 6, zIndex: 4000, display: "grid", gap: 4 }}>
                                         {menuState.view === "root" && (

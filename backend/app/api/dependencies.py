@@ -1,11 +1,5 @@
-"""
-Wiring.
-
-The services are stateless and cheap, so they are built once at import time and
-handed to the handlers by FastAPI's dependency system. Building them here rather
-than inside the handlers is what keeps the handlers free of any knowledge about
-the database.
-"""
+"""Wiring. The services are stateless, so they are built once at import time and
+injected by FastAPI's dependency system."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -80,7 +74,7 @@ async def current_user(
     session_token: str | None = Cookie(None),
     auth: AuthService = Depends(get_auth_service),
 ) -> dict[str, Any] | None:
-    """The signed-in account, or None. Endpoints that tolerate anonymity use this."""
+    """The signed-in account, or None for an anonymous request."""
     return await auth.identify(_bearer(authorization) or session_token)
 
 

@@ -1,14 +1,10 @@
 /**
- * Modules a student satisfies in more than one way.
+ * Modules that can be satisfied in more than one way. A few bachelor modules
+ * are offered either as one combined course or as a lecture plus an exercise,
+ * so a module resolves to a course set before anything is placed.
  *
- * A few bachelor modules are taught twice over: as a single combined course, or
- * as a lecture paired with an exercise. Both routes carry the same credit and
- * only one may be planned, so the module has to resolve to a set of courses
- * before anything can be placed on the canvas.
- *
- * The modules are recognised by name, and Computational Statistics also by the
- * course codes it is made of, because that module reaches the planner under
- * several names while its courses keep their codes.
+ * Modules are recognised by name; Computational Statistics also by its course
+ * codes, because it reaches the planner under several names.
  */
 
 import type { CatalogueCourse, CatalogueModule } from "../types.ts";
@@ -29,7 +25,7 @@ export interface ModuleVariantResolution {
     activeVariantId: string | null;
     /** The courses the chosen variant puts in the plan. */
     selectedCourses: CatalogueCourse[];
-    /** Every course of the module, deduplicated, whichever variant is chosen. */
+    /** Every course of the module, deduplicated, across all variants. */
     allVariantCourses: CatalogueCourse[];
     variantMeta: VariantMeta | null;
     variantOptions?: VariantOption[];
@@ -56,7 +52,7 @@ const SPLIT_MODULES: Record<string, boolean> = {
 };
 const COMPUTATIONAL_STATISTICS_MODULE_KEY = "computational statistics";
 
-/** Which half of a lecture-plus-exercise module a course belongs to. */
+/** Which half of a lecture-plus-exercise module a course belongs to, if either. */
 function detectVariantPart(course: CatalogueCourse | null | undefined): "vu" | "vo" | "ue" | null {
     const code = normalizeText(course?.code);
     const name = normalizeText(course?.name);
@@ -80,10 +76,7 @@ export function getSplitModuleVariantMeta(moduleName: string | null | undefined)
     };
 }
 
-/**
- * Computational Statistics is satisfied by any two of its three courses, so its
- * variants are the pairs rather than a lecture-and-exercise split.
- */
+/** Computational Statistics takes any two of three courses, so its variants are pairs. */
 function buildComputationalStatisticsOptions(courses: CatalogueCourse[]): CourseVariantOption[] {
     const byCode = new Map((courses || []).map((c) => [normalizeText(c?.code), c]));
     const byName = new Map((courses || []).map((c) => [normalizeText(c?.name), c]));
@@ -186,7 +179,7 @@ export function resolveModuleVariantCourses(
 
     const selectedCourses = activeVariantId === "vo_ue" ? voUeCourses : vuCourses;
     // A module can be listed as split while the catalogue carries only one of
-    // the two routes, and an empty selection would leave nothing to place.
+    // the two routes; without this the selection would be empty.
     const fallbackSelected = selectedCourses.length > 0
         ? selectedCourses
         : (activeVariantId === "vu" ? voUeCourses : vuCourses);

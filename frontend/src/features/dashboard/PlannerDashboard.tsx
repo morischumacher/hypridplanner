@@ -1,10 +1,7 @@
 /**
- * The planner dashboard: the panel on the right of the planner, its two
- * headline figures, and the sections underneath them.
- *
- * The aside is a column flex container and every section carries an `order`,
- * so the sections are written here in a fixed sequence and shown in the one
- * the student dragged them into.
+ * The dashboard panel: two headline figures and the sections under them. The
+ * aside is a column flex container and every section carries an `order`, so
+ * source order is not display order.
  */
 
 import DoneSections from "./DoneSections.tsx";

@@ -1,12 +1,4 @@
-/**
- * Telling the empty cases of the recommendation panel apart.
- *
- * The panel answered every one of them with "No recommendations" or "All
- * disabled", which is the dead end E-P42 records: nothing in either phrase
- * says whether the engine had nothing to offer, whether the student had
- * switched the source off, or whether the profile it matches against is still
- * blank, so there is no next step to take.
- */
+/** Telling the empty cases of the recommendation panel apart. */
 import { describe, expect, it } from "vitest";
 
 import { recommendationEmptyState } from "../../src/features/recommendations/emptyState.ts";
@@ -57,8 +49,7 @@ describe("recommendationEmptyState", () => {
     });
 
     it("prefers the filter explanation over the profile one", () => {
-        // A hidden channel with results is something the student can act on now,
-        // and is true regardless of what the profile says.
+        // A hidden channel with results holds regardless of the profile.
         const result = state({
             recommendations: [{ type: "peer" }],
             toggles: { peer: false },

@@ -1,14 +1,7 @@
-"""
-Contract tests for the HTTP surface.
+"""Contract tests pinning the shape of every endpoint: status code, keys and types.
 
-Nothing about the wire format may change without a deliberate decision, so this
-pins the shape of every endpoint: status codes, the set of keys in each
-response, and the types behind them.
-
-Values that legitimately differ between runs, such as identifiers and
-timestamps, are replaced by a marker before comparison. What is asserted is the
-*structure*, which is what a client depends on, rather than a byte-for-byte body
-that would break on every new UUID.
+Volatile values such as identifiers are replaced by a marker, so what is asserted
+is the structure rather than a body that would break on every new UUID.
 """
 from __future__ import annotations
 
@@ -32,8 +25,7 @@ def shape_of(value: Any) -> Any:
     if isinstance(value, dict):
         return {key: shape_of(value[key]) for key in sorted(value)}
     if isinstance(value, list):
-        # A list's element shape matters; its length usually does not, because it
-        # follows from seed data that may legitimately grow.
+        # Element shape matters, length does not: it follows from seed data.
         return [shape_of(value[0])] if value else []
     if isinstance(value, str):
         if len(value) == UUID_LENGTH and value.count("-") == 4:
@@ -71,8 +63,8 @@ def compare(name: str, status: int, body: Any, record: dict[str, Any]) -> None:
     )
 
 
-# Recording is opt-in. Committing a shape is an assertion about the wire format,
-# so it should be a deliberate act rather than a side effect of a green test run.
+# Recording is opt-in: committing a shape asserts the wire format, so it must not
+# be a side effect of a green test run.
 OBSERVED: dict[str, Any] = {}
 
 
@@ -155,7 +147,7 @@ async def test_planner_state_round_trip(signed_in, record) -> None:
 
 @pytest.mark.asyncio
 async def test_profile_settings_before_setup(signed_in, record) -> None:
-    """A profile cannot be saved until the start term exists. That order matters."""
+    """A profile cannot be saved until the start term exists."""
     response = await signed_in.get(
         "/profile-settings", params={"program_code": BACHELOR}
     )
@@ -179,7 +171,7 @@ async def test_profile_settings_before_setup(signed_in, record) -> None:
 
 @pytest.mark.asyncio
 async def test_profile_settings_after_setup(signed_in, record) -> None:
-    """The full setup path: choose a start term, then save a profile against it."""
+    """Choose a start term, then save a profile against it."""
     response = await signed_in.put(
         "/profile-settings/start-term",
         json={"program_code": BACHELOR, "season": "winter", "year": 2026},
@@ -209,7 +201,7 @@ async def test_profile_settings_after_setup(signed_in, record) -> None:
 
 @pytest.mark.asyncio
 async def test_profile_settings_requires_a_program(signed_in, record) -> None:
-    """The programme code is mandatory; losing that validation would be a change."""
+    """The programme code is mandatory."""
     response = await signed_in.get("/profile-settings")
     compare(
         "GET /profile-settings (no program)", response.status_code, response.json(), record

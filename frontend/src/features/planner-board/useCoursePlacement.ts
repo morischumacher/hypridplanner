@@ -1,20 +1,15 @@
 /**
- * Putting a course or a module onto the canvas, and taking one off it into the
- * parking stage.
+ * Placing a course or module on the canvas, and moving one to the parking stage.
  *
- * These are the mutations that decide a lane, so they are also the ones that
- * decide when the plan hears about the change. A placement that could work out
- * the finished canvas inside its own updater writes the plan through at once
- * and clears the pending-save flag; a placement that could not merely raises
- * the flag and lets the canvas be read back on the next commit. Which of the
- * two happens is what the rule check, the recommendations request and the
- * rollbacks all key off, so the split is kept exactly as it is.
+ * These mutations decide a lane, so they also decide when the plan hears about
+ * the change. A placement whose updater can compute the finished canvas writes
+ * the plan through and clears the pending-save flag; one that cannot raises the
+ * flag and lets the canvas be read back on the next commit. The rule check, the
+ * recommendations request and the rollbacks are all timed against that split.
  *
- * `addGraphModuleToPlanRef` exists because parking a course and adding a module
- * call each other: a parked module panel carries an "add to plan" handler built
- * while its courses are being parked, and that handler is this file's own
- * `addGraphModuleToPlan`, which is not defined yet at that point. The ref
- * breaks the cycle without making either of them depend on the other's identity.
+ * `addGraphModuleToPlanRef` breaks a cycle: parking a course builds a panel
+ * carrying an "add to plan" handler, and that handler is `addGraphModuleToPlan`
+ * below, which is not defined at that point.
  */
 
 import { useCallback, useEffect, useRef } from "react";
@@ -48,16 +43,16 @@ import type {
     SemesterOption,
 } from "./types.ts";
 
-/** The default card colour, used where the exam subject has none of its own. */
+/** Fallback card colour for an exam subject with none of its own. */
 const FALLBACK_SUBJECT_COLOR = "#2563eb";
 
-/** The topmost row a card may occupy in a lane, below the lane header. */
+/** Topmost row a card may occupy in a lane, below the lane header. */
 const FIRST_COURSE_Y = 96;
 
-/** A course to park, named either by its code or by the whole card. */
+/** A course to park, given either as a code or as the whole card. */
 export type ParkRequest = string | CourseLike | null | undefined;
 
-/** Turns a module's identity into an id a parked panel can be found again by. */
+/** Derives a stable id for a parked module panel from the module's identity. */
 function parkedGroupIdFor(moduleMeta: BoardModuleMeta | null | undefined): string {
     const key = String(moduleMeta?.id || moduleMeta?.code || moduleMeta?.title || "module");
     return `parked-group-${key.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
@@ -92,7 +87,7 @@ export interface UseCoursePlacementInput {
 }
 
 export interface UseCoursePlacementResult {
-    /** True when at least one card moved to the parking stage. */
+    /** True when at least one card was moved to the parking stage. */
     parkCourseCodes: (courseCodes: ParkRequest[] | ParkRequest) => boolean;
     addGraphCourseToPlan: AddCourseToPlan;
     addGraphModuleToPlan: AddModuleToPlan;
@@ -140,9 +135,8 @@ export function useCoursePlacement({
         const requestedCodes = [...requestedByCode.keys()];
         if (!requestedCodes.length) return false;
 
-        // Parking one course of a module parks the whole module, since a panel
-        // with some of its courses left behind labels a group that is no longer
-        // being taken together.
+        // Parking one course of a module parks the whole module: a panel over a
+        // partial course set would label a group that is not being taken.
         const source = rfRef.current?.getNodes?.() || nodes;
         const groupedCodes = new Set<string>();
         for (const code of requestedCodes) {
@@ -267,9 +261,8 @@ export function useCoursePlacement({
                     .map((n) => String(n?.data?.code || "").trim())
                     .filter(Boolean)
             );
-            // A module is drawn again in the parking stage only once every one
-            // of its courses is parked, so that a half-parked module shows as
-            // loose cards rather than as a panel that misrepresents the plan.
+            // A module panel is redrawn in the parking stage only once all of
+            // its courses are parked; a half-parked module shows as loose cards.
             const eligibleGroups = new Map<string, { groupId: string; moduleMeta: BoardModuleMeta }>();
             for (const parkedCourse of parkedCourses) {
                 const code = String(parkedCourse?.data?.code || "").trim();
@@ -553,8 +546,8 @@ export function useCoursePlacement({
             const status = getCourseStatus(code);
             return status !== "todo" && status !== "parked";
         })) return false;
-        // The courses of the variants the student did not choose have to leave
-        // the plan, since only one route through a split module may be taken.
+        // Only one variant of a split module may be taken, so the courses of
+        // the other variants are removed from the plan.
         const conflictingVariantCodes = allVariantCourses
             .map((c) => c?.code)
             .filter((code): code is string => Boolean(code) && !codes.includes(code as string));
@@ -584,9 +577,8 @@ export function useCoursePlacement({
             }
         }
         if (laneIndex == null) {
-            // No single lane suits the whole module, so its courses are spread
-            // over the lanes each of them does fit, and the panel is drawn
-            // across them.
+            // No single lane fits the whole module, so its courses go into the
+            // lanes each of them fits and the panel is drawn across them.
             const targetLaneByCode = new Map<string, number>();
             for (const course of courses) {
                 const code = String(course?.code || "").trim();
@@ -686,9 +678,8 @@ export function useCoursePlacement({
             }));
 
             // The updater above cannot report back, so the canvas is read on the
-            // next commit rather than written through here. That makes a module
-            // spread over several lanes reach the plan one render later than a
-            // module placed in a single lane does.
+            // next commit instead. A module spread over several lanes therefore
+            // reaches the plan one render later than a single-lane one.
             setNeedsPersist(true);
             return true;
         }
@@ -800,11 +791,9 @@ interface AddModuleNodesInput {
 }
 
 /**
- * Puts a module's panel and cards onto the canvas.
- *
- * A course already in the plan is adopted by the new panel rather than added
- * twice, and the panel it used to belong to is resized around what is left,
- * which is why the old groups are recomputed before the new one is drawn.
+ * Puts a module's panel and cards onto the canvas. A course already in the plan
+ * is adopted by the new panel rather than duplicated, so the old panels are
+ * resized around what is left before the new one is drawn.
  */
 function addModuleNodes(prev: BoardNode[], {
     codes,

@@ -1,11 +1,10 @@
 /**
- * The three banners the compliance loop puts on screen: the refusal, the
- * milestone, and the confirmation that fades.
+ * The compliance loop's three banners: the refusal, the milestone, and the
+ * confirmation that fades.
  *
- * All three carry their own expiry rather than being cleared by whoever raised
- * them, because the events that raise them arrive from the network and can
- * arrive twice. A banner therefore states when it should come down, and the
- * effect that watches it re-arms on every new banner.
+ * Each carries its own expiry rather than being cleared by whoever raised it,
+ * because the raising events arrive from the network and can arrive twice. The
+ * watching effect re-arms on every new banner.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -13,10 +12,10 @@ import type { Dispatch, SetStateAction } from "react";
 
 import type { RuleCheckState } from "../../domain/programmes.ts";
 
-/** A banner shown until its moment passes. */
+/** A banner shown until its expiry passes. */
 export interface StickyViolation {
     message: string;
-    /** When the banner should come down, as a timestamp. */
+    /** When the banner comes down, as a timestamp. */
     until: number;
     /** "error" or "success"; the dashboard turns it into colours. */
     tone: string;
@@ -30,16 +29,15 @@ export interface UseStickyViolationResult {
 }
 
 /**
- * The banner a refused change raises. It is held apart from the effect that
- * clears it because the planner raises it from a dozen places, most of them
- * long before the compliance loop is reached.
+ * The banner a refused change raises. Kept apart from the effect that clears
+ * it, because it is raised from many call sites before the loop is reached.
  */
 export function useStickyViolation(): UseStickyViolationResult {
     const [stickyViolation, setStickyViolation] = useState<StickyViolation>(NO_STICKY_VIOLATION);
     return { stickyViolation, setStickyViolation };
 }
 
-/** Takes the banner down at the moment it asked to be taken down. */
+/** Takes the banner down at its stated expiry. */
 export function useStickyViolationExpiry(
     stickyViolation: StickyViolation,
     setStickyViolation: Dispatch<SetStateAction<StickyViolation>>
@@ -54,16 +52,15 @@ export function useStickyViolationExpiry(
     }, [stickyViolation]);
 }
 
-/** The completion percentages worth congratulating a student on. */
+/** The completion percentages that raise a milestone banner. */
 const MILESTONES = [25, 50, 75, 100];
 
 /**
- * The highest milestone a move from one percentage to another crosses, or null.
+ * The highest milestone crossed between two percentages, or null.
  *
- * A plan can cross several at once: hydration carries it from nothing to whatever
- * was saved, and a prefill lays down a whole degree in one action. The banner then
- * has to name the milestone the student has actually reached, not the first one
- * they passed on the way, or it contradicts the ECTS figures printed beside it.
+ * Several can be crossed at once: hydration goes from nothing to the saved
+ * plan, and a prefill lays down a whole degree. The banner must name the
+ * milestone actually reached, or it contradicts the ECTS figures beside it.
  */
 export function highestMilestoneCrossed(previousPct: number, currentPct: number): number | null {
     let highest: number | null = null;
@@ -82,17 +79,15 @@ export interface UseProgressMilestoneInput {
 }
 
 export interface UseProgressMilestoneResult {
-    /** Empty when there is nothing to congratulate. */
+    /** Empty when no milestone has been crossed. */
     progressMilestoneText: string;
 }
 
 /**
- * Congratulates the student the first time their plan crosses a milestone.
+ * Raises a banner the first time a plan crosses a milestone.
  *
- * The percentage last seen is remembered per programme, and a programme the
- * student has just switched to only records its figure: switching from a
- * half-finished bachelor to an untouched master is not a crossing, and neither
- * is switching back.
+ * The last percentage is remembered per programme, and a newly switched-to
+ * programme only records its figure, so a switch is never itself a crossing.
  */
 export function useProgressMilestone({
     plannerHydrated,
@@ -139,7 +134,7 @@ export function useProgressMilestone({
     return { progressMilestoneText: progressMilestone?.text || "" };
 }
 
-/** The two fields of the rule checker's reply this banner reads. */
+/** The two reply fields this banner reads. */
 interface RuleCheckReply {
     ok?: boolean;
     message?: string;
@@ -147,7 +142,7 @@ interface RuleCheckReply {
 
 export interface UseTransientSuccessFeedbackInput {
     programCode: string;
-    /** True while a refusal is on screen; a refusal outranks a confirmation. */
+    /** True while a refusal is on screen; it outranks a confirmation. */
     stickyActive: boolean;
     ruleCheckState: RuleCheckState;
 }
@@ -158,12 +153,9 @@ export interface UseTransientSuccessFeedbackResult {
 }
 
 /**
- * Hides the "all rules met" banner three seconds after it appears, and brings
- * it back whenever the rule checker answers again.
- *
- * A fresh answer is recognised by programme, time and message together rather
- * than by the state object, because the state is replaced on every check and an
- * answer identical to the last one should still be shown.
+ * Hides the "all rules met" banner three seconds after it appears and brings it
+ * back on the next answer. A fresh answer is identified by programme, time and
+ * message rather than by the state object, so a repeated answer still shows.
  */
 export function useTransientSuccessFeedback({
     programCode,

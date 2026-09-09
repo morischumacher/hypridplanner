@@ -1,25 +1,13 @@
 /**
- * The curriculum catalogue: narrowing the backend payload, and looking things
- * up in the result.
- *
- * `normalizeCatalog` is the only boundary at which raw JSON becomes a
- * `Catalogue`, so it is also the only place that supplies fallbacks for fields
- * the backend may omit. The lookups below assume that has already happened.
- *
- * The one rule that is not a lookup is the bachelor thesis reclassification.
- * The rule checker reports thesis work under whichever category its module
- * happened to carry, and the dashboard needs it under "thesis"; that rewrite is
- * confined to the bachelor programme because no other programme names its
- * thesis this way.
+ * Catalogue normalisation and lookups. `normalizeCatalog` is the only boundary
+ * at which raw JSON becomes a `Catalogue`, and the only place that supplies
+ * fallbacks for omitted fields.
  */
 
 import { BACHELOR_PROGRAM_CODE } from "./programmes.ts";
 import type { Catalogue, CatalogueModule, CatalogueSubject } from "./types.ts";
 
-/**
- * What the backend sends. Nothing validates it before it arrives, so every
- * field is optional and `normalizeCatalog` decides what a missing one means.
- */
+/** The unvalidated backend payload; `normalizeCatalog` decides what a missing field means. */
 interface RawCourse {
     title?: string;
     name?: string;
@@ -45,8 +33,8 @@ interface RawSubject {
 }
 
 /**
- * A course as the rule checker reports it back. Its fields overlap the
- * catalogue's only loosely, which is why the thesis test looks at all of them.
+ * A course as the rule checker reports it. Its fields overlap the catalogue's
+ * only loosely, so the thesis test below checks all of them.
  */
 export interface RulecheckCourse {
     code?: string | null;
@@ -88,6 +76,7 @@ export function getCourseTypeForCode(
     return null;
 }
 
+/** Rewrites bachelor thesis work to category "thesis"; other programmes pass through. */
 export function normalizeRulecheckCategoryForProgram(
     course: RulecheckCourse | null | undefined,
     activeProgramCode: string | null | undefined
@@ -134,8 +123,7 @@ export function normalizeCatalog(raw: unknown): Catalogue {
             modules: modules.map((m): CatalogueModule => {
                 const courses = Array.isArray(m.courses) ? m.courses : [];
                 return {
-                    // A module is addressed by its first course's code where it
-                    // has one, because that is the code the rule checker uses.
+                    // The rule checker addresses a module by its first course's code.
                     code: courses[0]?.code ?? m.code ?? `M-${sIdx}`,
                     name: m.name ?? "Ohne Titel",
                     ects: Number(m.ects) || 0,

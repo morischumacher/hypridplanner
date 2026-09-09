@@ -1,14 +1,5 @@
 // @vitest-environment jsdom
-/**
- * The prebuilt master plan, and the applier that lays it out.
- *
- * The master curriculum sequences two courses and leaves the rest to the
- * student, so the template is short and every entry in it is one the student is
- * told about: a course the matcher cannot find is reported as missing, and a
- * course it does find is placed. Something in between, a plan filled with
- * courses nobody asked for, is the worst of the three, because a prebuilt plan
- * is accepted on trust.
- */
+/** The prebuilt master plan, and the applier that lays it out. */
 import { describe, expect, it } from "vitest";
 
 import { centerX } from "../../src/domain/layout.ts";
@@ -117,8 +108,8 @@ describe("accepting the prebuilt master plan", () => {
             (props: UsePrefilledPlansInput) => usePrefilledPlans(props),
             input
         );
-        // Only the season changes, so an applier that does not follow it is
-        // still the one built for the season before.
+        // Only the season changes, so an applier that does not follow it is still
+        // the one built for the season before.
         harness.rerender({ ...input, startTermSeason: "summer" });
 
         expect(harness.current.applyMasterPrefilledPlan()).toBe(true);

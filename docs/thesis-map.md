@@ -1,12 +1,8 @@
-# From the thesis to the code
+# Thesis features to code
 
-The thesis derives thirteen features from a formative interview study, each
-traced back to the interview codes that motivated it. This table is the other
-half of that trace: where each feature lives in this repository.
-
-It is written for a reader who has the thesis open and wants to see the thing
-it describes. Paths are the primary implementation, not an exhaustive list of
-every file a feature touches.
+The thesis derives thirteen features from a formative interview study. This table
+gives the primary implementation of each, not an exhaustive list of every file a
+feature touches.
 
 | # | Feature | Where it lives |
 |---|---------|----------------|
@@ -24,26 +20,24 @@ every file a feature touches.
 | 012 | Recommendation Presentation UX: annotate, do not break layout | `frontend/src/components/RecommendationPanel.jsx`, `renderRecommendationPatch` in `frontend/src/utils/courseVisuals.js` |
 | 013 | Spatial Organisation and Grouping Controls | `frontend/src/components/ModuleGroupBackground.jsx`, the module-group handling in `frontend/src/features/planner-board/useCoursePlacement.ts`, free vertical placement in `frontend/src/domain/nodes.ts` |
 
-## Where the evaluation shows up
+## Evaluation in the tests
 
-The end-to-end suite in `frontend/tests/e2e/` is not a generic smoke test. Its
-flows are the loop the study observed students performing, and its comments say
-which finding each one comes from. `planning.spec.js` covers placement,
-refusal, parking and the checklist; `editing.spec.js` covers moving a course
-between semesters and the asynchronous rollback when the rule engine refuses.
+The end-to-end flows in `frontend/tests/e2e/` follow the loop the study observed,
+and their comments name the finding each one comes from. `planning.spec.js`
+covers placement, refusal, parking and the checklist; `editing.spec.js` covers
+moving a course between semesters and the asynchronous rollback when the rule
+engine refuses.
 
 The golden masters in `backend/tests/golden/` record the answers the thesis
-reports, so that a later change cannot alter them unnoticed.
+reports, so a later change cannot alter them unnoticed.
 
-## Known gaps between the thesis and the code
-
-Honest notes, so that a reader does not find these unaided.
+## Gaps between the thesis and the code
 
 - **Feature 007.** The knowledge graph in `backend/app/recommendations/knowledge.py`
   is a prototype fixture. None of its course codes exist in either catalogue, so
   against real data the `sequence` and `completed` channels never fire. Four of
   the six channels were live during the evaluation, not six.
-- **Feature 003.** Six bachelor courses map to a module that was never defined in
+- **Feature 003.** Six bachelor courses map to a module that is not defined in
   the curriculum data, so their module kind falls back to a default. This is
-  pinned by a test rather than fixed, so that the behaviour the study observed is
-  preserved until it is deliberately changed.
+  pinned by a test rather than fixed, so the behaviour the study observed is
+  preserved.

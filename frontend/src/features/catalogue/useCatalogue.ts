@@ -1,11 +1,8 @@
 /**
- * The curriculum catalogue of the programme on screen, and the lookups the
- * planner builds from it.
+ * The catalogue of the programme on screen, plus the lookups built from it.
  *
- * A programme switch does not empty the catalogue. The courses of the previous
- * programme stay readable for as long as the next request takes, and only an
- * outright failure clears them, so the sidebar never blinks empty between two
- * programmes that both have courses.
+ * A programme switch keeps the previous catalogue until the next request
+ * resolves; only a failure clears it, so the sidebar never blinks empty.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -15,10 +12,7 @@ import type { Catalogue } from "../../domain/types.ts";
 import { fetchCatalog } from "../../lib/api.js";
 import { createExamSubjectColorMap } from "../../utils/examSubjectColors.js";
 
-/**
- * The module a course card carries with it. Only modules holding two courses or
- * more get one: a single-course module has nothing to group.
- */
+/** The module a course card carries. Only modules with two or more courses get one. */
 export interface CatalogueModuleMeta {
     id: string;
     title: string;
@@ -30,9 +24,8 @@ export interface CatalogueModuleMeta {
 }
 
 /**
- * A catalogue course as the planner reads it when placing a card. Modules with
- * no courses of their own are listed here too, under the module's own code,
- * because the student places them the same way.
+ * A catalogue course as read when placing a card. Course-less modules appear
+ * here too, keyed by the module's own code, since they are placed the same way.
  */
 export interface CatalogueCourseEntry {
     code: string;

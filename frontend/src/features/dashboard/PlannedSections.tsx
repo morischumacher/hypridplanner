@@ -1,9 +1,7 @@
 /**
- * The six sections of the planned half of the dashboard.
- *
- * Each one is a flex item of the aside and carries an `order` from the stored
- * section order, so the sequence they are written in here is not the sequence
- * the student sees.
+ * The six sections of the planned half of the dashboard. Each is a flex item
+ * carrying an `order` from the stored section order, so source order is not
+ * display order.
  */
 
 import { FOCUS_INFO_TEXT, STEOP_RULES_TEXT } from "../../domain/programmes.ts";

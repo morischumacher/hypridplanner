@@ -1,18 +1,9 @@
-"""
-The semester a candidate is offered to the rule checker in.
+"""The semester the filter invents for a candidate, which decides how the
+curriculum's ordering reads.
 
-A candidate has no semester of its own: the recommender proposes a course, not a
-placement. The filter has to invent one, and which one it invents decides how the
-curriculum's ordering reads. Offered only in a semester past the whole plan, a
-course put forward *because a planned course needs it first* is judged as
-arriving after the course that needs it, and the filter refuses the one
-recommendation the student most needed to see.
-
-Both directions of the ordering are driven here, because a placement that fixes
-one by moving the candidate to the other end of the plan breaks the other.
-
-The pools come from the recorded corpus rather than the database, so this file
-runs without one.
+Both directions are driven here, because a placement that fixes one by moving the
+candidate to the other end of the plan breaks the other. Pools come from the
+recorded corpus, so this file needs no database.
 """
 from __future__ import annotations
 

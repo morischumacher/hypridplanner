@@ -1,12 +1,10 @@
 /**
- * How many lanes the canvas draws, worked out from the plan alone.
+ * How many lanes the canvas draws, derived from the plan alone.
  *
- * Nothing records a semester count. A plan that reaches into semester seven has
- * seven semesters because a card sits there, and the way a student adds one is
- * to drop a card into the lane after the last used one. That lane is drawn only
- * while a drag hovers over it, which is what `dragPreviewSemesterCount` is: a
- * lane that exists for the length of a drag so that there is somewhere to drop.
- * Deriving the count from anything else would take that affordance away.
+ * Nothing stores a semester count: a plan has seven semesters because a card
+ * sits in the seventh. A semester is added by dropping a card into the lane
+ * after the last used one, and that lane exists only while a drag hovers over
+ * it, which is what `dragPreviewSemesterCount` provides.
  */
 
 import { useMemo, useState } from "react";
@@ -28,9 +26,9 @@ export interface UseBoardSemestersResult {
     usedSemesterCount: number;
     activeSemesterCount: number;
     displayedSemesterCount: number;
-    /** The lanes the canvas draws, parking stage excluded. */
+    /** The lanes the canvas draws, excluding the parking stage. */
     semesters: SemesterOption[];
-    /** The semester numbers the plan itself mentions, plus the required ones. */
+    /** The semester numbers the plan mentions, plus the required ones. */
     semesterIdsFromPlan: number[];
     /** Every lane the programme allows, marked for whether the plan reaches it. */
     sidebarSemesters: SemesterOption[];

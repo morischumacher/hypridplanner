@@ -174,8 +174,7 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
             ? document.querySelector(stepData.targetId)
             : document.getElementById(stepData.targetId);
         if (!el) {
-            // Target not found on page, retry soon
-            return;
+            return; // not rendered yet, the interval below retries
         }
 
         const rect = el.getBoundingClientRect();
@@ -202,7 +201,7 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
         window.addEventListener("resize", recalculatePosition);
         window.addEventListener("scroll", recalculatePosition);
 
-        // Periodically check in case sidebar opens or DOM updates
+        // Targets appear late when a sidebar or modal opens, so poll instead of relying on events.
         updateTimerRef.current = setInterval(recalculatePosition, 300);
 
         return () => {
@@ -212,7 +211,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
         };
     }, [activeStep, stepData, tooltipHeight]);
 
-    // Automatically transition viewMode if step view differs
     useEffect(() => {
         if (stepData && stepData.view !== viewMode) {
             setViewMode(stepData.view);
@@ -240,14 +238,13 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
     };
 
     const handleComplete = () => {
-        // The flag belongs to the student, and is read back under their name.
+        // Keyed per user so the flag is not shared between accounts on one browser.
         if (username) {
             localStorage.setItem("study-planner-tour-completed-" + username, "true");
         }
         onClose();
     };
 
-    // Calculate tooltip bubble styling based on placement
     const getTooltipStyle = () => {
         const gap = 12;
         const width = 340;
@@ -298,7 +295,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
                 break;
         }
 
-        // Clamp to screen bounds
         style.top = Math.max(16, Math.min(window.innerHeight - tooltipHeight - 16, style.top));
         style.left = Math.max(16, Math.min(window.innerWidth - width - 16, style.left));
 
@@ -307,7 +303,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
 
     return (
         <>
-            {/* Overlay Mask */}
             <div
                 style={{
                     position: "fixed",
@@ -319,7 +314,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
                 onClick={handleSkip}
             />
 
-            {/* Target Element Highlighter Cutout */}
             {!coords.isCenter && (
                 <div
                     style={{
@@ -336,7 +330,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
                         transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
                     }}
                 >
-                    {/* Animated Pulsing Ring */}
                     <div
                         style={{
                             position: "absolute",
@@ -355,7 +348,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
                 </div>
             )}
 
-            {/* Floating Tooltip Bubble */}
             <div ref={tooltipRef} style={getTooltipStyle()}>
                 <div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: "#4f46e5", marginBottom: 4 }}>
@@ -366,7 +358,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
                     </div>
                 </div>
 
-                {/* Progress Indicators */}
                 <div style={{ display: "flex", gap: 4, justifyContent: "center", width: "100%" }}>
                     {steps.map((step) => (
                         <div
@@ -382,7 +373,6 @@ export default function OnboardingTour({ activeStep, setActiveStep, viewMode, se
                     ))}
                 </div>
 
-                {/* Control Actions */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                     <button
                         onClick={handleSkip}

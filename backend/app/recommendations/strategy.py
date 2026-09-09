@@ -1,14 +1,8 @@
-"""
-What a recommendation channel is.
+"""The recommendation channel protocol.
 
-A channel is asked about one candidate at a time and answers with the reasons it
-has for putting that candidate forward, or with nothing. It never decides whether
-the candidate is actually recommended: a course is only ever recommended once, so
-which channel gets to claim it is settled by the engine, in the order the
-channels are composed.
-
-A channel is built fresh for each evaluation, so one that needs a pass over the
-whole plan before it can answer may do that work in its constructor.
+A channel is asked about one candidate and answers with reasons, or nothing; the
+engine decides which channel claims a course. Channels are built fresh per
+evaluation, so per-plan setup can happen in the constructor.
 """
 from __future__ import annotations
 

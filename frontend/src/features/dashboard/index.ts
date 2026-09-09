@@ -1,10 +1,8 @@
 /**
- * The planner dashboard: the panel state that is persisted with the plan, the
- * figures the panel displays, and the panel itself.
+ * The dashboard: persisted panel state, the figures displayed, and the panel.
  *
- * The hook and the metrics are meant to be called in that order. Which figures
- * are worked out depends on which half of the dashboard is showing, and that is
- * panel state, so the panels have to be settled first.
+ * Call the panel hook before the metrics: which figures are computed depends on
+ * which half of the dashboard is showing, which is panel state.
  */
 
 export { default as PlannerDashboard } from "./PlannerDashboard.tsx";

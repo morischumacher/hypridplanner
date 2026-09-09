@@ -1,8 +1,4 @@
-"""
-The application object: middleware, lifespan, and the routers.
-
-Everything of substance lives below this file. What is here is assembly.
-"""
+"""Application object: middleware, lifespan and router assembly."""
 from __future__ import annotations
 
 import time
@@ -65,7 +61,7 @@ async def root() -> dict[str, str]:
 
 @app.get("/health", tags=["meta"])
 async def health() -> dict[str, bool]:
-    """Liveness plus a round trip to the database, which is what actually fails."""
+    """Liveness plus a round trip to the database."""
     await database.check()
     return {"ok": True}
 

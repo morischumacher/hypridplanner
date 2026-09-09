@@ -1,10 +1,7 @@
 /**
- * The prebuilt master plan.
- *
- * The master curriculum leaves almost everything to the student, so the
- * template holds only the two courses the programme itself sequences. A summer
- * start moves both into the second semester rather than mirroring the plan the
- * way the bachelor does, because there is no second half to mirror against.
+ * The prebuilt master plan. The curriculum sequences only two courses, so a
+ * summer start moves both to the second semester instead of mirroring semester
+ * pairs the way the bachelor plan does.
  */
 
 import type { Catalogue, FlattenedCourse, PlannedCourse, PrefillTemplateItem } from "../types.ts";
@@ -49,9 +46,8 @@ function templateForStartSeason(startSeason: string | null | undefined): Prefill
 }
 
 /**
- * Every course the catalogue offers, one entry each. A module with no courses
- * of its own still yields an entry, because some requirements are stated at
- * module level and the plan has to be able to name them.
+ * One entry per catalogue course. A module with no courses of its own still
+ * yields an entry, since some requirements are stated at module level.
  */
 function flattenCatalogCourses(catalog: Catalogue | null | undefined): FlattenedCourse[] {
     const out: FlattenedCourse[] = [];
@@ -109,9 +105,8 @@ function findBestCourse(
             if (entry._normCode === aliasNorm) score += 120;
             if (entry._normName === aliasNorm) score += 100;
             if (entry._normModule === aliasNorm) score += 80;
-            // An alias that matched nothing is a course the student is told is
-            // missing. Placing the first unused entry instead would fill their
-            // plan with a course the curriculum never named.
+            // A zero score is reported as a missing alias rather than falling
+            // back to an arbitrary unused entry.
             if (score <= 0) continue;
             if (score > bestScore) {
                 best = entry;

@@ -1,23 +1,10 @@
-"""
-Golden-master tests for the recommender.
+"""Golden-master tests for the recommender: no change to the six channels may alter
+a recommendation list unnoticed.
 
-These exist so that no change to the six channels can alter a recommendation
-list unnoticed. The lists the thesis reports are the ones the study's
-participants saw, so a change to a channel is only defensible if the lists stay
-identical, and every list is therefore recorded
-here first and compared afterwards.
-
-The comparison is exact and structural. A test failure names the scenario and the
-first differing path, so a diff points at a channel rather than at a blob of JSON.
-
-The decoder and the call it wraps are imported from `build_recommender_fixtures`
-rather than written again here. Everything else in this file is deliberately
-independent of the builder, but a fixture read back with a different decoder than
-the one that wrote it would fail silently rather than loudly, and the types it
-would quietly change are the ones the rule checker does arithmetic on.
-
-Fixtures come from `build_recommender_fixtures.py` and are committed, so these
-tests need no database and run in milliseconds.
+The decoder and the call it wraps come from `build_recommender_fixtures` rather
+than being written again, because a fixture read back with a different decoder
+would fail silently, and the affected types are the ones the rule checker does
+arithmetic on. Fixtures are committed, so these tests need no database.
 """
 from __future__ import annotations
 
@@ -82,7 +69,7 @@ def test_every_fixture_has_a_snapshot() -> None:
 
 
 def test_evaluation_is_deterministic() -> None:
-    """The same scenario twice must give the same answer, or the corpus is worthless."""
+    """The same scenario twice must give the same answer, or the corpus pins nothing."""
     for scenario, case in FIXTURES.items():
         assert evaluate(case) == evaluate(case), f"'{scenario}' is not deterministic"
 
@@ -96,7 +83,7 @@ def test_evaluation_does_not_mutate_its_input() -> None:
 
 
 def test_evaluation_does_not_mutate_the_candidate_pool() -> None:
-    """The pool is shared between scenarios, so a scenario that edits it poisons the rest."""
+    """The pool is shared, so a scenario that edits it poisons the rest."""
     before = json.dumps(encode(POOLS), sort_keys=True)
     for case in FIXTURES.values():
         evaluate(case)
@@ -104,12 +91,8 @@ def test_evaluation_does_not_mutate_the_candidate_pool() -> None:
 
 
 def test_database_types_survive_the_fixture_file() -> None:
-    """
-    A candidate's credits are a Decimal and its identifier a UUID.
-
-    Recorded as plain strings they would still compare equal to each other and
-    the corpus would look green, while the rule checker downstream would be doing
-    arithmetic on text. This asserts the tagged form gives the types back.
+    """Recorded as plain strings, credits and ids would still compare equal while the
+    rule checker did arithmetic on text. Asserts the tagged form gives the types back.
     """
     for name, pool in POOLS.items():
         assert pool, f"pool '{name}' is empty"
@@ -126,14 +109,7 @@ def test_database_types_survive_the_fixture_file() -> None:
 
 
 def test_corpus_is_not_degenerate() -> None:
-    """
-    A corpus whose scenarios nearly all answer the same thing pins nothing.
-
-    The failure this guards against is real: while two of the six channels read a
-    table of course codes the catalogue does not contain, a corpus built from
-    real candidates agreed with itself almost everywhere and would have passed
-    this file unchanged no matter what a change broke.
-    """
+    """A corpus whose scenarios nearly all answer the same thing pins nothing."""
     distinct = {json.dumps(encode(value), sort_keys=True) for value in SNAPSHOTS.values()}
     assert len(distinct) >= len(SNAPSHOTS) * 0.5, (
         f"only {len(distinct)} distinct answers across {len(SNAPSHOTS)} scenarios"
@@ -141,7 +117,7 @@ def test_corpus_is_not_degenerate() -> None:
 
 
 def test_every_channel_is_exercised() -> None:
-    """Each channel must appear somewhere, or its extraction is untested."""
+    """Each channel must appear somewhere, or it is untested."""
     recorded = {rec["type"] for recs in SNAPSHOTS.values() if recs for rec in recs}
     assert recorded == {
         "interest",

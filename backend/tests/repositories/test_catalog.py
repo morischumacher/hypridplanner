@@ -1,14 +1,8 @@
-"""
-The candidate query's ordering.
+"""The candidate query's ordering.
 
-The recommender considers candidates in the order the pool arrives in, and its
-final sort by score is stable, so ties keep that order. An unordered query
-therefore makes the recommendation list a function of whatever row order the
-planner happens to choose, and two students with the same plan can be shown
-different courses.
-
-These run against the development database, because the property under test is
-what PostgreSQL returns rather than what the recommender does with it.
+The recommender's final sort by score is stable, so row order breaks ties and an
+unordered query would show two students with the same plan different courses.
+Runs against the development database, since the property is what PostgreSQL returns.
 """
 from __future__ import annotations
 
@@ -56,7 +50,7 @@ async def test_candidates_come_back_in_a_stated_order(catalog, program_code: str
 @pytest.mark.asyncio(loop_scope="session")
 @pytest.mark.parametrize("program_code", PROGRAMMES)
 async def test_the_order_is_total(catalog, program_code: str) -> None:
-    """Two rows the ordering cannot separate would leave the tie to the planner."""
+    """Two rows the ordering cannot separate leave the tie to the planner."""
     rows = await catalog.candidates(program_code)
 
     keys = [sort_key(row) for row in rows]

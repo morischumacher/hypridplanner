@@ -1,10 +1,6 @@
 /**
- * The prebuilt plans a student can start from.
- *
- * Each programme has its own builder because the two curricula prescribe
- * different amounts: the bachelor sequences almost the whole degree, the master
- * barely any of it. Both answer with the courses they placed and the aliases
- * they could not find, so the caller can say what went missing.
+ * Prebuilt starting plans. Each programme has its own builder; both return the
+ * courses placed and the aliases they could not resolve.
  */
 
 export { buildBachelorPrefillPlan } from "./bachelor-plan.ts";

@@ -1,15 +1,13 @@
 /**
- * Dragging: from the sidebar onto the canvas, and from one lane to another.
+ * Dragging: from the sidebar onto the canvas, and between lanes.
  *
- * A drag never writes the plan itself. It raises `needsPersist` and lets the
- * effect below read the finished canvas back on the next commit, which is the
- * one commit point that sees a card where it actually came to rest rather than
- * where the updater thought it would. Everything that places a card without a
- * drag writes the plan through directly instead, and the difference is what the
- * rule check and the rollbacks are timed against.
+ * A drag never writes the plan directly. It raises `needsPersist` and lets the
+ * effect below read the settled canvas back on the next commit, the one point
+ * that sees where a card actually came to rest. Non-drag placements write the
+ * plan through instead, and the rule check and rollbacks are timed against that
+ * difference.
  *
- * A card dropped left of the first lane is parked rather than placed, since
- * there is no semester there to place it in.
+ * A card dropped left of the first lane is parked, not placed.
  */
 
 import { useCallback, useEffect, useRef } from "react";
@@ -38,12 +36,12 @@ import type {
     DragPayload,
 } from "./types.ts";
 
-/** How long a refusal stays on screen after a drop the plan cannot take. */
+/** How long a refusal banner stays on screen after a rejected drop. */
 const TERM_VIOLATION_MS = 3500;
 
 const TERM_VIOLATION_MESSAGE = "This course is not offered in that semester.";
 
-/** Where a drag started, so that a refused drop can be put back. */
+/** Where a drag started, so a refused drop can be reverted. */
 interface DragOrigin {
     x: number;
     y: number;
@@ -87,7 +85,7 @@ export interface UseBoardDragHandlersResult {
     onNodeDrag: (event: unknown, node: BoardNode) => void;
     onNodeDragStopMerged: (event: unknown, node: BoardNode) => void;
     onSelectionDragStopMerged: (event: unknown, draggedNodes: BoardNode[]) => void;
-    /** Marks that the canvas should be written to the plan after the next commit. */
+    /** Marks the canvas to be written to the plan after the next commit. */
     schedulePersist: () => void;
     /** True for as long as a node is under the pointer. */
     nodeDragInProgressRef: MutableRefObject<boolean>;
@@ -132,7 +130,8 @@ export function useBoardDragHandlers({
             dt.setData("application/x-course", JSON.stringify(payload));
             dt.effectAllowed = "move";
         } catch {
-            // Some environments block setData for custom MIME types; fallback ref handles drop.
+            // Some environments block setData for custom MIME types; the
+            // fallback ref carries the payload instead.
         }
     }, []);
 
@@ -153,8 +152,8 @@ export function useBoardDragHandlers({
         event.preventDefault();
         const dt = event?.dataTransfer || event?.nativeEvent?.dataTransfer || null;
         if (dt) dt.dropEffect = "move";
-        // The lane after the last used one is drawn while a drag hovers over it,
-        // which is the whole of the "one more semester" affordance.
+        // The lane after the last used one is drawn only while a drag hovers
+        // over it; that is how the plan gains a semester.
         const previewLane = laneIndexFromClientPosition(event?.clientX);
         const nextAllowedLane = activeSemesterCount;
         if (previewLane === nextAllowedLane && activeSemesterCount < maxSemesterCount) {
@@ -186,7 +185,7 @@ export function useBoardDragHandlers({
             setDragPreviewSemesterCount(null);
         }
 
-        // Dragging a module background: move all children by the same live delta.
+        // Module background: move all children by the same live delta.
         if (node?.type === "moduleBg") {
             const st = groupDragRef.current.get(node.id) || { lastX: node.position.x, lastY: node.position.y };
             const dx = node.position.x - st.lastX;
@@ -201,7 +200,7 @@ export function useBoardDragHandlers({
             return;
         }
 
-        // Dragging a child course inside a module: keep the module background synced live.
+        // Child course inside a module: keep the background synced live.
         if (node?.type === "course" && node?.data?.groupId) {
             const groupId = node.data.groupId;
             setNodes((prev) => {
@@ -215,7 +214,7 @@ export function useBoardDragHandlers({
 
     const schedulePersist = useCallback(() => setNeedsPersist(true), []);
 
-    // The one commit point that reads the canvas rather than predicting it.
+    // The one commit point that reads the settled canvas rather than predicting it.
     useEffect(() => {
         if (!needsPersist) return;
         const latestNodes = (rfRef.current?.getNodes?.() || nodes).filter((n) => n.type !== "lane");
@@ -230,8 +229,8 @@ export function useBoardDragHandlers({
         const snappedY = Math.max(0, snappedYRaw);
         let invalidPlacementAttempted = false;
 
-        // If a whole module group was dragged: shift children by the snap delta, snap the group,
-        // then recompute the group bbox, and resolve collisions.
+        // Whole module group: shift children by the snap delta, snap the group,
+        // recompute its bbox, then resolve collisions.
         if (node?.type === "moduleBg") {
             const span = LANE_WIDTH + LANE_GAP;
             const rawLane = Math.floor((Number(node?.position?.x || 0) + LANE_GAP * 0.5) / span);
@@ -290,7 +289,7 @@ export function useBoardDragHandlers({
             return;
         }
 
-        // Course inside a group → snap only the course, then recompute the group bbox
+        // Course inside a group: snap the course, then recompute the group bbox.
         if (node?.type === "course" && node?.data?.groupId) {
             const span = LANE_WIDTH + LANE_GAP;
             const rawLane = Math.floor((Number(node?.position?.x || 0) + LANE_GAP * 0.5) / span);
@@ -336,7 +335,7 @@ export function useBoardDragHandlers({
             return;
         }
 
-        // All other nodes: normal snapping + collision resolution
+        // All other nodes: snap, then resolve collisions.
         const span = LANE_WIDTH + LANE_GAP;
         const rawLane = Math.floor((Number(node?.position?.x || 0) + LANE_GAP * 0.5) / span);
         if (node?.type === "course" && rawLane < 0) {
@@ -403,8 +402,8 @@ export function useBoardDragHandlers({
         schedulePersist();
     }, [onNodeDragStop, schedulePersist]);
 
-    // Dragging a multi-selection moves cards without telling their module panels,
-    // so the panels are settled around their children once the drag has ended.
+    // A multi-selection drag moves cards without notifying their module panels,
+    // so the panels are resized around their children after the drag ends.
     const onSelectionDragStopMerged = useCallback((_: unknown, draggedNodes: BoardNode[]) => {
         const draggedIds = new Set(
             (Array.isArray(draggedNodes) ? draggedNodes : [])
@@ -461,7 +460,7 @@ export function useBoardDragHandlers({
             const dropInParking = flowX < laneX(0);
             const dropLaneIndex = Math.max(0, Math.min(laneIndexFromX(x, maxSemesterCount - 1), maxSemesterCount - 1));
 
-            // A) Module with >= 2 courses
+            // Module with two or more courses.
             if (payload?.kind === "module" && Array.isArray(payload.courses) && payload.courses.length >= 2) {
                 const variantResolution = resolveModuleVariantCourses(
                     payload as Parameters<typeof resolveModuleVariantCourses>[0],
@@ -489,7 +488,7 @@ export function useBoardDragHandlers({
                 return;
             }
 
-            // B) Single course card (or module with a single course treated as course)
+            // Single course card, or a single-course module treated as one.
             if (dropInParking) {
                 parkCourseCodes([payload.code]);
                 schedulePersist();

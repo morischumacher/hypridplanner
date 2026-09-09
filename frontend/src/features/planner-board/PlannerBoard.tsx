@@ -1,10 +1,9 @@
 /**
- * The planning canvas itself: the drop target, React Flow, and its controls.
+ * The canvas: the drop target, React Flow, and its controls.
  *
  * The wrapper element is the drop target rather than React Flow, because a drop
- * has to be turned into a lane from the wrapper's own bounding box and the
- * viewport transform. Everything the canvas needs is passed in, so this
- * component holds no state of its own beyond React Flow's.
+ * is resolved to a lane from the wrapper's bounding box and the viewport
+ * transform. This component holds no state beyond React Flow's.
  */
 
 import ReactFlow, {
@@ -31,7 +30,7 @@ const NODE_TYPES = {
     moduleBg: ModuleGroupBackground,
 };
 
-/** Whether dragging on empty canvas pans the view or rubber-bands a selection. */
+/** Whether dragging on empty canvas pans the view or rubber-band selects. */
 export type TableInteractionMode = "pan" | "select";
 
 export interface PlannerBoardProps {

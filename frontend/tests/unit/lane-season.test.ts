@@ -1,13 +1,5 @@
 // @vitest-environment jsdom
-/**
- * The season a semester lane is in.
- *
- * The lanes alternate from the season the student began in, and a season-locked
- * course fits only half of them. The tool held both facts and showed only one of
- * them: the course's own term was on its card, the lane's season was nowhere, so
- * the comparison the student had to make was left to mental arithmetic. This
- * pins the season onto the lane node, which is what LaneColumn renders.
- */
+/** The season is pinned onto the lane node, which is what LaneColumn renders. */
 import { describe, expect, it } from "vitest";
 
 import { useBoardNodes } from "../../src/features/planner-board/useBoardNodes.ts";

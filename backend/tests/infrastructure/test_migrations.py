@@ -1,9 +1,5 @@
-"""
-The migration ledger.
-
-These run against a scratch database created for the test and dropped
-afterwards, because what is being checked is what happens to an empty database
-and to one that has already been migrated, and neither can be observed on the
+"""The migration ledger, driven against a scratch database created and dropped per
+test: neither an empty database nor a freshly migrated one can be observed on the
 shared development database.
 """
 from __future__ import annotations
@@ -103,9 +99,8 @@ async def test_an_edited_migration_is_reported(scratch) -> None:
 
 
 def test_identifiers_are_timestamped_and_unique() -> None:
-    """
-    Sequential numbers collide when two branches both add the next one, which is
-    why these are timestamps.
+    """Timestamps, because sequential numbers collide when two branches both add
+    the next one.
     """
     names = sorted(path.name for path in SQL_DIR.glob("*.sql"))
     stamps = [name.split("_", 1)[0] for name in names]

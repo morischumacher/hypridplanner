@@ -1,13 +1,7 @@
 /**
- * Reading a plan back off the canvas.
- *
- * The canvas is the record of what the student decided, so a course's semester
- * is derived from where its card ended up rather than from any field on the
- * card: the lane a card sits in is what the student sees, and the two must not
- * be able to disagree.
- *
- * Vertical order is kept as well, since a lane's order is meaningful to the
- * student even where it means nothing to the curriculum.
+ * Reads a plan back off the canvas. The canvas is the source of truth, so a
+ * course's semester is derived from its card position rather than from any
+ * field on the card. Vertical order within a lane is preserved.
  */
 
 import { laneIndexFromX } from "../layout.ts";
@@ -51,7 +45,7 @@ export function buildCoursesOnlyFromNodes(
 
     for (const n of nodes) {
         if (n?.type !== "course") continue;
-        // A parked course has no lane, so it is recorded by code alone.
+        // A parked course has no lane, so it is recorded by code only.
         if (String(n?.data?.status || "").trim() === "parked") {
             const parkedCode = String(n?.data?.code || "").trim();
             if (parkedCode) parkedCodes.push(parkedCode);

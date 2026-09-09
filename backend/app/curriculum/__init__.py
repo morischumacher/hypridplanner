@@ -1,15 +1,7 @@
-"""
-The curriculum, as data.
+"""The curriculum as data: one JSON document per programme, beside this module.
 
-Each programme's regulations live in a JSON document beside this module: which
-modules exist, how many credits each needs, what depends on what, which course
-codes map to which module, and the ceilings that apply to a semester. None of it
-is behaviour; all of it changes when the university publishes a new curriculum.
-
-JSON has no sets and no tuples, and both matter here: membership tests want a
-set, and ordered prefix matching wants a tuple. They are written as tagged
-objects and restored on load, so the document stays readable and the loaded
-shape stays exact.
+JSON has no sets or tuples, and both matter here (membership tests, ordered prefix
+matching), so they are stored as tagged objects and restored on load.
 """
 from __future__ import annotations
 

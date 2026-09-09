@@ -1,11 +1,9 @@
 /**
  * Which lane a course may go in, and which lanes the placement menus offer.
  *
- * A lane's season alternates with its index, so a course taught only in winter
- * fits every second lane. The searches below therefore look forward first and
- * only then backwards: a course that cannot stay where the student asked for it
- * should move later in the plan rather than earlier, since moving it earlier
- * would silently bring work forward that they had put off.
+ * Lane seasons alternate with the index, so a winter-only course fits every
+ * second lane. The searches look forward before backwards, so a course that
+ * cannot stay where it was asked for moves later rather than earlier.
  */
 
 import { useCallback } from "react";
@@ -17,7 +15,7 @@ import {
 import type { TermAvailability } from "../../domain/terms.ts";
 import type { CourseLike, SemesterOption } from "./types.ts";
 
-/** The parking stage, which every menu offers and no term rule applies to. */
+/** The parking stage: offered by every menu, exempt from term rules. */
 const parkingOption = (): SemesterOption => ({ id: 0, title: "Parking Stage", isParking: true });
 
 export interface UsePlacementRulesInput {
@@ -30,14 +28,14 @@ export interface UsePlacementRulesInput {
 
 export interface UsePlacementRulesResult {
     isCourseAllowedInLane: (courseCode: string | null | undefined, laneIndex: number) => boolean;
-    /** The lane to place this course in, or null when the plan has none for it. */
+    /** The lane to place this course in, or null when no lane fits. */
     firstAllowedLaneForCourse: (
         courseCode: string | null | undefined,
         preferredLane: number
     ) => number | null;
     /**
-     * Keeps a placement inside the plan, allowing exactly one lane past its end
-     * so that dropping a card there is what lengthens the plan.
+     * Clamps a placement to the plan, allowing exactly one lane past its end so
+     * that dropping a card there lengthens the plan.
      */
     clampPlacementLane: (requestedLaneIndex: number) => number;
     validSemestersForCourse: (courseCode: string | null | undefined) => SemesterOption[];
@@ -102,9 +100,8 @@ export function usePlacementRules({
         if (allowed.length > 0) {
             return [parkingOption(), ...allowed];
         }
-        // No single lane suits every course of the module, so the menu offers
-        // pairs of neighbouring lanes instead: the module is still one thing to
-        // plan, but its courses are taken over two consecutive semesters.
+        // No single lane fits every course of the module, so the menu offers
+        // pairs of neighbouring lanes instead.
         const pairOptions: SemesterOption[] = [];
         for (let idx = 0; idx < sidebarSemesters.length - 1; idx += 1) {
             const first = sidebarSemesters[idx];

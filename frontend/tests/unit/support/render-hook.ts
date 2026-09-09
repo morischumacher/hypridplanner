@@ -1,10 +1,6 @@
 /**
- * The smallest harness that will run a hook.
- *
- * A feature under `src/features/` keeps its state and its effects in a hook, so
- * some of what is worth testing cannot be reached by calling a function: only
- * React can run a hook. React runs it here, into a detached document, rather
- * than a stand-in that would prove nothing about the real thing.
+ * The smallest harness that will run a hook. React renders it into a detached
+ * document rather than a stand-in.
  */
 
 import { act, createElement } from "react";
@@ -14,7 +10,7 @@ import type { Root } from "react-dom/client";
 export interface HookHarness<Props, Result> {
     /** What the hook returned when it was last rendered. */
     readonly current: Result;
-    /** Renders again with new props, as a parent handing down a changed value would. */
+    /** Renders again with new props, as a parent handing down a changed value does. */
     rerender: (props: Props) => void;
     unmount: () => void;
 }
@@ -23,7 +19,7 @@ export function renderHook<Props, Result>(
     hook: (props: Props) => Result,
     initialProps: Props
 ): HookHarness<Props, Result> {
-    // React refuses to run effects outside act without it, and says so loudly.
+    // React refuses to run effects outside act without this.
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
     const container = document.createElement("div");

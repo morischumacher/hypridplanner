@@ -1,10 +1,4 @@
-/**
- * The plan state machine and the values it is made of.
- *
- * The reducer is the whole of it: everything else here either builds a value it
- * is given or reads one it produced. Nothing in this folder touches React, a
- * clock, or the network, so a transition is tested by calling it.
- */
+/** The plan state machine and its value types. Nothing here touches React or I/O. */
 
 export { plannerReducer } from "./reducer.ts";
 

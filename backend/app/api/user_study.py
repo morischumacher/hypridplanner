@@ -1,9 +1,5 @@
-"""
-The evaluation study's response endpoint.
-
-Deliberately unauthenticated: participants filled the questionnaire in a
-separate browser context from the planner session being observed.
-"""
+"""The evaluation study's response endpoint. Unauthenticated, because
+participants answered the questionnaire outside the observed planner session."""
 from __future__ import annotations
 
 from typing import Any

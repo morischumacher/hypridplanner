@@ -1,13 +1,7 @@
-"""
-The connection pool, and the two ways of borrowing a connection from it.
+"""The connection pool. `connection()` for reads, `transaction()` for writes.
 
-`connection()` borrows one for reads. `transaction()` borrows one and opens a
-transaction around it, so a sequence of statements either all apply or none do.
-Which of the two a use case needs is a decision that belongs to the use case, so
-services choose, and repositories are handed whatever was chosen.
-
-The pool is created once and never closed. asyncpg binds a pool to the event
-loop that created it, which is why the test suite runs on a single loop.
+The pool is created once and never closed: asyncpg binds a pool to the event loop
+that created it, which is why the test suite runs on a single loop.
 """
 from __future__ import annotations
 

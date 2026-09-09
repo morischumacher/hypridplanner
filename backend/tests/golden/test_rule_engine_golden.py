@@ -1,17 +1,6 @@
-"""
-Golden-master tests for the rule engine.
-
-These exist so that no change to the rule checkers can alter a verdict
-unnoticed. The verdicts the thesis reports are the ones the study's participants
-received, so a change to the engine is only defensible if its answers stay
-identical, and every answer is therefore recorded
-here first and compared afterwards.
-
-The comparison is exact and structural. A test failure names the scenario and the
-first differing path, so a diff points at a rule rather than at a blob of JSON.
-
-Fixtures come from `build_fixtures.py` and are committed, so these tests need no
-database and run in milliseconds.
+"""Golden-master tests for the rule engine: no change to the checkers may alter a
+verdict unnoticed. Fixtures come from `build_fixtures.py` and are committed, so
+these tests need no database.
 """
 from __future__ import annotations
 
@@ -80,7 +69,7 @@ def test_every_fixture_has_a_snapshot() -> None:
 
 
 def test_evaluation_is_deterministic() -> None:
-    """The same payload twice must give the same answer, or the corpus is worthless."""
+    """The same payload twice must give the same answer, or the corpus pins nothing."""
     for scenario, payload in FIXTURES.items():
         assert evaluate(payload) == evaluate(payload), f"'{scenario}' is not deterministic"
 

@@ -1,12 +1,6 @@
 /**
- * Lane geometry: where a semester column sits, and which one a drop lands in.
- *
- * Every measurement is in React Flow's flow space rather than screen pixels, so
- * the numbers survive zooming and panning untouched. The single place the two
- * spaces meet is `projectToLaneAndSnap`, and it does the conversion from the
- * wrapper's bounding box and the viewport transform instead of asking React
- * Flow to project for us, because that arithmetic has stayed stable across
- * React Flow versions while the projection helpers have not.
+ * Lane geometry. All measurements are in React Flow's flow space, not screen
+ * pixels; `projectToLaneAndSnap` is the only conversion point.
  */
 
 import type { Point } from "./types.ts";
@@ -22,10 +16,7 @@ export const GRID_SIZE = 16;
 /** The height a course card draws at. */
 export const NODE_HEIGHT = 124;
 
-/**
- * The vertical space a course card is reserved in a lane. It is larger than the
- * drawn height so that stacked cards keep a visible seam between them.
- */
+/** Vertical space reserved per card. Larger than NODE_HEIGHT to keep a seam between stacked cards. */
 export const COURSE_LAYOUT_HEIGHT = 156;
 
 export const COLLISION_GAP = 8;
@@ -39,10 +30,7 @@ export const MODULE_HEADER_HEIGHT = 68;
 export const MODULE_TOP_PADDING = 4;
 export const MODULE_BOTTOM_PADDING = 30;
 
-/**
- * A manual optical correction. Cards centred by arithmetic in a lane read as
- * sitting slightly right of centre, and this is the nudge that was settled on.
- */
+/** Optical correction: arithmetically centred cards read as sitting right of centre. */
 export const VISUAL_CENTER_OFFSET_X = -13;
 
 /** Left edge of a lane. */
@@ -57,8 +45,8 @@ export const centerX = (laneIndex: number): number =>
 
 export const laneIndexFromX = (flowX: number, maxLaneIndex: number | null = null): number => {
     const span = LANE_WIDTH + LANE_GAP;
-    // Half the gap belongs to the lane on the left, so that a drop just past a
-    // lane's right edge stays in that lane instead of rounding into the next.
+    // Half the gap counts towards the lane on the left, so a drop just past a
+    // lane's right edge stays in that lane.
     const idx = Math.floor((flowX + LANE_GAP * 0.5) / span);
     if (Number.isFinite(maxLaneIndex)) return clamp(idx, 0, Number(maxLaneIndex));
     return Math.max(0, idx);
@@ -71,12 +59,12 @@ export interface Viewport {
     zoom: number;
 }
 
-/** Only what `projectToLaneAndSnap` asks of a React Flow instance. */
+/** The part of a React Flow instance `projectToLaneAndSnap` uses. */
 export interface ViewportSource {
     getViewport?: () => Viewport;
 }
 
-/** Only what `projectToLaneAndSnap` reads from a drop event. */
+/** The part of a drop event `projectToLaneAndSnap` reads. */
 export interface PointerPosition {
     clientX?: number;
     clientY?: number;
@@ -89,7 +77,7 @@ export interface DropProjection {
     maxLaneIndex?: number | null;
 }
 
-/** Turns a drop event into the snapped flow-space position of the card. */
+/** Converts a drop event into the snapped flow-space position of the card. */
 export const projectToLaneAndSnap = ({
     evt,
     wrapperEl,

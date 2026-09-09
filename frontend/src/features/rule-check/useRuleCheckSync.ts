@@ -1,12 +1,10 @@
 /**
- * Asking the backend whether the plan still obeys the curriculum, and undoing
- * the change when it does not.
+ * Sends the plan to the rule checker and rolls back a refused change.
  *
- * `latestRuleCheckChangeIdRef` is what makes that safe. A check is sent for
- * every plan change, several can be in flight at once, and an answer is acted
- * on only while the identifier it was asked about is still the newest one for
- * that programme. Were the identifiers to stop matching, a late refusal would
- * roll back a change the student has since replaced.
+ * `latestRuleCheckChangeIdRef` makes that safe. A check is sent per plan change
+ * and several can be in flight, so an answer is acted on only while its change
+ * id is still the newest for that programme. Without the guard, a late refusal
+ * would roll back a change that has since been replaced.
  */
 
 import { useEffect, useRef } from "react";
@@ -20,7 +18,7 @@ import type { StickyViolation } from "./useRuleCheckFeedback.ts";
 import type { RolledBackChange } from "./useRuleCheckRollbacks.ts";
 import type { SetProgramRuleCheckState } from "./useRuleCheckState.ts";
 
-/** The identifier of the change a programme's last check was asked about. */
+/** The change id a programme's last check was asked about. */
 type RuleCheckRequestId = number | null;
 
 export interface UseRuleCheckSyncInput {
@@ -37,9 +35,9 @@ export interface UseRuleCheckSyncInput {
     rollbackMovedCourses: (change: RolledBackChange | null | undefined) => void;
     rollbackCourseStatusToggle: (change: RolledBackChange | null | undefined) => void;
     /**
-     * The programme whose one-off opening check is still owed, or null once it
-     * has been sent. The planner writes it on every programme switch and after
-     * every rebuild of the canvas, so the check is owed again each time.
+     * The programme whose one-off opening check is still owed, or null once
+     * sent. The planner rewrites it on every programme switch and canvas
+     * rebuild, so the check is owed again each time.
      */
     pendingInitialSyncProgramRef: MutableRefObject<string | null>;
 }
@@ -90,9 +88,8 @@ export function useRuleCheckSync({
             recommendedWeekHoursPerSemester: Number(semesterLoadLimits?.recommendedWeekHoursPerSemester),
         })
             .then((response) => {
-                // The rollbacks below are the reason this guard is not merely an
-                // optimisation: acting on an answer to a superseded question
-                // would undo a change nobody has objected to.
+                // Not an optimisation: acting on an answer to a superseded
+                // question would roll back an unrefused change.
                 if ((latestRuleCheckChangeIdRef.current?.[requestProgramCode] ?? null) !== changeIdSnapshot) return;
                 setProgramRuleCheckState(requestProgramCode, {
                     sending: false,
@@ -152,11 +149,10 @@ export function useRuleCheckSync({
             });
     }, [coursesBySemester, doneCourseCodes, lastPlanChange, programCode, rollbackAddedCourses, rollbackMovedCourses, rollbackCourseStatusToggle, selectedFocus, semesterLoadLimits?.maxEctsPerSemester, semesterLoadLimits?.recommendedEctsPerSemester, semesterLoadLimits?.maxWeekHoursPerSemester, semesterLoadLimits?.recommendedWeekHoursPerSemester, setProgramRuleCheckState]);
 
-    // The dashboard is built from the rule checker's answer, and a student who
-    // has only opened their planner has made no change to prompt one. This is
-    // the check that gives them a dashboard anyway. It carries no change
-    // identifier and cannot be rolled back, which is why it is guarded by the
-    // ref rather than by the staleness test above.
+    // The dashboard is built from the rule checker's answer, which a plain page
+    // load never prompts. This check covers that case. It carries no change id
+    // and cannot be rolled back, so it is guarded by the ref rather than by the
+    // staleness test above.
     useEffect(() => {
         if (!plannerHydrated) return;
         if (pendingInitialSyncProgramRef.current !== programCode) return;

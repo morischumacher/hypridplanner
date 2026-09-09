@@ -1,14 +1,7 @@
-"""
-What a rule check returns.
+"""What a rule check returns, for both programmes and on the wire.
 
-One shape for both programmes, and the shape the API sends on the wire:
-
-- `ok` and `message` answer the question the planner asked, which is whether the
-  change the student just made is allowed.
-- `stats` carries the numbers the dashboard prints.
-- `missing` lists what the degree still needs, and `errors` what is wrong with
-  the plan as it stands. Neither blocks the change; both are shown as standing
-  feedback.
+`ok`/`message` decide the edit the student just made; `stats` feeds the
+dashboard; `missing` and `errors` are standing feedback and block nothing.
 """
 from __future__ import annotations
 

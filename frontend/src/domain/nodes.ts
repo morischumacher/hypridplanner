@@ -1,14 +1,10 @@
 /**
- * Keeping the nodes on the planning canvas from overlapping.
+ * Overlap resolution for canvas nodes.
  *
- * Every function here takes the whole node list and returns a new one, because
- * moving a course can move the module panel behind it, which can in turn push
- * another course; there is no local edit that is safe to apply on its own.
- *
- * A module panel is not a parent in React Flow's sense. It is a sibling node
- * drawn behind its courses, and its position and size are recomputed from those
- * courses rather than the other way round, which is why a panel with no courses
- * left is removed instead of resized.
+ * Every function takes the whole node list and returns a new one: moving a
+ * course moves the module panel behind it, which can push another course, so no
+ * local edit is safe on its own. A module panel is a sibling node, not a React
+ * Flow parent, and is recomputed from its courses.
  */
 
 import {
@@ -26,7 +22,7 @@ import {
 } from "./layout.ts";
 import type { PlanNode } from "./types.ts";
 
-/** What the vertical order of a lane is meant to mean to the reader. */
+/** What the vertical order within a lane encodes. */
 export type VerticalSemantics = "no_meaning" | "alphabetical" | "ects" | "custom";
 
 export interface LaneLayoutOptions {
@@ -35,16 +31,12 @@ export interface LaneLayoutOptions {
     verticalSemantics?: VerticalSemantics | undefined;
 }
 
-/**
- * The lane geometry a whole-canvas compaction needs. Compaction settles cards
- * against each other and against the module headers above them, which is a
- * question about pixels rather than about how many semesters the plan has.
- */
+/** Geometry for whole-canvas compaction; semester count is not needed here. */
 export interface PrefillLayoutOptions {
     minModuleGroupTopY: number;
 }
 
-/** The rectangle a node occupies, plus its height. */
+/** The rectangle a node occupies. */
 interface BoundingBox {
     x1: number;
     y1: number;
@@ -53,20 +45,17 @@ interface BoundingBox {
     h: number;
 }
 
-/** The topmost row courses are allowed to occupy, below the lane headers. */
+/** Topmost row a course may occupy, below the lane headers. */
 const MIN_COURSE_Y = 96;
 
 export function laneIdx(node: PlanNode | null | undefined): number {
     const span = LANE_WIDTH + LANE_GAP;
     const idx = Math.floor((Number(node?.position?.x || 0) + LANE_GAP * 0.5) / span);
-    // Minus one is the parking lane, which sits to the left of semester one.
+    // Lane -1 is the parking lane, left of semester one.
     return Math.max(-1, idx);
 }
 
-/**
- * Resizes a module panel around the courses it holds. A panel whose last course
- * has been moved out is dropped, since an empty panel labels nothing.
- */
+/** Resizes a module panel around its courses, dropping it once it has none left. */
 export function recomputeGroupFromChildren(nodes: PlanNode[], groupId: string): PlanNode[] {
     const children = nodes.filter((n) => n.type === "course" && n.data?.groupId === groupId);
     const group = nodes.find((n) => n.type === "moduleBg" && n.id === groupId);
@@ -107,8 +96,8 @@ export function recomputeGroupFromChildren(nodes: PlanNode[], groupId: string): 
                     width,
                     height,
                     moduleCourseCount: children.length,
-                    // The catalogue's own figure wins, because a module can be
-                    // worth fewer credits than its courses add up to.
+                    // The catalogue figure wins: a module can be worth fewer
+                    // credits than its courses add up to.
                     moduleEcts: Number(n?.data?.moduleEcts ?? 0) || moduleEctsFromChildren || null,
                     moduleCourseCodes,
                     status: groupStatus,
@@ -118,7 +107,7 @@ export function recomputeGroupFromChildren(nodes: PlanNode[], groupId: string): 
     );
 }
 
-/** Stacks the courses of one module so that none covers another. */
+/** Stacks the courses of one module so none covers another. */
 export function resolveGroupCourseOverlaps(nodes: PlanNode[], groupId: string): PlanNode[] {
     const children = nodes
         .filter((n) => n.type === "course" && n.data?.groupId === groupId)
@@ -165,7 +154,7 @@ function nodeBBox(n: PlanNode): BoundingBox {
     return { x1: n.position.x, y1: n.position.y, x2: n.position.x, y2: n.position.y, h: 0 };
 }
 
-/** The lanes a node reaches into. Only a module panel can span more than one. */
+/** The lanes a node reaches into; only a module panel can span more than one. */
 function coveredLaneIndicesForNode(n: PlanNode, maxSemesterCount: number): number[] {
     if (n?.type !== "moduleBg") return [laneIdx(n)];
     const box = nodeBBox(n);
@@ -195,7 +184,7 @@ function applyDeltaToGroupChildren(
     );
 }
 
-/** Keeps a module panel low enough that its header is not cut off by the lane header. */
+/** Keeps a module panel low enough that the lane header does not cut off its own header. */
 function enforceModuleHeaderClearance(allNodes: PlanNode[], minModuleGroupTopY: number): PlanNode[] {
     let nodes = allNodes.slice();
     const groups = nodes.filter((n) => n?.type === "moduleBg");
@@ -214,9 +203,8 @@ function enforceModuleHeaderClearance(allNodes: PlanNode[], minModuleGroupTopY: 
 }
 
 /**
- * Lane backgrounds sit behind module panels, which sit behind course cards. The
- * order is set here rather than in the components because React Flow paints by
- * `zIndex` alone and a node added later would otherwise land on top.
+ * Lane backgrounds behind module panels behind course cards. React Flow paints
+ * by `zIndex` alone, so a later-added node would otherwise land on top.
  */
 function enforceStackingOrder(allNodes: PlanNode[]): PlanNode[] {
     return allNodes.map((node) => {
@@ -251,9 +239,8 @@ function resizeAllGroups(nodes: PlanNode[]): PlanNode[] {
 }
 
 /**
- * Pulls a freshly prefilled plan upwards until nothing overlaps. Courses are
- * settled top to bottom so that each one only ever has to clear what is already
- * placed above it.
+ * Pulls a freshly prefilled plan upwards until nothing overlaps. Courses settle
+ * top to bottom, so each only has to clear what is already placed above it.
  */
 export function compactPrefillLayout(
     allNodes: PlanNode[],
@@ -305,9 +292,9 @@ export function compactPrefillLayout(
 }
 
 /**
- * Settles every lane after a drag. Where the vertical order carries a meaning
- * the student chose, the lane is laid out from the top in that order; otherwise
- * courses keep the positions they were dropped at and are only pushed apart.
+ * Settles every lane after a drag. With a chosen vertical semantics the lane is
+ * relaid from the top in that order, otherwise cards keep their drop position
+ * and are only pushed apart.
  */
 export function resolveLaneCollisions(
     allNodes: PlanNode[],

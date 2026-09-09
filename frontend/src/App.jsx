@@ -1,15 +1,6 @@
-/**
- * The planner screen: the feature hooks it is assembled from, and the order it
- * assembles them in.
- *
- * That order is the whole of what this file decides. Hooks run their effects in
- * the order they are called, and the planner depends on it throughout: the
- * canvas is built before anything reads it, the rollbacks exist before the rule
- * check that may call them, and the rebuild from a stored plan comes last so
- * that every handler it wires onto a card already exists. Moving a call up or
- * down this list changes when the plan is written and what the rule checker is
- * asked about, so the sequence below is deliberate.
- */
+// Planner screen. Hook call order matters: the canvas is built before anything reads
+// it, rollbacks exist before the rule check that may call them, and the rebuild from a
+// stored plan comes last so every handler it wires onto a card already exists.
 
 import React, {
     useCallback,
@@ -482,7 +473,6 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
         [missingDoneGradesBySemester]
     );
 
-    // What the dashboard adds from the student's own course notes.
     const dashboardLaneInsights = {
         plannedEstimatedHoursPerSemesterRows,
         plannedEstimatedHoursAverage,
@@ -798,8 +788,8 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
         feedbackColor,
     } = dashboardMetrics;
 
-    // Most channels match against what the student said they were interested
-    // in, so an empty panel means something different before that is stated.
+    // Most recommendation channels need stated interests, so the empty panel wording
+    // differs before any are given.
     const hasStatedInterests = useMemo(() => {
         const settings = profileSettingsByProgram?.[programCode];
         const interests = Array.isArray(settings?.interests) ? settings.interests : [];
