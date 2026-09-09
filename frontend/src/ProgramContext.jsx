@@ -26,10 +26,11 @@ import {
     snapshotFromPlannerState,
 } from "./domain/plan/index.ts";
 import { semesterBoundsForProgram } from "./domain/terms.ts";
+import { MASTER_PROGRAM_CODE } from "./domain/programmes.ts";
 
 const ProgramContext = createContext();
 
-export function ProgramProvider({ children, initialProgramCode = "066 937" }) {
+export function ProgramProvider({ children, initialProgramCode = MASTER_PROGRAM_CODE }) {
     const [state, dispatch] = useReducer(plannerReducer, initialProgramCode, initialPlannerState);
 
     const programCode = state.programCode;
