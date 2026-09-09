@@ -530,6 +530,7 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
         setSemesterNote,
         viewMode,
         verticalSemantics: tableVerticalSemantics,
+        startTermSeason,
         resolveLaneCollisions,
     });
 

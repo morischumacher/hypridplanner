@@ -13,6 +13,13 @@ export default function LaneColumn({ data }) {
     const courseNotes = Array.isArray(data?.courseNotes) ? data.courseNotes : [];
     const additionalNote = String(data?.additionalNote || "");
     const isParkingLane = Boolean(data?.isParking) || Number(data?.semesterId) === 0;
+    // The lanes alternate between winter and summer, and a season-locked course
+    // fits only one of them. The card and the catalogue row already carry the
+    // course's own marker; without the lane's the student has to count parity
+    // by hand, place, and be refused, which is the study's most frequent defect.
+    const season = String(data?.season || "");
+    const seasonGlyph = season === "summer" ? "\u2600\ufe0f" : (season === "winter" ? "\u2744\ufe0f" : "");
+    const seasonLabel = season === "summer" ? "Summer semester" : (season === "winter" ? "Winter semester" : "");
     const laneHeight = isParkingLane
         ? Math.max(64, Number(data?.height) || 88)
         : Math.max(CANVAS_HEIGHT, Number(data?.height) || CANVAS_HEIGHT);
@@ -71,6 +78,11 @@ export default function LaneColumn({ data }) {
                     lineHeight: 1.2,
                 }}
             >
+                {seasonGlyph && (
+                    <span title={seasonLabel} aria-label={seasonLabel} style={{ marginRight: 6 }}>
+                        {seasonGlyph}
+                    </span>
+                )}
                 {`${data.title} · ${plannedEcts.toFixed(1)} ECTS`}
             </div>
             <div

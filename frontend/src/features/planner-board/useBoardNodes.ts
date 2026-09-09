@@ -26,6 +26,7 @@ import {
     MODULE_HEADER_HEIGHT,
     laneX,
 } from "../../domain/layout.ts";
+import { laneSeason } from "../../domain/terms.ts";
 import type { CatalogueCourseEntry } from "../catalogue/index.ts";
 import type { BoardNode, BoardNodeData, LaneInsight, SemesterOption } from "./types.ts";
 
@@ -48,6 +49,8 @@ export interface UseBoardNodesInput {
     /** "table" or "graph"; the canvas is only laid out while it is on screen. */
     viewMode: string;
     verticalSemantics: string;
+    /** The season the student began in; the lanes alternate from it. */
+    startTermSeason: string;
     resolveLaneCollisions: (nodes: BoardNode[]) => BoardNode[];
 }
 
@@ -76,6 +79,7 @@ export function useBoardNodes({
     setSemesterNote,
     viewMode,
     verticalSemantics,
+    startTermSeason,
     resolveLaneCollisions,
 }: UseBoardNodesInput): UseBoardNodesResult {
     const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -137,6 +141,7 @@ export function useBoardNodes({
                 type: "lane",
                 data: {
                     title: s.title,
+                    season: laneSeason(startTermSeason, i),
                     isParking: false,
                     even: i % 2 === 0,
                     height: CANVAS_HEIGHT,
@@ -156,7 +161,7 @@ export function useBoardNodes({
             }));
             return [parkingLane, ...regular];
         },
-        [isParkingCollapsed, laneInsightsBySemester, parkingEctsFromParkedCodes, plannedEctsBySemester, semesters, setSemesterNote]
+        [isParkingCollapsed, laneInsightsBySemester, parkingEctsFromParkedCodes, plannedEctsBySemester, semesters, setSemesterNote, startTermSeason]
     );
 
     const initialNodes = useMemo(() => [...laneNodes], [laneNodes]);

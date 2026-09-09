@@ -161,6 +161,8 @@ export interface BoardNodeData {
     collapsedGhost?: boolean | undefined;
 
     isParking?: boolean | undefined;
+    /** "winter" or "summer" for a semester lane; absent on the parking stage. */
+    season?: string | undefined;
     isParkingCollapsed?: boolean | undefined;
     onToggleParkingCollapsed?: (() => void) | undefined;
     even?: boolean | undefined;
