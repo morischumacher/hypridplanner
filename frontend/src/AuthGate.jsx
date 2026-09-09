@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { signIn, signUp } from "./lib/api.js";
+import { authErrorMessage } from "./features/auth/authErrorMessage.ts";
 
 export default function AuthGate({ onAuthenticated }) {
     const [mode, setMode] = useState("signin");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [disableGraph, setDisableGraph] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
@@ -21,15 +21,10 @@ export default function AuthGate({ onAuthenticated }) {
                 onAuthenticated?.(result?.user ?? null);
             } else {
                 const result = await signUp(username.trim(), password);
-                if (disableGraph) {
-                    localStorage.setItem("disable-graph-view-" + username.trim(), "true");
-                } else {
-                    localStorage.removeItem("disable-graph-view-" + username.trim());
-                }
                 onAuthenticated?.(result?.user ?? null, { openSignupSetupOnEntry: true });
             }
         } catch (e) {
-            setError(String(e?.message || e));
+            setError(authErrorMessage(mode, e));
         } finally {
             setSubmitting(false);
         }
@@ -93,18 +88,6 @@ export default function AuthGate({ onAuthenticated }) {
                         }}
                     />
                 </label>
-
-                {mode === "signup" && (
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", userSelect: "none", marginTop: 4 }}>
-                        <input
-                            type="checkbox"
-                            checked={disableGraph}
-                            onChange={(e) => setDisableGraph(e.target.checked)}
-                            style={{ cursor: "pointer", width: 16, height: 16 }}
-                        />
-                        Disable Graph View (User Study Persona 1)
-                    </label>
-                )}
 
                 {error && (
                     <div

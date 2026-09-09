@@ -27,6 +27,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 74.0
+   },
    "ectsByCategory": {
     "broad_elective": 42.0,
     "mandatory": 26.0,
@@ -568,6 +572,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 74.0
+   },
    "ectsByCategory": {
     "broad_elective": 42.0,
     "mandatory": 26.0,
@@ -1120,6 +1128,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 218.0
+   },
    "ectsByCategory": {
     "broad_elective": 150.0,
     "mandatory": 50.0,
@@ -1694,6 +1706,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 218.0
+   },
    "ectsByCategory": {
     "broad_elective": 150.0,
     "mandatory": 50.0,
@@ -2265,6 +2281,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 218.0
+   },
    "ectsByCategory": {
     "broad_elective": 150.0,
     "mandatory": 50.0,
@@ -2826,6 +2846,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 218.0
+   },
    "ectsByCategory": {
     "broad_elective": 150.0,
     "mandatory": 50.0,
@@ -3380,6 +3404,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 218.0
+   },
    "ectsByCategory": {
     "broad_elective": 150.0,
     "mandatory": 50.0,
@@ -3928,6 +3956,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 62.0
+   },
    "ectsByCategory": {
     "broad_elective": 30.0,
     "mandatory": 26.0,
@@ -4466,6 +4498,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 6.0
+   },
    "ectsByCategory": {
     "broad_elective": 6.0
    },
@@ -4992,6 +5028,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 0.0
+   },
    "ectsByCategory": {},
    "ectsByExamSubject": {},
    "ectsMissingTo180": 180.0,
@@ -5514,6 +5554,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 0.0
+   },
    "ectsByCategory": {},
    "ectsByExamSubject": {},
    "ectsMissingTo180": 180.0,
@@ -6036,6 +6080,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 12.0
+   },
    "ectsByCategory": {
     "broad_elective": 12.0
    },
@@ -6562,6 +6610,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 0.0
+   },
    "ectsByCategory": {},
    "ectsByExamSubject": {},
    "ectsMissingTo180": 180.0,
@@ -7130,6 +7182,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -7754,6 +7810,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -8388,6 +8448,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -8995,6 +9059,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -9619,6 +9687,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -10248,6 +10320,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -10799,6 +10875,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -11353,6 +11433,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 203.0
+   },
    "ectsByCategory": {
     "broad_elective": 135.0,
     "mandatory": 50.0,
@@ -11905,6 +11989,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 0.0
+   },
    "ectsByCategory": {},
    "ectsByExamSubject": {},
    "ectsMissingTo180": 180.0,
@@ -12425,6 +12513,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 6.0
+   },
    "ectsByCategory": {
     "broad_elective": 6.0
    },
@@ -12951,6 +13043,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 12.0
+   },
    "ectsByCategory": {
     "broad_elective": 12.0
    },
@@ -13478,6 +13574,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 1050.5
+   },
    "ectsByCategory": {
     "broad_elective": 813.5,
     "mandatory": 113.0,
@@ -14082,6 +14182,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 122.0
+   },
    "ectsByCategory": {
     "broad_elective": 78.0,
     "mandatory": 26.0,
@@ -14634,6 +14738,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 32.0
+   },
    "ectsByCategory": {
     "broad_elective": 24.0,
     "mandatory": 8.0
@@ -15178,6 +15286,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 330.0
+   },
    "ectsByCategory": {
     "broad_elective": 240.0,
     "mandatory": 50.0,
@@ -15755,6 +15867,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 11.0
+   },
    "ectsByCategory": {
     "mandatory": 11.0
    },
@@ -16285,6 +16401,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 65.0
+   },
    "ectsByCategory": {
     "broad_elective": 42.0,
     "mandatory": 23.0
@@ -16831,6 +16951,10 @@
   ],
   "ok": false,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 0.0
+   },
    "ectsByCategory": {},
    "ectsByExamSubject": {},
    "ectsMissingTo180": 180.0,
@@ -17351,6 +17475,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 11.0
+   },
    "ectsByCategory": {
     "mandatory": 11.0
    },
@@ -17878,6 +18006,10 @@
   ],
   "ok": true,
   "stats": {
+   "ects": {
+    "target_total": 180.0,
+    "total": 12.0
+   },
    "ectsByCategory": {
     "broad_elective": 12.0
    },

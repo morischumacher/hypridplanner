@@ -223,6 +223,10 @@
      }
     },
     "totalEcts": "<number>",
+    "ects": {
+     "total": "<number>",
+     "target_total": "<number>"
+    },
     "warnings": [
      "<str>"
     ]

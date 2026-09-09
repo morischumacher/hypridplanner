@@ -691,6 +691,7 @@ export default function CurriculumGraphView({
     recommendations = [],
     setRecommendations,
     recommendationToggles = {},
+    hasStatedInterests,
     onRecommendationToggleChange,
     onDragStart,
     isLegendOpen,
@@ -1811,6 +1812,7 @@ export default function CurriculumGraphView({
                     termAvailabilityForCode={termAvailabilityForCode}
                     toggles={recommendationToggles}
                     onToggleChange={onRecommendationToggleChange}
+                    hasStatedInterests={hasStatedInterests}
                     width={280}
                     leftOffset={isFiltersOpen ? (filterPanelWidth + 24) : 12}
                     topOffset={80}

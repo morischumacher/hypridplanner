@@ -8,6 +8,14 @@ import {
 } from "../utils/courseVisuals.js";
 import { displayCourseHeader, displayCourseTitle } from "../domain/course-names.ts";
 import { mapTypeForProgram } from "../utils/courseVisuals.js";
+import { recommendationEmptyState } from "../features/recommendations/emptyState.ts";
+
+const REC_CHANNELS = [
+    { key: "interest", label: "Interests" },
+    { key: "similarity", label: "Similarity" },
+    { key: "internship", label: "Internships" },
+    { key: "peer", label: "Other students" },
+];
 
 // ── RecommendationPanel ───────────────────────────────────────────────────────
 /**
@@ -47,6 +55,7 @@ export default function RecommendationPanel({
     subjectColors = {},
     onDragStart,
     termAvailabilityForCode,
+    hasStatedInterests,
 }) {
     // Track which card has its menu expanded
     const [menuState, setMenuState] = useState({ id: null, view: "root" }); // view: 'root', 'semesters', or 'details'
@@ -81,12 +90,7 @@ export default function RecommendationPanel({
 
     // ── Toggles UI ────────────────────────────────────────────────────────
     const renderToggles = () => {
-        const toggleItems = [
-            { key: "interest", label: "Interests" },
-            { key: "similarity", label: "Similarity" },
-            { key: "internship", label: "Internships" },
-            { key: "peer", label: "Other students" },
-        ];
+        const toggleItems = REC_CHANNELS;
         return (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
                 {toggleItems.map(({ key, label }) => {
@@ -119,6 +123,13 @@ export default function RecommendationPanel({
         (rec) => toggles[rec.type] !== false
     );
 
+    const emptyState = recommendationEmptyState({
+        recommendations: recommendations || [],
+        toggles: toggles || {},
+        channels: REC_CHANNELS,
+        hasStatedInterests,
+    });
+
     // ── Main Card List & Empty State Unified ─────────────────────────────
     return (
         <aside
@@ -148,11 +159,14 @@ export default function RecommendationPanel({
             {renderToggles()}
 
             {visibleRecommendations.length === 0 ? (
-                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, color: "#9ca3af" }}>
-                    <div>
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, color: "#6b7280" }}>
+                    <div style={{ maxWidth: 240 }}>
                         <div style={{ fontSize: 28, marginBottom: 10 }}>🎯</div>
-                        <div style={{ fontSize: 13, fontWeight: 600 }}>
-                            {Object.values(toggles).every((v) => v === false) ? "All disabled" : "No recommendations"}
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                            {emptyState.title}
+                        </div>
+                        <div style={{ fontSize: 12, lineHeight: 1.45 }}>
+                            {emptyState.detail}
                         </div>
                     </div>
                 </div>

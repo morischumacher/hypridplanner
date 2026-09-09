@@ -139,33 +139,13 @@ const TOUR_STEPS = [
     }
 ];
 
-export default function OnboardingTour({ activeStep, setActiveStep, viewMode, setViewMode, disableGraphView = false, username, onClose }) {
+export default function OnboardingTour({ activeStep, setActiveStep, viewMode, setViewMode, username, onClose }) {
     const [coords, setCoords] = useState(null);
     const [tooltipHeight, setTooltipHeight] = useState(160);
     const updateTimerRef = useRef(null);
     const tooltipRef = useRef(null);
 
-    const steps = React.useMemo(() => {
-        if (disableGraphView) {
-            const tableSteps = TOUR_STEPS.filter(
-                (step) => step.view === "table" && step.targetId !== "#toggle-view-mode-btn"
-            );
-            const mapped = tableSteps.map((step, idx) => ({
-                ...step,
-                index: idx
-            }));
-            mapped.push({
-                index: mapped.length,
-                view: "table",
-                targetId: "#open-tour-btn",
-                title: `${mapped.length + 1}. Repeat Anytime`,
-                content: "You're all set! If you ever need a refresher, just click the Help button here to repeat the tour at any time.",
-                placement: "bottom-left"
-            });
-            return mapped;
-        }
-        return TOUR_STEPS;
-    }, [disableGraphView]);
+    const steps = TOUR_STEPS;
 
     const stepData = steps[activeStep];
 

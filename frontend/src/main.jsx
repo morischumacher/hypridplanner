@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import { ProgramProvider } from "./ProgramContext.jsx";
 import AuthGate from "./AuthGate.jsx";
-import { fetchCurrentUser, signOut } from "./lib/api.js";
+import { fetchCurrentUser, fetchProfileSettings, signOut } from "./lib/api.js";
+import { MASTER_PROGRAM_CODE } from "./domain/programmes.ts";
 import "./global.css";
 
 const container = document.getElementById("root");
@@ -13,7 +14,7 @@ if (!container) {
 
 function Root() {
     const [user, setUser] = useState(null);
-    const [initialProgramCode, setInitialProgramCode] = useState("066 937");
+    const [initialProgramCode, setInitialProgramCode] = useState(MASTER_PROGRAM_CODE);
     const [openSignupSetupOnEntry, setOpenSignupSetupOnEntry] = useState(false);
     const [loading, setLoading] = useState(true);
     const [authError, setAuthError] = useState("");
@@ -25,6 +26,17 @@ function Root() {
                 const me = await fetchCurrentUser();
                 if (cancelled) return;
                 setAuthError("");
+                if (me?.user) {
+                    // The programme the student settled on at signup, so that the
+                    // planner opens on their own plan rather than on a default
+                    // they then have to correct. A student with no programme yet
+                    // is asked for one by the signup setup, and keeps the
+                    // fallback until they answer.
+                    const settings = await fetchProfileSettings().catch(() => null);
+                    if (cancelled) return;
+                    const locked = String(settings?.locked_program_code || "").trim();
+                    if (locked) setInitialProgramCode(locked);
+                }
                 setUser(me?.user ?? null);
             } catch (e) {
                 if (cancelled) return;
