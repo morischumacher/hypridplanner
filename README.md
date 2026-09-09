@@ -35,9 +35,9 @@ cd frontend
 npm install && npm run dev
 ```
 
-The API needs `DATABASE_URL` in its environment, and the shell that starts it
-does not inherit one from the shell that started the database. Set it there with
-`export DATABASE_URL="$(./scripts/dev-db.sh url)"`.
+`./scripts/dev-db.sh up` writes `DATABASE_URL` to `backend/.env`, so the API
+finds the database without anything being exported. Against a database set up
+some other way, put its URL in that file or in the environment.
 
 Any interpreter 3.11 or newer works. On macOS a bare `python3` often resolves to
 an old framework build, in which case name the version explicitly, for example

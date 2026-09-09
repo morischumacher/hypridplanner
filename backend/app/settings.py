@@ -1,3 +1,4 @@
+from pydantic import ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
@@ -24,4 +25,16 @@ class Settings(BaseSettings):
             ]
         return [o.strip().rstrip("/") for o in self.CORS_ORIGIN.split(",") if o.strip()]
 
-settings = Settings()
+try:
+    settings = Settings()
+except ValidationError as error:
+    missing = [str(e["loc"][0]) for e in error.errors() if e["type"] == "missing"]
+    if "DATABASE_URL" not in missing:
+        raise
+    raise SystemExit(
+        "DATABASE_URL is not set.\n"
+        "Start the development database, which writes backend/.env:\n"
+        "    ./scripts/dev-db.sh up\n"
+        "Or set it in this shell:\n"
+        '    export DATABASE_URL="$(./scripts/dev-db.sh url)"'
+    ) from None
