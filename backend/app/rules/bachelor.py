@@ -851,6 +851,13 @@ class RuleChecker:
         return {
             "programCode": self.program_code,
             "totalEcts": round(total_ects, 2),
+            # The same shape the master checker reports, so a reader of the
+            # stats does not have to know which programme produced them to
+            # find out what the degree is measured against.
+            "ects": {
+                "total": round(total_ects, 2),
+                "target_total": self.TOTAL_ECTS,
+            },
             "ectsMissingTo180": round(max(0.0, self.TOTAL_ECTS - total_ects), 2),
             "ectsPerSemester": {str(k): round(v, 2) for k, v in sorted(totals.lane_ects.items())},
             "recommendedEctsPerSemester": recommended_ects_per_semester,
