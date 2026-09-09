@@ -29,6 +29,24 @@ CONTAINER="studyplanner-postgres"
 
 have_docker() { command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; }
 
+# The API reads backend/.env, so writing it there means a shell that never saw
+# the export line still finds the database. Gitignored, and only the
+# DATABASE_URL line is touched.
+write_backend_env() {
+  local env_file="$ROOT/backend/.env" line
+  line="DATABASE_URL=\"$(url)\""
+  if [ -f "$env_file" ] && grep -q '^DATABASE_URL=' "$env_file"; then
+    # grep -v exits 1 when the file holds nothing else, which set -e would take
+    # for a failure.
+    grep -v '^DATABASE_URL=' "$env_file" > "$env_file.tmp" || true
+    printf '%s\n' "$line" >> "$env_file.tmp"
+    mv "$env_file.tmp" "$env_file"
+  else
+    printf '%s\n' "$line" >> "$env_file"
+  fi
+  echo "wrote DATABASE_URL to backend/.env" >&2
+}
+
 # The native path needs the server binaries, which Debian and Ubuntu keep out of
 # PATH under /usr/lib/postgresql/<version>/bin.
 native_bin() {
@@ -174,6 +192,7 @@ run_as() {
 case "${1:-up}" in
   up)
     if have_docker; then up_docker; else up_native; fi
+    write_backend_env
     echo "database ready" >&2
     # The only thing on stdout is the line meant to be eval'd, so
     # `eval "$(./scripts/dev-db.sh up)"` sets DATABASE_URL and nothing else.
