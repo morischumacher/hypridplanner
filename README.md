@@ -17,19 +17,31 @@ the guide application used to run the evaluation sessions.
 
 ## Installation
 
+Three shells, all started from the repository root. The API and the interface
+both stay in the foreground.
+
 ```bash
-# database, migrated and seeded with both curricula
+# shell 1: database, migrated and seeded with both curricula
 eval "$(./scripts/dev-db.sh up)"
 
-# API on :8000
+# shell 2: API on :8000
 cd backend
-python3 -m venv .venv && source .venv/bin/activate
+python3.11 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
 
-# interface on :5173
-cd frontend && npm install && npm run dev
+# shell 3: interface on :5173
+cd frontend
+npm install && npm run dev
 ```
+
+The API needs `DATABASE_URL` in its environment. Shell 1 prints the `export`
+line; run it in shell 2 as well, or start shell 2 from shell 1 before the
+database command blocks.
+
+Use whichever interpreter is 3.11 or newer. On macOS a bare `python3` often
+resolves to an old framework build; `python3.11 --version` or
+`which -a python3` says what is on the path.
 
 `scripts/dev-db.sh` also takes `down`, `reset`, `psql` and `url`.
 `backend/docker-compose.yml` starts the database and the API together.
