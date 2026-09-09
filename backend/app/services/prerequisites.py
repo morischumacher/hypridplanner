@@ -1,4 +1,4 @@
-"""The curriculum's prerequisite relations, read from the curriculum itself.
+"""The curriculum's enforced prerequisite relations, read from the curriculum itself.
 
 The compliance engine already enforces these relations, and since the curriculum
 was separated from the rule engine they live as data in `app/curriculum`. This
@@ -6,26 +6,18 @@ module does not hold a second copy of them. It reads the same documents the
 checkers read and shapes them into the source-target pairs a view can draw, so
 the engine and the graph cannot disagree about what the curriculum says.
 
-Two things are worth stating plainly, because the numbers are small and the
-smallness is the point. The Bachelor programme encodes two soft prerequisite
-pairs across its 101 courses, and the Master programme encodes the thesis before
-its defence and its seminar. What the curricula otherwise encode are eligibility
-gates, the introductory phase (StEOP) and the core-before-elective condition
-inside a focus area, which are conditions on a plan rather than edges between two
-courses, and which the compliance engine reports separately.
+Only the enforced relations are served, and `kind` is always "hard": planning the
+target before the source is rejected. An edge drawn from this list therefore
+carries one meaning, and a student never has to ask of a given edge whether it
+binds. The advisory orderings the bachelor checker warns on, and the expected
+prior knowledge the curricula state per module, are not edges here; they reach
+the student through the Dashboard, where they are stated with their consequence.
 
-`kind` distinguishes three relations:
-
-    "soft"        the relation is advisory and the engine knows it. Planning the
-                  target first is permitted and produces a warning.
-    "hard"        the relation is enforced. Planning the target first is rejected.
-    "recommended" the curriculum's own “Erwartete Vorkenntnisse”: a module names
-                  the modules that teach what it expects a student to know
-                  already. It carries no consequence in the compliance engine and
-                  must not acquire one, because a warning on every such pair would
-                  change what the tool rejects and what it merely notes. It exists
-                  to be read, which is why the graph reveals it one node at a time
-                  rather than drawing all of it at once.
+The numbers are small and the smallness is the point: what the curricula mostly
+encode are eligibility gates, the introductory phase (StEOP) and the
+core-before-elective condition inside a focus area, which are conditions on a
+plan rather than edges between two courses, and which the compliance engine
+reports separately.
 """
 from __future__ import annotations
 
@@ -61,21 +53,11 @@ def prerequisite_relations(program_code: str | None) -> list[dict[str, str]]:
     curriculum = load(code)
     relations: list[dict[str, str]] = []
 
-    for source, target in _entry(curriculum, "soft_prereqs", ()):
-        relations.append({"source": source, "target": target, "kind": "soft"})
-
     for target, sources in _entry(curriculum, "prerequisites", {}).items():
         if target in _MASTER_EDGE_ALIASES:
             continue
         for source in sources:
             relations.append({"source": source, "target": target, "kind": "hard"})
-
-    for entry in _entry(curriculum, "recommended_prereqs", ()):
-        target = entry.get("target")
-        if not target:
-            continue
-        for source in entry.get("sources", ()):
-            relations.append({"source": source, "target": target, "kind": "recommended"})
 
     return relations
 

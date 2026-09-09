@@ -1,5 +1,5 @@
 /**
- * Turning the curriculum's prerequisite relations into graph edges.
+ * Turning the curriculum's enforced prerequisites into graph edges.
  *
  * The relations name courses and modules; the graph addresses nodes. This module
  * resolves the first to the second and nothing else: it holds no relations of its
@@ -10,23 +10,14 @@
  * drawn rather than being attached to the module standing in for it, which would
  * assert a relation the curriculum does not hold.
  *
- * Two kinds are drawn differently because they answer different questions. The
- * enforced and advisory relations are few and belong to the whole graph, so the
- * sidebar switches them on together. The recommended relations are the
- * curriculum's "Erwartete Vorkenntnisse", one entry per module, and there are
- * potentially as many of them as there are modules: drawn together they would be
- * a thicket rather than a reading. They are therefore revealed one node at a
- * time, from the node itself.
+ * Only the enforced relations are drawn. An edge on this canvas therefore carries
+ * one meaning, this ordering is required, and a student never has to ask of a
+ * given edge whether it binds.
  */
 
 const PREREQUISITE_EDGE_PREFIX = "prereq-";
 
-const SOFT_EDGE_COLOUR = "#b45309";
 const HARD_EDGE_COLOUR = "#b91c1c";
-const RECOMMENDED_EDGE_COLOUR = "#4338ca";
-
-/** The kinds the sidebar's single switch is responsible for. */
-export const GLOBAL_PREREQUISITE_KINDS = ["soft", "hard"];
 
 /** Fold case, strip accents and collapse whitespace, so "Einführung" matches "einfuhrung". */
 export function normaliseCourseKey(value) {
@@ -41,13 +32,10 @@ export function normaliseCourseKey(value) {
 /**
  * Index the nodes a relation might name, by every name it might use.
  *
- * Courses are indexed by code and by name. Modules are indexed too, because the
- * curriculum states its expected prior knowledge in terms of modules ("Diese
- * Voraussetzungen werden in folgenden Modulen vermittelt: ..."), not courses.
- * Later nodes do not displace earlier ones, so the first node carrying a given
- * key wins and the mapping is stable; courses are indexed before modules so that
- * a course and a module sharing a name resolve to the course, which is the more
- * specific of the two.
+ * Courses are indexed by code and by name, modules by code and label. Later nodes
+ * do not displace earlier ones, so the first node carrying a given key wins and
+ * the mapping is stable; courses are indexed before modules so that a course and
+ * a module sharing a name resolve to the course, the more specific of the two.
  */
 export function indexCourseNodes(nodes) {
     const byKey = new Map();
@@ -81,68 +69,33 @@ export function isPrerequisiteEdge(edge) {
     return typeof edge?.id === "string" && edge.id.startsWith(PREREQUISITE_EDGE_PREFIX);
 }
 
-/**
- * How many recommended relations each node is an endpoint of, by node id.
- *
- * The node uses this to decide whether to offer the control at all: a node with
- * nothing to reveal should not carry a button that reveals nothing. Counted over
- * the laid-out nodes rather than the relations, so a relation whose other end is
- * not on the canvas is not counted.
- */
-export function countRecommendedByNode(relations, nodes) {
-    const byKey = indexCourseNodes(nodes);
-    const counts = new Map();
-    const bump = (id) => counts.set(id, (counts.get(id) ?? 0) + 1);
-    for (const relation of relations || []) {
-        if (relation?.kind !== "recommended") continue;
-        const sourceId = byKey.get(normaliseCourseKey(relation?.source));
-        const targetId = byKey.get(normaliseCourseKey(relation?.target));
-        if (!sourceId || !targetId || sourceId === targetId) continue;
-        bump(sourceId);
-        bump(targetId);
-    }
-    return counts;
-}
-
-const STYLE_BY_KIND = {
-    hard: { colour: HARD_EDGE_COLOUR, dash: undefined, label: "required before", width: 2 },
-    soft: { colour: SOFT_EDGE_COLOUR, dash: "6 4", label: "recommended before", width: 2 },
-    recommended: { colour: RECOMMENDED_EDGE_COLOUR, dash: "2 4", label: "expected knowledge", width: 1.5 },
-};
+const HARD_EDGE_STYLE = { colour: HARD_EDGE_COLOUR, label: "required before", width: 2 };
 
 /**
  * Build the prerequisite edges for the nodes currently laid out.
  *
- * `relations` is the service's list of { source, target, kind }. `visibleNodeIds`
- * is optional; when given, an edge is emitted only if both endpoints are visible,
- * so a filtered-out course does not leave an edge hanging in space.
- *
- * `options.kinds` restricts which kinds are drawn. `options.anchorIds` restricts
- * the drawing further to relations touching one of those nodes, which is how a
- * single node reveals its own expected knowledge without the rest of the graph's.
+ * `relations` is the service's list of { source, target, kind }; only "hard"
+ * relations are drawn. `visibleNodeIds` is optional; when given, an edge is
+ * emitted only if both endpoints are visible, so a filtered-out course does not
+ * leave an edge hanging in space.
  */
-export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null, options = {}) {
-    const kinds = options.kinds ? new Set(options.kinds) : null;
-    const anchorIds = options.anchorIds ? new Set(options.anchorIds) : null;
+export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null) {
     const byKey = indexCourseNodes(nodes);
     const edges = [];
     const seen = new Set();
 
     for (const relation of relations || []) {
-        const kind = relation?.kind === "hard" ? "hard" : (relation?.kind === "recommended" ? "recommended" : "soft");
-        if (kinds && !kinds.has(kind)) continue;
+        if (relation?.kind !== "hard") continue;
 
         const sourceId = byKey.get(normaliseCourseKey(relation?.source));
         const targetId = byKey.get(normaliseCourseKey(relation?.target));
         if (!sourceId || !targetId || sourceId === targetId) continue;
         if (visibleNodeIds && (!visibleNodeIds.has(sourceId) || !visibleNodeIds.has(targetId))) continue;
-        if (anchorIds && !anchorIds.has(sourceId) && !anchorIds.has(targetId)) continue;
 
-        const id = `${PREREQUISITE_EDGE_PREFIX}${kind}-${sourceId}-${targetId}`;
+        const id = `${PREREQUISITE_EDGE_PREFIX}hard-${sourceId}-${targetId}`;
         if (seen.has(id)) continue;
         seen.add(id);
 
-        const style = STYLE_BY_KIND[kind];
         edges.push({
             id,
             source: sourceId,
@@ -151,17 +104,16 @@ export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null, 
             zIndex: 1,
             animated: false,
             style: {
-                stroke: style.colour,
-                strokeWidth: style.width,
-                strokeDasharray: style.dash,
+                stroke: HARD_EDGE_STYLE.colour,
+                strokeWidth: HARD_EDGE_STYLE.width,
             },
-            markerEnd: { type: "arrowclosed", color: style.colour, width: 16, height: 16 },
-            label: style.label,
-            labelStyle: { fill: style.colour, fontSize: 10, fontWeight: 700 },
+            markerEnd: { type: "arrowclosed", color: HARD_EDGE_STYLE.colour, width: 16, height: 16 },
+            label: HARD_EDGE_STYLE.label,
+            labelStyle: { fill: HARD_EDGE_STYLE.colour, fontSize: 10, fontWeight: 700 },
             labelBgStyle: { fill: "#ffffff", fillOpacity: 0.85 },
             labelBgPadding: [3, 2],
             labelBgBorderRadius: 3,
-            data: { kind, relation: "prerequisite" },
+            data: { kind: "hard", relation: "prerequisite" },
         });
     }
 
@@ -169,7 +121,5 @@ export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null, 
 }
 
 export const PREREQUISITE_EDGE_COLOURS = {
-    soft: SOFT_EDGE_COLOUR,
     hard: HARD_EDGE_COLOUR,
-    recommended: RECOMMENDED_EDGE_COLOUR,
 };

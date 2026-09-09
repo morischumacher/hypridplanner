@@ -9,7 +9,6 @@ import {
     stateVisualByStatus,
 } from "../../utils/courseVisuals.js";
 import { displayCourseTitle } from "../../domain/course-names.ts";
-import RecommendedPrereqButton from "./RecommendedPrereqButton.jsx";
 
 export default function GraphModuleNode({ id, data }) {
     const color = data?.color || "#4b5563";
@@ -85,7 +84,6 @@ export default function GraphModuleNode({ id, data }) {
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <RecommendedPrereqButton nodeId={id} data={data} />
                     {(status === "todo" || isParked) && (
                         <button
                             onClick={(e) => {
