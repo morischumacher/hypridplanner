@@ -1,12 +1,12 @@
 /**
- * The enforced prerequisite relations the graph draws.
+ * The prerequisite relations the graph draws.
  *
- * An edge on this canvas carries one meaning, this ordering is required, so the
- * filter panel's switch draws the curriculum's enforced pairs and nothing else.
- * A curriculum that encodes none says so rather than offering a switch that does
- * nothing. This is the end-to-end coverage of the graph view; the flows above it
- * exercise the table, and a graph regression would otherwise reach a student
- * before it reached CI.
+ * One switch draws the curriculum's course-to-course orderings, enforced and
+ * advisory alike, and the two are drawn differently so an edge says whether it
+ * binds. The split falls between the programmes: the Master's two are enforced,
+ * the Bachelor's two advisory. This is the end-to-end coverage of the graph
+ * view; the flows above it exercise the table, and a graph regression would
+ * otherwise reach a student before it reached CI.
  */
 import { test, expect } from "@playwright/test";
 import { startPlanning, BACHELOR, MASTER } from "./support/planner.js";
@@ -53,16 +53,15 @@ test.describe("prerequisite relations in the graph", () => {
         await expect(prerequisiteEdges(page)).toHaveCount(0);
     });
 
-    test("a curriculum with no enforced pairs says so instead of offering a dead switch", async ({ page }) => {
-        // The bachelor's two orderings are advisory: the engine warns on them
-        // rather than refusing, so they are not edges. The panel states that
-        // rather than leaving a switch that draws nothing.
+    test("the bachelor's two advisory pairs are drawn, and say they are advisory", async ({ page }) => {
+        // The engine warns on these rather than refusing them, so they are drawn
+        // dashed and labelled differently from the master's enforced pairs.
         await startPlanning(page, { program: BACHELOR });
         await openGraph(page);
         await expandEverything(page);
 
-        await expect(page.getByText(/none in this curriculum/)).toBeVisible();
-        await expect(page.locator('input[type="checkbox"]:disabled')).toHaveCount(1);
-        await expect(prerequisiteEdges(page)).toHaveCount(0);
+        await page.getByText(/Show prerequisites/).click();
+        await expect(prerequisiteEdges(page)).toHaveCount(2);
+        await expect(page.getByText("recommended before").first()).toBeVisible();
     });
 });

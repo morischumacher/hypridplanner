@@ -10,14 +10,17 @@
  * drawn rather than being attached to the module standing in for it, which would
  * assert a relation the curriculum does not hold.
  *
- * Only the enforced relations are drawn. An edge on this canvas therefore carries
- * one meaning, this ordering is required, and a student never has to ask of a
- * given edge whether it binds.
+ * Two kinds are drawn, and drawn differently, because they cost a student
+ * different things: an enforced ordering is refused when broken, an advisory one
+ * is warned about. A student reads which is which from the edge rather than
+ * having to ask. The curricula's expected prior knowledge is a third ordering
+ * with no consequence at all; it is not served to this module and not drawn.
  */
 
 const PREREQUISITE_EDGE_PREFIX = "prereq-";
 
 const HARD_EDGE_COLOUR = "#b91c1c";
+const SOFT_EDGE_COLOUR = "#b45309";
 
 /** Fold case, strip accents and collapse whitespace, so "Einführung" matches "einfuhrung". */
 export function normaliseCourseKey(value) {
@@ -69,15 +72,18 @@ export function isPrerequisiteEdge(edge) {
     return typeof edge?.id === "string" && edge.id.startsWith(PREREQUISITE_EDGE_PREFIX);
 }
 
-const HARD_EDGE_STYLE = { colour: HARD_EDGE_COLOUR, label: "required before", width: 2 };
+const STYLE_BY_KIND = {
+    hard: { colour: HARD_EDGE_COLOUR, dash: undefined, label: "required before", width: 2 },
+    soft: { colour: SOFT_EDGE_COLOUR, dash: "6 4", label: "recommended before", width: 2 },
+};
 
 /**
  * Build the prerequisite edges for the nodes currently laid out.
  *
- * `relations` is the service's list of { source, target, kind }; only "hard"
- * relations are drawn. `visibleNodeIds` is optional; when given, an edge is
- * emitted only if both endpoints are visible, so a filtered-out course does not
- * leave an edge hanging in space.
+ * `relations` is the service's list of { source, target, kind }; the enforced and
+ * advisory ones are drawn and anything else is skipped. `visibleNodeIds` is
+ * optional; when given, an edge is emitted only if both endpoints are visible, so
+ * a filtered-out course does not leave an edge hanging in space.
  */
 export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null) {
     const byKey = indexCourseNodes(nodes);
@@ -85,14 +91,15 @@ export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null) 
     const seen = new Set();
 
     for (const relation of relations || []) {
-        if (relation?.kind !== "hard") continue;
+        const style = STYLE_BY_KIND[relation?.kind];
+        if (!style) continue;
 
         const sourceId = byKey.get(normaliseCourseKey(relation?.source));
         const targetId = byKey.get(normaliseCourseKey(relation?.target));
         if (!sourceId || !targetId || sourceId === targetId) continue;
         if (visibleNodeIds && (!visibleNodeIds.has(sourceId) || !visibleNodeIds.has(targetId))) continue;
 
-        const id = `${PREREQUISITE_EDGE_PREFIX}hard-${sourceId}-${targetId}`;
+        const id = `${PREREQUISITE_EDGE_PREFIX}${relation.kind}-${sourceId}-${targetId}`;
         if (seen.has(id)) continue;
         seen.add(id);
 
@@ -104,16 +111,17 @@ export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null) 
             zIndex: 1,
             animated: false,
             style: {
-                stroke: HARD_EDGE_STYLE.colour,
-                strokeWidth: HARD_EDGE_STYLE.width,
+                stroke: style.colour,
+                strokeWidth: style.width,
+                strokeDasharray: style.dash,
             },
-            markerEnd: { type: "arrowclosed", color: HARD_EDGE_STYLE.colour, width: 16, height: 16 },
-            label: HARD_EDGE_STYLE.label,
-            labelStyle: { fill: HARD_EDGE_STYLE.colour, fontSize: 10, fontWeight: 700 },
+            markerEnd: { type: "arrowclosed", color: style.colour, width: 16, height: 16 },
+            label: style.label,
+            labelStyle: { fill: style.colour, fontSize: 10, fontWeight: 700 },
             labelBgStyle: { fill: "#ffffff", fillOpacity: 0.85 },
             labelBgPadding: [3, 2],
             labelBgBorderRadius: 3,
-            data: { kind: "hard", relation: "prerequisite" },
+            data: { kind: relation.kind, relation: "prerequisite" },
         });
     }
 
@@ -122,4 +130,5 @@ export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null) 
 
 export const PREREQUISITE_EDGE_COLOURS = {
     hard: HARD_EDGE_COLOUR,
+    soft: SOFT_EDGE_COLOUR,
 };

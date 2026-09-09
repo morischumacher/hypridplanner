@@ -1046,8 +1046,8 @@ export default function CurriculumGraphView({
         () => GraphFilterEngine.computeVisibleNodeIds(nodes, autoEdges, graphFilters, programCode),
         [nodes, autoEdges, graphFilters, programCode]
     );
-    // The sidebar's switch owns the curriculum's enforced relations, which belong
-    // to the whole graph.
+    // The sidebar's switch owns the curriculum's course-to-course relations,
+    // enforced and advisory alike, which belong to the whole graph.
     const prerequisiteEdges = useMemo(
         () => (showPrerequisiteEdges
             ? buildPrerequisiteEdges(prerequisiteRelations, nodes, visibleNodeIds)
@@ -1055,7 +1055,7 @@ export default function CurriculumGraphView({
         [showPrerequisiteEdges, prerequisiteRelations, nodes, visibleNodeIds]
     );
     const globalPrerequisiteCount = useMemo(
-        () => prerequisiteRelations.filter((r) => r?.kind === "hard").length,
+        () => prerequisiteRelations.filter((r) => r?.kind === "hard" || r?.kind === "soft").length,
         [prerequisiteRelations]
     );
     const edges = useMemo(

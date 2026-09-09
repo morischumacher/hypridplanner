@@ -1,4 +1,4 @@
-"""The curriculum's enforced prerequisite relations, read from the curriculum itself.
+"""The curriculum's prerequisite relations between two named courses.
 
 The compliance engine already enforces these relations, and since the curriculum
 was separated from the rule engine they live as data in `app/curriculum`. This
@@ -6,12 +6,21 @@ module does not hold a second copy of them. It reads the same documents the
 checkers read and shapes them into the source-target pairs a view can draw, so
 the engine and the graph cannot disagree about what the curriculum says.
 
-Only the enforced relations are served, and `kind` is always "hard": planning the
-target before the source is rejected. An edge drawn from this list therefore
-carries one meaning, and a student never has to ask of a given edge whether it
-binds. The advisory orderings the bachelor checker warns on, and the expected
-prior knowledge the curricula state per module, are not edges here; they reach
-the student through the Dashboard, where they are stated with their consequence.
+`kind` says what the relation costs a student who ignores it:
+
+    "hard" the relation is enforced. Planning the target first is rejected.
+    "soft" the relation is advisory and the engine knows it. Planning the target
+           first is permitted and produces a warning.
+
+The two are served together, and the graph tells them apart by drawing them
+differently, so an edge states not only that an ordering exists but whether it
+binds. The split falls between the programmes rather than within them: the
+Master's two are enforced, the Bachelor's two are advisory.
+
+The curricula state one further kind of ordering, the expected prior knowledge a
+module names ("Erwartete Vorkenntnisse"). It carries no consequence in the
+compliance engine and is not served here, because an edge with no consequence
+would be the one edge on the canvas a student could not act on.
 
 The numbers are small and the smallness is the point: what the curricula mostly
 encode are eligibility gates, the introductory phase (StEOP) and the
@@ -52,6 +61,9 @@ def prerequisite_relations(program_code: str | None) -> list[dict[str, str]]:
 
     curriculum = load(code)
     relations: list[dict[str, str]] = []
+
+    for source, target in _entry(curriculum, "soft_prereqs", ()):
+        relations.append({"source": source, "target": target, "kind": "soft"})
 
     for target, sources in _entry(curriculum, "prerequisites", {}).items():
         if target in _MASTER_EDGE_ALIASES:

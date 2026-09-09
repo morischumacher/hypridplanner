@@ -5,9 +5,10 @@
  * reason it is a module rather than logic inside the view. Run with
  * `npm test` from the frontend directory.
  *
- * Only enforced relations are drawn. A relation of any other kind is data the
- * canvas has no edge for, so the tests below also pin that it is skipped rather
- * than drawn in some weaker style.
+ * The enforced and advisory relations are drawn, and drawn differently, so that
+ * an edge says whether it binds. The curricula's expected prior knowledge is a
+ * third ordering with no consequence; it is not drawn at all, and the tests below
+ * pin that it is skipped rather than given a third style.
  */
 
 import { test } from "vitest";
@@ -37,6 +38,10 @@ const NODES = [
     courseNode("c-sep", "SEP", "Software Engineering Projekt"),
 ];
 
+const BACHELOR_RELATIONS = [
+    { source: "Software Engineering", target: "Software Engineering Projekt", kind: "soft" },
+];
+
 const MASTER_RELATIONS = [
     { source: "Master Thesis", target: "Final Oral Exam / Defense", kind: "hard" },
     { source: "Master Thesis", target: "Seminar for Diploma Students", kind: "hard" },
@@ -57,10 +62,7 @@ test("course and module nodes are indexed, the root is not", () => {
 test("a subject node sharing a course's name does not capture the relation", () => {
     // "Software Engineering" is both an exam subject and a course; the relation
     // is between courses, so the course node must win.
-    const edges = buildPrerequisiteEdges(
-        [{ source: "Software Engineering", target: "Software Engineering Projekt", kind: "hard" }],
-        NODES
-    );
+    const edges = buildPrerequisiteEdges(BACHELOR_RELATIONS, NODES);
     assert.equal(edges[0].source, "c-se");
 });
 
@@ -95,11 +97,26 @@ test("an enforced relation is drawn solid and labelled as required", () => {
     assert.equal(edge.data.kind, "hard");
 });
 
-test("only enforced relations are drawn", () => {
-    // The advisory pairs and the curriculum's expected prior knowledge are not
-    // edges on this canvas, so an edge never has to be read for whether it binds.
+test("an advisory relation is drawn dashed and labelled as recommended", () => {
+    const [edge] = buildPrerequisiteEdges(BACHELOR_RELATIONS, NODES);
+    assert.equal(edge.style.strokeDasharray, "6 4");
+    assert.equal(edge.label, "recommended before");
+    assert.equal(edge.data.kind, "soft");
+});
+
+test("the two kinds are drawn together and told apart", () => {
+    const edges = buildPrerequisiteEdges([...BACHELOR_RELATIONS, ...MASTER_RELATIONS], NODES);
+    assert.equal(edges.length, 3);
+    assert.equal(edges.filter((e) => e.data.kind === "soft").length, 1);
+    assert.equal(edges.filter((e) => e.data.kind === "hard").length, 2);
+    // Their ids differ by kind, so a relation appearing as both does not collide.
+    assert.equal(new Set(edges.map((e) => e.id)).size, 3);
+});
+
+test("expected prior knowledge is not drawn, and neither is an unlabelled relation", () => {
+    // It carries no consequence in the compliance engine, so it would be the one
+    // edge on the canvas a student could not act on.
     const others = [
-        { source: "Software Engineering", target: "Software Engineering Projekt", kind: "soft" },
         { source: "Software Engineering", target: "Software Engineering Projekt", kind: "recommended" },
         { source: "Software Engineering", target: "Software Engineering Projekt" },
     ];
