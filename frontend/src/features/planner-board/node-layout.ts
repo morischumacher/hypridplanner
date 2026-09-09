@@ -1,13 +1,10 @@
 /**
- * The canvas's view of the layout functions in `domain/nodes`.
+ * Adapters over the layout functions in `domain/nodes`.
  *
- * The domain describes a node by the fields it reasons about: a position, a
- * kind, and the handful of `data` entries that decide how big a module panel
- * has to be. The canvas describes the same node by everything it stores on it,
- * handlers included. Neither description is wrong and neither is a subtype of
- * the other, so the conversion happens here and nowhere else. It is sound
- * because every function below copies the fields it does not reason about
- * through untouched.
+ * The domain node type covers only the fields layout reasons about; the canvas
+ * node type covers everything stored on a node, handlers included. Neither is a
+ * subtype of the other, so the cast is confined here. It is sound because the
+ * layout functions copy untouched fields through.
  */
 
 import { useCallback, useMemo } from "react";
@@ -31,7 +28,7 @@ function asBoardNodes(nodes: readonly PlanNode[]): BoardNode[] {
     return nodes as unknown as BoardNode[];
 }
 
-/** The lane a node sits in, with minus one standing for the parking stage. */
+/** The lane a node sits in; -1 is the parking stage. */
 export function laneIdx(node: BoardNode | null | undefined): number {
     return laneIdxBase(node as PlanNode | null | undefined);
 }
@@ -41,7 +38,7 @@ export function recomputeGroupFromChildren(nodes: readonly BoardNode[], groupId:
     return asBoardNodes(recomputeGroupFromChildrenBase(asPlanNodes(nodes), groupId));
 }
 
-/** Stacks one module's cards so that none covers another. */
+/** Stacks one module's cards so none covers another. */
 export function resolveGroupCourseOverlaps(nodes: readonly BoardNode[], groupId: string): BoardNode[] {
     return asBoardNodes(resolveGroupCourseOverlapsBase(asPlanNodes(nodes), groupId));
 }
@@ -49,7 +46,7 @@ export function resolveGroupCourseOverlaps(nodes: readonly BoardNode[], groupId:
 export interface UseBoardLayoutInput {
     maxSemesterCount: number;
     minModuleGroupTopY: number;
-    /** What the student has said the vertical order of a lane means. */
+    /** What the vertical order within a lane encodes. */
     verticalSemantics: VerticalSemantics;
 }
 
@@ -59,10 +56,8 @@ export interface UseBoardLayoutResult {
 }
 
 /**
- * Binds the two whole-canvas layout passes to the current lane geometry.
- *
- * Both are handed on to callers that hold them in dependency lists, so they are
- * memoised on the options object rather than rebuilt each render.
+ * Binds the two whole-canvas layout passes to the current lane geometry. Both
+ * are memoised because callers hold them in dependency lists.
  */
 export function useBoardLayout({
     maxSemesterCount,

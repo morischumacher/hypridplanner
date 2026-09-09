@@ -1,14 +1,11 @@
 /**
  * What the recommendation panel says when it has nothing to show.
  *
- * A panel that answers every empty case with the same two words is a dead end:
- * the student cannot tell a channel that returned nothing from a channel they
- * switched off, or from a profile that has not been filled in yet, so there is
- * no next step to take. That is what the evaluation recorded (E-P42), and the
- * cases below are the ones the panel can actually tell apart from what it holds.
+ * The cases below are the ones the panel can distinguish from its own state: a
+ * channel that returned nothing, a channel switched off, and an unfilled
+ * profile each need a different next step.
  *
- * The decision is a function of the panel's own props so it can be read and
- * tested without a canvas.
+ * A pure function of the panel's props, so it is testable without a canvas.
  */
 
 export interface RecommendationLike {
@@ -24,7 +21,7 @@ export interface RecommendationChannel {
 export interface EmptyStateInput {
     /** Everything the engine returned, before the toggles filter it. */
     recommendations: readonly RecommendationLike[];
-    /** Channel key to on/off; a key that is absent counts as on. */
+    /** Channel key to on/off; an absent key counts as on. */
     toggles: Record<string, boolean | undefined>;
     /** The channels the panel offers as switches. */
     channels: readonly RecommendationChannel[];

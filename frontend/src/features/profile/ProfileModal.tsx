@@ -1,10 +1,7 @@
 /**
- * The profile modal: the student's own settings, plus the course availability
- * table hidden behind them.
- *
- * The two halves share one Save button, which is why the table is a panel of
- * this modal rather than a modal of its own: a term changed in the table is
- * only written when the profile is saved.
+ * The profile modal and the course availability table behind it. Both halves
+ * share one Save button, so the table is a panel of this modal rather than one
+ * of its own: a term changed there is written only when the profile is saved.
  */
 
 import type { ProfileCourseRow } from "./useProfileForm.ts";

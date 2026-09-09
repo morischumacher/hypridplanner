@@ -1,11 +1,5 @@
-"""
-The HTTP surface.
-
-A handler here validates its input, calls exactly one service, and shapes the
-reply. It holds no business rules and no SQL. Domain errors raised below are
-turned into responses in one place, `errors.py`, which is the only module in the
-application that knows what a status code is.
-"""
+"""HTTP surface. Handlers validate input and call one service; status codes are
+decided only in `errors.py`."""
 from fastapi import APIRouter
 
 from .auth import router as auth_router

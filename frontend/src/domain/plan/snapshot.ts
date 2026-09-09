@@ -1,14 +1,10 @@
 /**
- * The document the plan is stored as, and the way back into planner state.
+ * The stored plan document and its conversion to and from planner state.
  *
- * The stored document is keyed the other way round from the state: one map per
- * kind of thing, each keyed by programme. That is the shape already on the
- * server for every user of the study, so it is read and written as it stands
- * rather than migrated.
- *
- * A programme is present in the state if any of those maps mentions it, since
- * a student who has only ticked courses off in a programme still has a plan
- * there worth keeping.
+ * The document is keyed the other way round from the state: one map per field,
+ * each keyed by programme. That is the shape already stored server-side, so it
+ * is read and written as it stands rather than migrated. A programme exists in
+ * the state if any of those maps mentions it.
  */
 
 import { semesterBoundsForProgram } from "../terms.ts";
@@ -85,9 +81,8 @@ export function sanitizeParkedByProgram(value: unknown): Record<string, string[]
 }
 
 /**
- * A stored graph view. Card positions were once kept as an x coordinate alone;
- * those are lifted into full positions here so that the rest of the planner
- * only ever sees one of the two shapes.
+ * A stored graph view. Legacy x-only card positions are lifted into full
+ * positions here so the rest of the planner sees a single shape.
  */
 export function normalizeStoredGraphView(value: unknown): GraphViewState {
     const source = asRecord(value);
@@ -151,9 +146,8 @@ export function snapshotFromPlannerState(state: PlannerState): PlannerStateSnaps
 }
 
 /**
- * The state a stored document describes. The change counter and the last change
- * are carried over from the current state rather than reset, so that a load
- * cannot hand out an identifier a consumer has already seen.
+ * The state a stored document describes. The change counter and last change are
+ * carried over rather than reset, so a load cannot reissue a seen identifier.
  */
 export function plannerStateFromSnapshot(state: PlannerState, snapshot: unknown): PlannerState {
     const source = asRecord(snapshot);
@@ -165,8 +159,8 @@ export function plannerStateFromSnapshot(state: PlannerState, snapshot: unknown)
         coursesByProgram[programmeCode] = normalizeBySemesterMap(bySem, bounds.min, bounds.max);
     }
 
-    // Done codes and the chosen focus are stored as this application wrote
-    // them, and are read back the same way.
+    // Done codes and the focus are written by this application only, so they are
+    // read back without sanitising.
     const doneByProgram = asRecord(source.doneByProgram) as Record<string, string[]>;
     const selectedFocusByProgram = asRecord(source.selectedFocusByProgram) as Record<string, string>;
     const parkedByProgram = sanitizeParkedByProgram(source.parkedByProgram);

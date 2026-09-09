@@ -1,16 +1,4 @@
-"""
-Composing the channels into one list of recommendations.
-
-Every enabled channel is asked about every candidate, candidate by candidate
-rather than channel by channel. That order is what decides ties: a course is only
-ever recommended once, so the first channel to claim it is the one whose reason
-the student is shown, and the channels are asked in the order they are listed
-here.
-
-Two courses that differ only by their teaching format are the same course as far
-as a recommendation is concerned, so a course is also suppressed when something
-sharing its base name is already recommended or already in the plan.
-"""
+"""Composes the channels into one list of recommendations."""
 from __future__ import annotations
 
 from typing import Any, Iterable
@@ -25,6 +13,8 @@ from .sequence import SequenceStrategy
 from .similarity import SimilarityStrategy
 from .strategy import Strategy, Suggestion
 
+# Order decides ties: a course is recommended once, and the first channel to
+# claim it supplies the reason.
 CHANNELS: tuple[type, ...] = (
     InterestStrategy,
     SimilarityStrategy,
@@ -36,11 +26,9 @@ CHANNELS: tuple[type, ...] = (
 
 
 def base_name(title: Any, fallback: Any = "") -> str:
-    """
-    A course title with its format and subtitle stripped.
+    """A course title with its format and subtitle stripped.
 
-    "Analysis (VO)" and "Analysis (UE)" are the lecture and the exercise of one
-    course, and recommending both is recommending the same thing twice.
+    "Analysis (VO)" and "Analysis (UE)" are the lecture and exercise of one course.
     """
     stripped = str(title).split("(")[0].split(" -")[0].strip().lower()
     return stripped or str(fallback).lower()

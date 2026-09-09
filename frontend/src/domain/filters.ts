@@ -1,16 +1,9 @@
 /**
- * Filtering the curriculum graph.
+ * Curriculum graph filtering.
  *
- * An empty selection means "no constraint", never "match nothing". The same
- * applies one level down: a node whose metadata does not say what it is stays
- * visible, because the catalogue is incomplete in places and hiding a course
- * the planner cannot classify is worse than showing one the student did not
- * ask for.
- *
- * Visibility is not decided per node either. A course that matches keeps its
- * whole ancestry on screen, and a subject or module that has been collapsed is
- * judged by the descendants it carries with it, so collapsing a branch never
- * changes what the filters find.
+ * An empty selection means "no constraint", never "match nothing", and a node
+ * with unclassifiable metadata stays visible. A collapsed subject or module is
+ * judged by the descendants it carries, so collapsing changes nothing.
  */
 
 import { BACHELOR_PROGRAM_CODE } from "./terms.ts";
@@ -20,9 +13,8 @@ import type { Catalogue } from "./types.ts";
 export type GraphNodeLevel = "root" | "subject" | "module" | "course" | "courseDirect";
 
 /**
- * How a course counts towards a degree. The bachelor curriculum splits its
- * electives into a narrow and a broad pool; the master does not, and calls its
- * middle tier "core" instead.
+ * How a course counts towards a degree. The bachelor splits electives into a
+ * narrow and a broad pool; the master calls its middle tier "core" instead.
  */
 export type ObligationType =
     | "mandatory"
@@ -41,7 +33,7 @@ export interface EctsRange {
     max: number;
 }
 
-/** The facts about a course that a filter can test. */
+/** The course fields a filter can test. */
 export interface CourseFacts {
     courseCode?: string | undefined;
     courseName?: string | undefined;
@@ -59,14 +51,14 @@ export interface GraphNodeData extends CourseFacts {
     label?: string | undefined;
     subjectName?: string | undefined;
     moduleEcts?: number | null | undefined;
-    /** Carried by a subject or module so that collapsing it hides no matches. */
+    /** Carried by a subject or module so collapsing it hides no matches. */
     descendantCourses?: CourseFacts[] | undefined;
     moduleCourseEcts?: number[] | undefined;
     moduleCourseTypes?: string[] | undefined;
     moduleCourseTermAvailabilities?: string[] | undefined;
 }
 
-/** A node as the filters see it: only its data matters. */
+/** The part of a graph node the filters read. */
 export interface FilterableNode {
     data?: GraphNodeData | undefined;
 }
@@ -128,11 +120,7 @@ export default class GraphFilterEngine {
         ];
     }
 
-    /**
-     * No programme preselects an obligation type. The parameter stays because
-     * the answer is a property of the programme, and an empty list is read
-     * downstream as "no constraint" rather than as "nothing qualifies".
-     */
+    /** No programme preselects an obligation type; the empty list means "no constraint". */
     static defaultObligationTypes(programCode: string | null | undefined): ObligationType[] {
         void programCode;
         return [];
@@ -184,9 +172,8 @@ export default class GraphFilterEngine {
     }
 
     /**
-     * The teaching format of a course. Where the catalogue does not state one,
-     * the leading letters of the course code stand in, because codes such as
-     * "VU-1.1" carry the format even when the field is empty.
+     * Teaching format of a course. Falls back to the leading letters of the
+     * course code, which carry the format in codes such as "VU-1.1".
      */
     static normalizeCourseType(
         type: string | null | undefined,
@@ -283,8 +270,8 @@ export default class GraphFilterEngine {
             const min = Number(range.min);
             const max = Number(range.max);
             if (level === "module") {
-                // A module is in range if any one of its courses is, because the
-                // student enrols in courses and not in the module total.
+                // A module is in range if any one of its courses is; the module
+                // total is not what gets enrolled in.
                 const childEcts = Array.isArray(data?.moduleCourseEcts)
                     ? data.moduleCourseEcts.map((x) => Number(x)).filter((x) => Number.isFinite(x))
                     : [];
@@ -325,9 +312,8 @@ export default class GraphFilterEngine {
     }
 
     /**
-     * The nodes to draw. A match pulls its ancestors in so the path to it stays
-     * on screen, and a parent survives as long as one child does; the root is
-     * always kept, since a graph with no root is a graph with nothing to read.
+     * The nodes to draw. A match pulls in its ancestors, a parent survives as
+     * long as one child does, and the root is always kept.
      */
     static computeVisibleNodeIds(
         nodes: GraphNode[] | null | undefined,
@@ -382,7 +368,7 @@ export default class GraphFilterEngine {
         return visible;
     }
 
-    /** The filter vocabulary a given catalogue can actually offer. */
+    /** The filter values a given catalogue can offer. */
     static collectCatalogFilterOptions(catalog: Catalogue | null | undefined): CatalogFilterOptions {
         const examSubjects = new Set<string>();
         const courseTypes = new Set<string>();

@@ -1,16 +1,7 @@
 // @vitest-environment jsdom
 /**
- * Undoing a move the rule engine refused.
- *
  * A rollback is driven by the diff the refused change carried, and that diff
- * names node ids because the plan may hold the same course twice: two entries
- * with one code between them, and only one of them moved. Putting the other one
- * back is not a smaller mistake than leaving the move standing, it is a second
- * move nobody asked for, recorded silently so that nothing checks it.
- *
- * The change is built here as the diff really is, rather than as the fields the
- * rollback happens to read, so that a rollback shown to ignore something is
- * shown to ignore it in the presence of the real thing.
+ * names node ids because the plan may hold the same course twice.
  */
 import { describe, expect, it } from "vitest";
 

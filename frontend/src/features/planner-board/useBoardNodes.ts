@@ -1,13 +1,12 @@
 /**
  * The node array React Flow draws, and the lane backgrounds behind it.
  *
- * The array and the plan are two representations of the same thing, kept in
- * step in both directions: a course's semester is read back out of the x
- * position of its card, and the plan is written back onto the canvas only when
- * the programme changes or the planner first loads. Everything in between
- * patches `data` on nodes that are already there, which is why each of the
- * effects below compares before it writes. Returning a fresh array for an
- * unchanged canvas would restart the drag machinery under the student's hand.
+ * The array and the plan are two representations of the same data. A course's
+ * semester is read back from its card's x position; the plan writes onto the
+ * canvas only on a programme change or first load. Everything else patches
+ * `data` on existing nodes, so each effect below compares before writing:
+ * returning a fresh array for an unchanged canvas restarts React Flow's drag
+ * machinery mid-drag.
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -30,10 +29,10 @@ import { laneSeason } from "../../domain/terms.ts";
 import type { CatalogueCourseEntry } from "../catalogue/index.ts";
 import type { BoardNode, BoardNodeData, LaneInsight, SemesterOption } from "./types.ts";
 
-/** The height the collapsed parking stage shrinks to, header and nothing else. */
+/** Height of the collapsed parking stage: the header alone. */
 const COLLAPSED_PARKING_HEIGHT = 88;
 
-/** Only what this module asks of a React Flow instance. */
+/** The part of a React Flow instance this module uses. */
 export interface BoardFlowInstance {
     getNodes?: () => BoardNode[];
     getViewport?: () => { x: number; y: number; zoom: number };
@@ -46,10 +45,10 @@ export interface UseBoardNodesInput {
     catalogCourseByCode: Map<string, CatalogueCourseEntry>;
     laneInsightsBySemester: Record<number, LaneInsight> | null | undefined;
     setSemesterNote: (semesterId: number, note: string) => void;
-    /** "table" or "graph"; the canvas is only laid out while it is on screen. */
+    /** "table" or "graph"; the canvas is laid out only while on screen. */
     viewMode: string;
     verticalSemantics: string;
-    /** The season the student began in; the lanes alternate from it. */
+    /** The start season; lane seasons alternate from it. */
     startTermSeason: string;
     resolveLaneCollisions: (nodes: BoardNode[]) => BoardNode[];
 }
@@ -58,7 +57,7 @@ export interface UseBoardNodesResult {
     nodes: BoardNode[];
     setNodes: (update: BoardNode[] | ((nodes: BoardNode[]) => BoardNode[])) => void;
     onNodesChange: (changes: NodeChange[]) => void;
-    /** The array handed to React Flow, with parked cards hidden when collapsed. */
+    /** The array handed to React Flow, parked cards hidden when collapsed. */
     renderNodes: BoardNode[];
     laneNodes: BoardNode[];
     requiredLaneHeight: number;
@@ -165,9 +164,9 @@ export function useBoardNodes({
     );
 
     const initialNodes = useMemo(() => [...laneNodes], [laneNodes]);
-    // React Flow's own node type insists on a `data` bag and spells the handle
-    // positions as an enum. The canvas keeps the shape the domain uses instead,
-    // and the two meet here and at the render.
+    // React Flow's node type requires a `data` bag and enum handle positions.
+    // The canvas keeps the domain shape, so the two are reconciled here and at
+    // the render.
     const [nodes, setNodes, onNodesChange] = useNodesState(
         initialNodes as unknown as Node<BoardNodeData>[]
     ) as unknown as [
@@ -216,8 +215,8 @@ export function useBoardNodes({
     /** Set to true to persist after the next commit of the node array. */
     const [needsPersist, setNeedsPersist] = useState(false);
 
-    // The lane backgrounds are rebuilt from the plan rather than edited, so they
-    // are spliced back in ahead of everything else on every rebuild.
+    // Lane backgrounds are rebuilt rather than edited, so they are spliced back
+    // in ahead of everything else on every rebuild.
     useEffect(() => {
         setNodes((prev) => {
             const nonLane = prev.filter((n) => n.type !== "lane");
@@ -281,8 +280,8 @@ export function useBoardNodes({
         });
     }, [laneInsightsBySemester, plannedEctsBySemester, requiredLaneHeight, setNodes, setSemesterNote]);
 
-    // Changing what the vertical order of a lane means re-sorts every lane, so
-    // the whole canvas is settled again rather than only the lane last touched.
+    // Changing the vertical semantics re-sorts every lane, so the whole canvas
+    // is settled rather than just the lane last touched.
     useEffect(() => {
         if (viewMode === "table") {
             setNodes((prev) => resolveLaneCollisions(prev));

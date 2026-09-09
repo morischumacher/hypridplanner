@@ -1,11 +1,10 @@
 /**
- * What the planning canvas puts on a React Flow node, and the small payloads
- * the sidebar and the curriculum graph hand it.
+ * What the canvas stores on a React Flow node, plus the payloads the sidebar
+ * and curriculum graph pass in.
  *
- * One `data` bag is shared by the three kinds of node the canvas draws, so
- * every field is optional and each kind reads only its own. The handlers live
- * on the bag rather than arriving as props because React Flow renders the node
- * components itself and gives them nothing but their node.
+ * One `data` bag serves all three node kinds, so every field is optional. The
+ * handlers live on the bag rather than in props because React Flow renders the
+ * node components itself and passes them nothing but their node.
  */
 
 import type { CSSProperties } from "react";
@@ -14,9 +13,8 @@ import type { RecommendedCourse } from "../recommendations/index.ts";
 import type { CourseModuleMeta, Point } from "../../domain/types.ts";
 
 /**
- * The module a card came from. A catalogue entry names the module's courses and
- * a stored plan's entry does not, so the field is written from either source
- * and read for whichever part is present.
+ * The module a card came from. A catalogue entry names the module's courses, a
+ * stored plan entry does not, so readers take whichever part is present.
  */
 export interface BoardModuleMeta extends CourseModuleMeta {
     courseCodes?: string[] | undefined;
@@ -24,7 +22,7 @@ export interface BoardModuleMeta extends CourseModuleMeta {
 
 /** A semester as the placement menus list it. */
 export interface SemesterOption {
-    /** A lane's number, zero for the parking stage, or a two-lane window's key. */
+    /** A lane number, zero for the parking stage, or a two-lane window key. */
     id: number | string;
     title: string;
     isParking?: boolean | undefined;
@@ -34,7 +32,7 @@ export interface SemesterOption {
     windowEndLaneIndex?: number | undefined;
 }
 
-/** A note the student wrote on a course, as its lane header lists it. */
+/** A course note, as its lane header lists it. */
 export interface LaneCourseNote {
     code: string;
     name: string;
@@ -49,15 +47,15 @@ export interface LaneInsight {
     additionalNote: string;
 }
 
-/** A course as the sidebar, the graph or the catalogue hands it over. */
+/** A course as passed in by the sidebar, the graph or the catalogue. */
 export interface CourseLike {
     code?: string | null | undefined;
     name?: string | null | undefined;
-    /** What the graph calls a course when it has no separate name for it. */
+    /** The graph's name for a course with no separate name field. */
     label?: string | null | undefined;
     /** Teaching format such as "VU". */
     type?: string | null | undefined;
-    /** The graph's name for the same thing, and the only one placement reads. */
+    /** The graph's name for `type`, and the only one placement reads. */
     courseType?: string | null | undefined;
     ects?: number | null | undefined;
     category?: string | null | undefined;
@@ -66,7 +64,7 @@ export interface CourseLike {
     moduleMeta?: BoardModuleMeta | null | undefined;
 }
 
-/** A module as the sidebar and the graph hand it over. */
+/** A module as passed in by the sidebar or the graph. */
 export interface ModulePayload {
     kind?: string | undefined;
     code?: string | null | undefined;
@@ -79,18 +77,17 @@ export interface ModulePayload {
     variantId?: string | null | undefined;
 }
 
-/** How a caller asks for a lane rather than accepting the one we would pick. */
+/** How a caller overrides the lane placement would otherwise pick. */
 export interface PlacementOptions {
     /**
-     * True when the lane was named by the student rather than guessed from a
-     * drop, in which case a lane the course cannot be taken in is a refusal
-     * instead of an invitation to look further along the plan.
+     * The lane was named explicitly rather than inferred from a drop, so a lane
+     * the course cannot be taken in is refused instead of searched past.
      */
     allowDirectLaneSelection?: boolean | undefined;
     variantId?: string | null | undefined;
 }
 
-/** What the sidebar puts on the drag event when a card leaves it. */
+/** What the sidebar puts on the drag event. */
 export interface DragPayload {
     kind?: string | undefined;
     code?: string | undefined;
@@ -104,7 +101,7 @@ export interface DragPayload {
     variantId?: string | null | undefined;
 }
 
-/** What the student records about a course beyond where they put it. */
+/** Per-course annotations. */
 export interface CourseMetaPatch {
     notes?: string | undefined;
     estimatedHours?: string | undefined;
@@ -157,7 +154,7 @@ export interface BoardNodeData {
     modulePayload?: ModulePayload | undefined;
     width?: number | undefined;
     height?: number | undefined;
-    /** Set while a card is hidden behind a collapsed parking stage. */
+    /** Set while a card is hidden by a collapsed parking stage. */
     collapsedGhost?: boolean | undefined;
 
     isParking?: boolean | undefined;

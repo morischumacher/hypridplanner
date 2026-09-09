@@ -1,17 +1,10 @@
-"""
-A course whose credits cannot be read is reported, not raised.
-
-The checker already refuses such a course while summing the plan, so the verdict
-it belongs in is `rejected: invalid ects`. Every pass that runs afterwards has to
-agree that the course is not in the plan, otherwise the first one to ask for its
-credits raises and the route answers 500 instead of the verdict the student
-should see.
+"""A course whose credits cannot be read is reported as `rejected: invalid ects`,
+not raised, or the route answers 500 instead of a verdict.
 
 The credit value is read in four places after the totals pass, so each is driven
-here separately: a course outside the introductory phase reaches the
-transferable-skills cap, one inside it reaches the introductory-phase snapshot,
-and a completed one reaches both the completion-semester scan and the pre-phase
-allowance.
+separately: outside the introductory phase it reaches the transferable-skills cap,
+inside it the phase snapshot, and a completed course reaches both the
+completion-semester scan and the pre-phase allowance.
 """
 from __future__ import annotations
 
@@ -21,8 +14,7 @@ from app.rules import BachelorRuleChecker
 
 BACHELOR = "033 521"
 
-# The pool of the introductory phase, so that the introductory-phase passes read
-# this course rather than skipping it.
+# In the introductory-phase pool, so those passes read this course rather than skip it.
 STEOP_POOL_COURSE = "Algebra und Diskrete Mathematik"
 
 UNREADABLE = [None, "", "n/a", "2,5 ECTS", {}]
@@ -53,7 +45,7 @@ def test_an_unreadable_credit_value_is_rejected_rather_than_raised(status, ects)
 
 @pytest.mark.parametrize("ects", UNREADABLE, ids=repr)
 def test_a_course_outside_the_introductory_phase_is_rejected_too(ects) -> None:
-    """This one is only ever read by the transferable-skills cap."""
+    """Only the transferable-skills cap reads this one."""
     result = BachelorRuleChecker().evaluate(
         payload(plannedCourses=[course(ects, code="X1", name="No ECTS")])
     )
@@ -63,7 +55,7 @@ def test_a_course_outside_the_introductory_phase_is_rejected_too(ects) -> None:
 
 
 def test_the_rest_of_the_plan_is_still_summed() -> None:
-    """The broken course drops out; the courses around it keep their credits."""
+    """The broken course drops out, the ones around it keep their credits."""
     result = BachelorRuleChecker().evaluate(
         payload(
             plannedCourses=[

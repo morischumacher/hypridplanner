@@ -1,13 +1,10 @@
 /**
- * Everything that can happen to a plan.
+ * The plan action union. Actions name transitions, not the fields they land in.
  *
- * An action names the transition the student made, not the field it lands in,
- * so that the reducer reads as the state machine the evaluation described.
- *
- * A payload may be a function of the current value, as React's own setters
- * accept. That is not a convenience: an update queued in a batch is applied to
- * the value the update before it produced, and a caller that read the current
- * value itself would overwrite everything queued alongside it.
+ * A payload may be a function of the current value, as React's setters accept.
+ * That is required, not a convenience: batched updates each apply to the value
+ * the previous one produced, so a caller reading the current value itself would
+ * overwrite whatever is queued alongside it.
  */
 
 import type { PlanNode } from "../types.ts";
@@ -30,7 +27,7 @@ export interface ProgrammeSelected extends ActionBase {
     programCode: string;
 }
 
-/** The canvas was edited, and the plan is read back off it whole. */
+/** The canvas was edited; the plan is read back off it whole. */
 export interface PlanReplacedFromNodes extends ActionBase {
     type: "plan/replacedFromNodes";
     nodes: readonly PlanNode[] | null | undefined;

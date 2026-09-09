@@ -1,11 +1,7 @@
-"""
-Recommending by career direction.
+"""Recommending by career direction.
 
-The student's stated direction is broken into words and matched against what each
-course teaches. A word the course lists as a topic counts double against a word
-that merely appears in its description, and the total is spread over how many
-words the direction was written with, so a long description does not outscore a
-short one by length alone.
+Topic hits count double against description hits, normalised by the number of
+words in the stated direction.
 """
 from __future__ import annotations
 
@@ -39,8 +35,7 @@ class InternshipStrategy:
         score = min(_MAX_SCORE, (len(skill_overlap) * 2 + len(desc_overlap)) / max(1, len(words)))
         score = max(_MIN_SCORE, score)
 
-        # Sorted for the same reason as the interest channel: these sets iterate
-        # in an order that varies per process, and this one reaches the student.
+        # Sorted: set iteration order varies per process, and this text reaches the student.
         if skill_overlap:
             matched = ", ".join(sorted(skill_overlap))
         else:

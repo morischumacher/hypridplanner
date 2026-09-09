@@ -1,11 +1,9 @@
 /**
- * What the buttons on a card and on a module panel do to the canvas.
+ * The actions behind the buttons on a card and on a module panel.
  *
- * Ticking a course off writes to the plan first and patches the node second,
- * while removing one or editing its credits only raises the pending-save flag
- * and lets the canvas be read back later. The difference is deliberate: a tick
- * is a change the rule checker has to see as its own event, and a removal is
- * one the next read of the canvas will describe on its own.
+ * Marking done writes the plan first and patches the node second, since the
+ * rule checker needs it as its own event. Removing or editing credits only
+ * raises the pending-save flag; the next read of the canvas describes it.
  */
 
 import { useCallback } from "react";
@@ -104,8 +102,8 @@ export function useCourseCardActions({
         nextDone: boolean,
         groupId?: string
     ) => {
-        // The panel knows its own courses better than the payload does, since a
-        // course can have been dragged out of the module since the card was drawn.
+        // The panel is authoritative over the payload: a course may have been
+        // dragged out of the module since the card was drawn.
         const source = (rfRef.current?.getNodes?.() || nodes);
         const codesFromGroup = groupId
             ? source

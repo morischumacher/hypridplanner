@@ -1,13 +1,8 @@
 /**
  * What changed between two versions of a plan.
  *
- * The rule checker and the recommender are told what the student just did, not
- * only what the plan now looks like, because the advice they give is about the
- * move: a course dropped into a full semester is worth a warning, the same
- * course sitting there since last week is not.
- *
- * Courses are matched by node id rather than by course code, so that the same
- * course placed twice stays two entries and a rename is not read as a move.
+ * Courses are matched by node id rather than course code, so the same course
+ * placed twice stays two entries and a rename is not read as a move.
  */
 
 import { flattenBySemester } from "./semesters.ts";
@@ -58,10 +53,7 @@ export interface PlanDiff {
     updated: UpdatedCourse[];
 }
 
-/**
- * A lane index only if it really is a number. Plans read back from storage are
- * trusted for their identifiers and re-checked for everything else.
- */
+/** A lane index only if it really is a finite number; stored plans are unvalidated. */
 export function laneIndexOrNull(value: unknown): number | null {
     return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
@@ -118,8 +110,8 @@ export function diffPlannedCourses(
             });
             continue;
         }
-        // A course that stayed where it was is still worth reporting when its
-        // ECTS changed, because the semester load rules are counted in ECTS.
+        // An unmoved course still counts as updated when its ECTS changed,
+        // since the semester load rules are counted in ECTS.
         const beforeEcts = Number(before?.ects ?? 0);
         const nextEcts = Number(course?.ects ?? 0);
         if (Number.isFinite(beforeEcts) && Number.isFinite(nextEcts) && beforeEcts !== nextEcts) {

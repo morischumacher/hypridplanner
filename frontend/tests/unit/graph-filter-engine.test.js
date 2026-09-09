@@ -1,15 +1,3 @@
-/**
- * Graph filter engine.
- *
- * The evaluation found that the filter set is what students actually valued in
- * the graph view, and that the graph took over from the catalogue as the place
- * where a requirement becomes a list of candidate courses. Whatever happens to
- * the surrounding component, these rules have to survive intact.
- *
- * Filtering is also where a subtle regression hides most easily: an empty filter
- * array means "no constraint", not "match nothing", and getting that backwards
- * empties the canvas without throwing anything.
- */
 import { describe, expect, it } from "vitest";
 
 import GraphFilterEngine from "../../src/domain/filters.ts";
@@ -17,7 +5,7 @@ import GraphFilterEngine from "../../src/domain/filters.ts";
 const BACHELOR = "033 521";
 const MASTER = "066 937";
 
-// The engine keys off `data.level`; a node without one is always visible, which
+// The engine keys off `data.level`. A node without one is always visible, which
 // is how root and synthetic nodes stay on the canvas.
 const courseNode = (over = {}) => ({
     id: over.id ?? "c1",
@@ -48,8 +36,7 @@ describe("programme awareness", () => {
         const bachelor = GraphFilterEngine.obligationOptionsForProgram(BACHELOR);
         const master = GraphFilterEngine.obligationOptionsForProgram(MASTER);
 
-        // The bachelor curriculum distinguishes narrow from broad electives, and
-        // students in the study consistently searched using exactly those words.
+        // The bachelor curriculum distinguishes narrow from broad electives.
         expect(bachelor.map((o) => o.value)).toEqual([
             "mandatory", "elective_narrow", "elective_broad",
         ]);
@@ -83,8 +70,7 @@ describe("nodeMatchesFilters", () => {
     const empty = GraphFilterEngine.normalizeFilters({});
 
     it("matches everything when no constraint is set", () => {
-        // The regression that matters: treating an empty array as "match nothing"
-        // silently blanks the canvas, which is far harder to notice than a crash.
+        // An empty filter array means no constraint, not match nothing.
         expect(GraphFilterEngine.nodeMatchesFilters(courseNode(), empty, BACHELOR)).toBe(true);
     });
 
@@ -129,7 +115,6 @@ describe("nodeMatchesFilters", () => {
             courseTypes: ["VU"],
             examSubjects: ["Security"],
         });
-        // Matching one constraint is not enough.
         expect(GraphFilterEngine.nodeMatchesFilters(courseNode(), filters, BACHELOR)).toBe(false);
         const both = courseNode({ data: { examSubject: "Security" } });
         expect(GraphFilterEngine.nodeMatchesFilters(both, filters, BACHELOR)).toBe(true);

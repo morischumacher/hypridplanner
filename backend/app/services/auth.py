@@ -1,10 +1,8 @@
-"""
-Signing up, signing in, and recognising a returning session.
+"""Signing up, signing in, and recognising a returning session.
 
-Sessions are opaque tokens in a table rather than signed cookies, so signing out
-is a delete and revocation is immediate. The token is returned in the body as
-well as set as a cookie, because the frontend also runs against origins where a
-third-party cookie would be dropped.
+Sessions are opaque tokens in a table rather than signed cookies, so revocation
+is a delete. The token is also returned in the body, for origins where the
+browser would drop the cookie as third-party.
 """
 from __future__ import annotations
 
@@ -53,8 +51,7 @@ class AuthService:
         async with self._unit_of_work.write() as work:
             user = await work.users.find_by_username(username)
             if not user or not verify_password(password, user["password_hash"]):
-                # One message for both cases: which of the two failed is not the
-                # caller's business.
+                # One message for both cases, so the reply does not say which failed.
                 raise NotAuthenticated("Invalid username or password")
             token = generate_session_token()
             await work.sessions.create(token, user["id"], self._expiry())

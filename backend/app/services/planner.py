@@ -1,10 +1,7 @@
-"""
-Loading and saving a plan.
+"""Loading and saving a plan.
 
-The plan is stored as one JSON document per user rather than as rows per placed
-course. That is a deliberate trade: the frontend owns the plan's shape and
-rewrites it whole on every change, and a normalised schema would buy nothing
-until something other than the planner needs to query inside it.
+The plan is one JSON document per user rather than a row per placed course: the
+frontend owns its shape and rewrites it whole on every change.
 """
 from __future__ import annotations
 

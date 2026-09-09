@@ -1,10 +1,6 @@
 /**
- * The two sections that report what the rule check found: the requirements
- * still missing, and the warnings.
- *
- * Their Expand buttons are disabled while there is nothing to show, and the
- * sections close themselves once the last entry goes away, so neither can be
- * left standing open over an empty list.
+ * The two rule-check result sections: missing requirements and warnings. Both
+ * disable Expand while empty and close themselves when the last entry goes.
  */
 
 import type { DashboardMetrics } from "./metrics.ts";

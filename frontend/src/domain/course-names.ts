@@ -1,10 +1,7 @@
 /**
- * Turning catalogue names into the short labels a card can hold.
- *
- * Course titles in the curriculum carry their teaching format twice, once in a
- * dedicated field and once as a suffix on the title ("Analysis (VU)", "Data
- * Stewardship UE"). Cards show the format separately, so the suffix is stripped
- * here; the list of formats is closed, which is what makes stripping safe.
+ * Short card labels derived from catalogue names. Course titles repeat their
+ * teaching format as a suffix ("Analysis (VU)"), which is stripped here since
+ * cards render the format separately.
  */
 
 function normalizeText(value: string | null | undefined): string {
@@ -21,7 +18,7 @@ const SHORTNAME_STOP_WORDS = new Set([
     "and", "und", "for", "der", "die", "das", "in", "of", "the", "to", "mit", "fuer", "fur",
 ]);
 
-/** The teaching formats the curriculum uses, as they appear in a title. */
+/** Closed set of teaching formats, as they appear in a title. */
 const TYPE_GROUP = "(VU|VO|UE|PR|SE|KO|KS|EX|PS|PJ|ILV|RE)";
 
 function buildAcronym(name: string | null | undefined): string {
@@ -63,8 +60,8 @@ export function displayCourseHeader(
     name: string | null | undefined = "",
     type: string | null | undefined = ""
 ): string {
-    // The header is deliberately code and format only; the name stays in the
-    // signature because every call site still passes it.
+    // Header is code and format only; `name` stays in the signature because
+    // every call site still passes it.
     void name;
     const rawCode = String(code || "").trim();
     const rawType = String(type || "").trim();
@@ -102,9 +99,8 @@ function longestCommonPrefix(values: readonly (string | null | undefined)[]): st
 }
 
 /**
- * A short label for a module group. An acronym of the module name is preferred,
- * and the shared prefix of the module's course codes is the fallback, because a
- * module whose name is a single common word yields no usable acronym.
+ * Short label for a module group: acronym of the module name, falling back to
+ * the shared prefix of its course codes when the name yields no acronym.
  */
 export function displayModuleHeader(
     moduleCode: string | null | undefined,
@@ -120,8 +116,6 @@ export function displayModuleHeader(
     if (cleanedPrefix) return cleanedPrefix;
     if (prefix) return prefix;
 
-    // A name too short or too common to yield an acronym is still a name, and
-    // every other header on the canvas reads as one. Only a module with no name
-    // at all is headed with its code.
+    // Only a module with no name at all falls back to its code.
     return String(moduleName || "").trim() || displayShortCode(moduleCode);
 }

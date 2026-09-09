@@ -1,20 +1,14 @@
 /**
- * Turning the curriculum's enforced prerequisites into graph edges.
+ * Resolves curriculum prerequisite relations, which name courses and modules,
+ * into graph edges, which address nodes.
  *
- * The relations name courses and modules; the graph addresses nodes. This module
- * resolves the first to the second and nothing else: it holds no relations of its
- * own, reads no state, and touches no framework, so it can be exercised directly.
+ * A relation is drawn only when both endpoints are nodes currently on the
+ * canvas. A course inside a collapsed module has no node, so its relation is
+ * dropped rather than reattached to the module standing in for it.
  *
- * A relation is drawn only when both of its endpoints are nodes currently on the
- * canvas. A course inside a collapsed module has no node, so its relation is not
- * drawn rather than being attached to the module standing in for it, which would
- * assert a relation the curriculum does not hold.
- *
- * Two kinds are drawn, and drawn differently, because they cost a student
- * different things: an enforced ordering is refused when broken, an advisory one
- * is warned about. A student reads which is which from the edge rather than
- * having to ask. The curricula's expected prior knowledge is a third ordering
- * with no consequence at all; it is not served to this module and not drawn.
+ * Enforced ("hard") and advisory ("soft") relations are styled differently.
+ * Expected prior knowledge is a third kind with no consequence; it is not
+ * served to this module and not drawn.
  */
 
 const PREREQUISITE_EDGE_PREFIX = "prereq-";
@@ -22,7 +16,7 @@ const PREREQUISITE_EDGE_PREFIX = "prereq-";
 const HARD_EDGE_COLOUR = "#b91c1c";
 const SOFT_EDGE_COLOUR = "#b45309";
 
-/** Fold case, strip accents and collapse whitespace, so "Einführung" matches "einfuhrung". */
+/** Folds case, strips accents and collapses whitespace, so "Einführung" matches "einfuhrung". */
 export function normaliseCourseKey(value) {
     return String(value ?? "")
         .normalize("NFD")
@@ -33,12 +27,9 @@ export function normaliseCourseKey(value) {
 }
 
 /**
- * Index the nodes a relation might name, by every name it might use.
- *
- * Courses are indexed by code and by name, modules by code and label. Later nodes
- * do not displace earlier ones, so the first node carrying a given key wins and
- * the mapping is stable; courses are indexed before modules so that a course and
- * a module sharing a name resolve to the course, the more specific of the two.
+ * Indexes nodes by every name a relation might use: courses by code and name,
+ * modules by code and label. First key wins, and courses are indexed before
+ * modules so a shared name resolves to the more specific course node.
  */
 export function indexCourseNodes(nodes) {
     const byKey = new Map();
@@ -63,7 +54,7 @@ export function indexCourseNodes(nodes) {
     return byKey;
 }
 
-/** A collapsible node's label carries a "▶ " or "▼ " marker the curriculum does not. */
+/** Collapsible node labels carry a "▶ " or "▼ " marker the curriculum does not. */
 function stripDisclosureMarker(label) {
     return String(label ?? "").replace(/^[▶▼]\s*/, "");
 }
@@ -78,12 +69,10 @@ const STYLE_BY_KIND = {
 };
 
 /**
- * Build the prerequisite edges for the nodes currently laid out.
- *
- * `relations` is the service's list of { source, target, kind }; the enforced and
- * advisory ones are drawn and anything else is skipped. `visibleNodeIds` is
- * optional; when given, an edge is emitted only if both endpoints are visible, so
- * a filtered-out course does not leave an edge hanging in space.
+ * Builds prerequisite edges for the nodes currently laid out. `relations` is the
+ * service's list of { source, target, kind }; kinds other than hard and soft are
+ * skipped. With `visibleNodeIds`, an edge is emitted only if both endpoints are
+ * visible, so a filtered-out course leaves no dangling edge.
  */
 export function buildPrerequisiteEdges(relations, nodes, visibleNodeIds = null) {
     const byKey = indexCourseNodes(nodes);

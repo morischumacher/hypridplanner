@@ -1,14 +1,11 @@
 /**
- * Everything the planner dashboard displays, derived in one pass.
+ * Every dashboard figure, derived in one pass.
  *
- * This is a plain function and not a hook: it calls nothing from React and
- * memoises nothing, so each render recomputes all of it. That is deliberate.
- * The figures are read from a rule-check reply that is replaced wholesale on
- * every change, so a memo keyed on it would never hit.
+ * A plain function rather than a hook: the figures come from a rule-check reply
+ * that is replaced wholesale on every change, so a memo keyed on it never hits.
  *
- * The rule checker's reply is the backend's to shape and arrives unvalidated,
- * which is why the types below describe only the fields read here and treat
- * every one of them as optional.
+ * The reply arrives unvalidated, so the types below describe only the fields
+ * read here and treat all of them as optional.
  */
 
 import { getExamSubjectForCode, resolveDashboardCategoryForProgram } from "../../domain/catalogue.ts";
@@ -16,7 +13,7 @@ import type { RuleCheckState } from "../../domain/programmes.ts";
 import type { SemesterLoadLimits } from "../../domain/plan/state.ts";
 import type { Catalogue } from "../../domain/types.ts";
 
-/** One line of the focus-area checklist the rule checker sends. */
+/** One line of the focus-area checklist sent by the rule checker. */
 export interface FocusChecklistItem {
     label?: string | null;
     kind?: string | null;
@@ -39,7 +36,7 @@ interface FocusStats {
     chooseGroups?: FocusChooseSummary[];
 }
 
-/** A module and the ECTS counted towards it, as the rule checker reports it. */
+/** A module and the ECTS counted towards it, as reported by the rule checker. */
 export interface ModuleProgressRow {
     title?: string | null;
     requiredEcts?: number;
@@ -76,8 +73,7 @@ interface RuleCheckResponse {
 
 /**
  * A planned course as the dashboard reads it. Wider than the plan's own course
- * type: the same figures are computed for courses that came back from the rule
- * checker, and those carry their module under a different name.
+ * type, since rule-checker courses name their module differently.
  */
 export interface DashboardCourse {
     code?: string | null;
@@ -91,7 +87,7 @@ export interface DashboardCourse {
     moduleMeta?: { name?: string | null; title?: string | null } | null;
 }
 
-/** The banner a refused save leaves behind, which outranks the rule feedback. */
+/** Banner left by a refused save; outranks the rule feedback. */
 export interface DashboardStickyViolation {
     message?: string;
     until?: number;
@@ -153,14 +149,11 @@ export function computeDashboardMetrics({
     const remainingPlannedEctsKpi = allPlannedCourses
         .filter((c) => c?.code && !doneCodesSet.has(c.code))
         .reduce((sum, c) => sum + Number(c?.ects || 0), 0);
-    // Planned dashboard should show all selected courses, even after marking some as done.
+    // The planned view counts every selected course, done ones included.
     const plannedEctsKpi = allPlannedCourses.reduce((sum, c) => sum + Number(c?.ects || 0), 0);
     const totalEctsKpi = plannedEctsKpi;
-    // What the degree is measured against comes from the curriculum in force,
-    // which is what the checker reports. The literals are the last resort for a
-    // response that predates the field, not the normal path: a milestone banner
-    // computed against a hardcoded denominator states a percentage the plan's
-    // own ECTS figures contradict.
+    // The target comes from the checker, which reads the curriculum in force.
+    // The literals only cover replies predating that field.
     const reportedTargetEcts = Number(ectsStats?.target_total);
     const targetEctsKpi = Number.isFinite(reportedTargetEcts) && reportedTargetEcts > 0
         ? reportedTargetEcts
@@ -623,7 +616,7 @@ export function computeDashboardMetrics({
     const focusChecklistRaw = Array.isArray(bachelorFocus?.checklist) ? bachelorFocus.checklist : [];
     const focusChecklist = focusChecklistRaw.map((item) => ({
         ...item,
-        // Done dashboard should reflect actually completed modules only.
+        // The done view counts completed modules only.
         done: doneModuleTitleSetForFocus.has(normalizeFocusKey(item?.label)),
     }));
     const focusChecklistPlanned = focusChecklistRaw.map((item) => ({
@@ -1064,5 +1057,5 @@ export function computeDashboardMetrics({
     };
 }
 
-/** What the dashboard reads. Inferred, because the figures are the contract. */
+/** Inferred from the return value, which is the contract. */
 export type DashboardMetrics = ReturnType<typeof computeDashboardMetrics>;

@@ -1,15 +1,13 @@
 /**
- * The shapes the dashboard's own modules pass between themselves.
+ * Types passed between the dashboard's own modules.
  *
- * `DashboardLaneInsights` is the one bundle that is not derived from the rule
- * check. Those figures come from the notes the student keeps on each course,
- * which the planner already gathers per semester, so the dashboard is handed
- * them rather than working them out a second time.
+ * `DashboardLaneInsights` is the one bundle not derived from the rule check; it
+ * comes from per-course metadata the planner already aggregates per semester.
  */
 
 import type { CSSProperties, DragEvent } from "react";
 
-/** The drag-to-reorder wiring, as `useDashboardSectionOrdering` hands it over. */
+/** The drag-to-reorder wiring returned by `useDashboardSectionOrdering`. */
 export interface DashboardSectionOrdering {
     handlePlannedSectionDragStart: (key: string) => void;
     handlePlannedSectionDragOver: (event: DragEvent<HTMLElement>, key: string) => void;
@@ -23,19 +21,19 @@ export interface DashboardSectionOrdering {
     doneSectionStyle: (key: string, base?: CSSProperties) => CSSProperties;
 }
 
-/** One semester's estimated weekly hours. Semesters with none are left out. */
+/** One semester's estimated weekly hours; semesters with none are omitted. */
 export interface SemesterHoursRow {
     sem: number;
     hours: number;
 }
 
-/** One semester's ECTS-weighted mark. */
+/** One semester's ECTS-weighted grade average. */
 export interface SemesterGradeRow {
     sem: number;
     grade: number;
 }
 
-/** The done courses of one semester that carry no mark yet. */
+/** The done courses of one semester that carry no grade yet. */
 export interface MissingGradeRow {
     sem: number;
     missingCourses: readonly { code: string; name: string }[];

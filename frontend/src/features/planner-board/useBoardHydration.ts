@@ -1,14 +1,12 @@
 /**
- * Drawing the canvas from a stored plan.
+ * Draws the canvas from a stored plan.
  *
- * This is the only place the plan writes positions rather than reading them. It
- * runs once per programme, guarded by `hydratedProgramRef`, because after the
- * first draw the canvas is the record and rebuilding it would throw away every
- * card the student has moved since.
+ * The only place the plan writes positions rather than reading them. It runs
+ * once per programme, guarded by `hydratedProgramRef`: after the first draw the
+ * canvas is the record, and rebuilding would discard every card moved since.
  *
- * A card keeps the position the plan stored for it where there is one, and is
- * stacked down its lane where there is not, so a plan written by an older
- * version of the planner still opens in a readable state.
+ * A card keeps its stored position where there is one and is stacked down its
+ * lane where there is not, so plans from older versions still open readably.
  */
 
 import { useEffect } from "react";
@@ -34,19 +32,19 @@ import type {
     SemesterOption,
 } from "./types.ts";
 
-/** The default card colour, used where the exam subject has none of its own. */
+/** Fallback card colour for an exam subject with none of its own. */
 const FALLBACK_SUBJECT_COLOR = "#2563eb";
 
-/** The topmost row a card may occupy in a lane, below the lane header. */
+/** Topmost row a card may occupy in a lane, below the lane header. */
 const FIRST_COURSE_Y = 96;
 
-/** Turns a module's identity into an id a parked panel can be found again by. */
+/** Derives a stable id for a parked module panel from the module's identity. */
 function parkedGroupIdFor(moduleMeta: BoardModuleMeta | null | undefined): string {
     const key = String(moduleMeta?.id || moduleMeta?.code || moduleMeta?.title || "module");
     return `parked-group-${key.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
 }
 
-/** The handlers every card and panel the rebuild draws is wired up with. */
+/** The handlers wired onto every card and panel the rebuild draws. */
 interface RebuildHandlers {
     removeCourseNode: (nodeId: string) => void;
     removeModuleGroup: (groupId: string) => void;
@@ -71,14 +69,14 @@ interface RebuildInput extends RebuildHandlers {
     minGroupChildY: number;
 }
 
-/** A plan course carrying the lane it was filed under. */
+/** A plan course tagged with the lane it was filed under. */
 interface PlanCourseWithLane extends PlanCourse {
     laneIndex: number;
 }
 
 interface RebuiltCanvas {
     nodes: BoardNode[];
-    /** The panels that still have to be stacked and sized around their cards. */
+    /** Panels still to be stacked and sized around their cards. */
     groupIds: string[];
 }
 
@@ -272,9 +270,8 @@ function rebuildCanvasFromPlan({
         });
     });
 
-    // A module is drawn again in the parking stage only once every one of its
-    // courses is parked, so that a half-parked module shows as loose cards
-    // rather than as a panel that misrepresents the plan.
+    // A module panel is redrawn in the parking stage only once all of its
+    // courses are parked; a half-parked module shows as loose cards.
     const parkedCodeSet = new Set(
         parkedEntries
             .map((node) => String(node?.data?.code || "").trim())
@@ -379,9 +376,9 @@ export interface UseBoardHydrationInput extends RebuildHandlers {
     setNodes: (nodes: BoardNode[]) => void;
     setNeedsPersist: (needsPersist: boolean) => void;
     resolveLaneCollisions: (nodes: BoardNode[]) => BoardNode[];
-    /** The programme whose canvas has been drawn, so that it is drawn once. */
+    /** The programme whose canvas has been drawn, so it is drawn only once. */
     hydratedProgramRef: MutableRefObject<string | null>;
-    /** Set so that the freshly drawn plan is checked against the curriculum. */
+    /** Set so the freshly drawn plan gets a rule check. */
     pendingInitialSyncProgramRef: MutableRefObject<string | null>;
 }
 
@@ -444,8 +441,8 @@ export function useBoardHydration({
         }
         const resolved = resolveLaneCollisions(withGroups);
         setNodes(resolved);
-        // The canvas has just been read out of the plan, so writing it back
-        // would record a change nobody made.
+        // The canvas was just read out of the plan, so writing it back would
+        // record a change that never happened.
         setNeedsPersist(false);
         pendingInitialSyncProgramRef.current = programCode;
         hydratedProgramRef.current = programCode;

@@ -1,12 +1,10 @@
 /**
- * Asking the backend what to recommend, and saving which kinds of
- * recommendation the student wants to see.
+ * Requests recommendations from the backend and saves the channel toggles.
  *
- * Two requests can be in flight at once, because a student who edits the plan
- * twice in quick succession starts a second before the first answers. Each one
- * records the change it was asked about, and an answer is dropped unless it is
- * still the answer to the latest question; without that, the slower of the two
- * would overwrite the newer list.
+ * Two requests can be in flight at once, since a second plan edit starts one
+ * before the first answers. Each records the change it was asked about, and an
+ * answer is dropped unless it still matches the latest question; otherwise the
+ * slower reply would overwrite the newer list.
  */
 
 import { useCallback, useEffect, useRef } from "react";
@@ -19,13 +17,12 @@ import type { ProfileSettings, ProfileSettingsByProgram } from "../profile/index
 import type { Recommendation } from "./useRecommendationList.ts";
 
 /**
- * What a programme's last request was about: the identifier of the plan change
- * that prompted it, or the sentinel the first request of a session carries,
- * which has no change to name.
+ * What a programme's last request was about: the id of the plan change that
+ * prompted it, or the sentinel used by a session's first request.
  */
 type RecommendationRequestId = number | "initial" | null;
 
-/** The toggles a student who has never touched them is treated as having. */
+/** The toggle set assumed before any have been set. */
 const DEFAULT_RECOMMENDATION_TOGGLES: Record<string, boolean> = {
     interest: true, similarity: true, sequence: true, completed: true, internship: true, peer: true
 };
@@ -95,10 +92,9 @@ export function useRecommendationRequests({
             });
     }, [lastPlanChange, programCode, coursesBySemester, doneCourseCodes, parkedCourseCodes]);
 
-    // The effect above waits for a change to the plan, which a student who has
-    // only opened their planner has not made. This is the request that gives
-    // them something to read anyway, and the sentinel keeps it to one per
-    // programme however often the plan is recomputed underneath it.
+    // The effect above waits for a plan change, which never comes on a plain
+    // page load. This request covers that case; the sentinel keeps it to one
+    // per programme however often the plan is recomputed underneath.
     useEffect(() => {
         if (!plannerHydrated || !programCode || lastPlanChange) return;
         const requestProgramCode = programCode;
@@ -141,9 +137,8 @@ export function useRecommendationRequests({
             [key]: newValue
         };
 
-        // The mirror is written before the save is attempted and is never put
-        // back if the save fails, so a refused toggle stays switched on screen
-        // until the profile is fetched again.
+        // The mirror is written before the save and not reverted on failure, so
+        // a refused toggle stays switched until the profile is fetched again.
         setProfileSettingsByProgram(prev => ({
             ...(prev || {}),
             [programCode]: {
@@ -159,9 +154,8 @@ export function useRecommendationRequests({
                 careerDirection: profileSettingsForProgram?.careerDirection || "",
                 recommendationToggles: nextToggles,
             });
-            // A toggle decides which kinds of recommendation are produced, so
-            // the list on screen is answering the wrong question until it is
-            // asked again.
+            // Toggles decide which channels are produced, so the list on screen
+            // is stale until the request is repeated.
             const doneSet = new Set(doneCourseCodes || []);
             const allCourses = Object.values(coursesBySemester || {})
                 .flat()

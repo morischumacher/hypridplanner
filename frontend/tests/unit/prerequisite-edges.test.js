@@ -1,14 +1,7 @@
 /**
- * Tests for resolving enforced prerequisite relations onto graph nodes.
- *
- * No browser and no framework: the module under test is pure, which is the
- * reason it is a module rather than logic inside the view. Run with
- * `npm test` from the frontend directory.
- *
- * The enforced and advisory relations are drawn, and drawn differently, so that
- * an edge says whether it binds. The curricula's expected prior knowledge is a
- * third ordering with no consequence; it is not drawn at all, and the tests below
- * pin that it is skipped rather than given a third style.
+ * Enforced and advisory relations are both drawn, and drawn differently, so an
+ * edge says whether it binds. Expected prior knowledge carries no consequence
+ * and is not drawn at all.
  */
 
 import { test } from "vitest";
@@ -60,8 +53,8 @@ test("course and module nodes are indexed, the root is not", () => {
 });
 
 test("a subject node sharing a course's name does not capture the relation", () => {
-    // "Software Engineering" is both an exam subject and a course; the relation
-    // is between courses, so the course node must win.
+    // "Software Engineering" is both an exam subject and a course. The relation
+    // is between courses, so the course node wins.
     const edges = buildPrerequisiteEdges(BACHELOR_RELATIONS, NODES);
     assert.equal(edges[0].source, "c-se");
 });
@@ -109,13 +102,11 @@ test("the two kinds are drawn together and told apart", () => {
     assert.equal(edges.length, 3);
     assert.equal(edges.filter((e) => e.data.kind === "soft").length, 1);
     assert.equal(edges.filter((e) => e.data.kind === "hard").length, 2);
-    // Their ids differ by kind, so a relation appearing as both does not collide.
+    // Ids differ by kind, so a relation appearing as both does not collide.
     assert.equal(new Set(edges.map((e) => e.id)).size, 3);
 });
 
 test("expected prior knowledge is not drawn, and neither is an unlabelled relation", () => {
-    // It carries no consequence in the compliance engine, so it would be the one
-    // edge on the canvas a student could not act on.
     const others = [
         { source: "Software Engineering", target: "Software Engineering Projekt", kind: "recommended" },
         { source: "Software Engineering", target: "Software Engineering Projekt" },
@@ -129,7 +120,7 @@ test("expected prior knowledge is not drawn, and neither is an unlabelled relati
 test("a relation whose course is not on the canvas is not drawn", () => {
     // A course inside a collapsed module has no node. Attaching its relation to
     // the module standing in for it would assert a relation the curriculum does
-    // not hold, so the edge is dropped instead.
+    // not hold.
     const collapsed = NODES.filter((n) => n.id !== "c-foe");
     const edges = buildPrerequisiteEdges(MASTER_RELATIONS, collapsed);
     assert.equal(edges.length, 1);
@@ -157,4 +148,15 @@ test("edge ids are stable across rebuilds, so the canvas does not remount them",
     const first = buildPrerequisiteEdges(MASTER_RELATIONS, NODES).map((e) => e.id);
     const second = buildPrerequisiteEdges(MASTER_RELATIONS, NODES).map((e) => e.id);
     assert.deepEqual(first, second);
+});
+
+test("the same relation in two spellings draws one edge", () => {
+    // The master curriculum states each relation written out and as course codes.
+    const nodes = [courseNode("c-mth", "MTH", "Diplomarbeit"), courseNode("c-foe", "FOE", "Kommissionelle Abschlusspruefung")];
+    const edges = buildPrerequisiteEdges([
+        { source: "Master Thesis", target: "Final Oral Exam / Defense", kind: "hard" },
+        { source: "MTH", target: "FOE", kind: "hard" },
+    ], nodes);
+    assert.equal(edges.length, 1);
+    assert.deepEqual([edges[0].source, edges[0].target], ["c-mth", "c-foe"]);
 });

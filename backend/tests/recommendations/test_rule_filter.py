@@ -1,14 +1,7 @@
-"""
-What the rule filter does when the rule checker cannot answer.
+"""What the rule filter does when the rule checker cannot answer.
 
-The filter's premise is that a recommendation the planner would immediately
-refuse is worse than no recommendation, and it can only hold that premise for
-candidates it managed to check. A checker that raises tells it nothing, and the
-one reading it must not take for granted is that silence means consent.
-
-The checker is a stub here rather than a real one. The property under test is how
-the filter reads a failure, and driving a real checker into raising would pin the
-filter's behaviour to whatever happens to make that checker fall over.
+The checker is a stub: the property under test is how the filter reads a failure,
+and a real checker would pin it to whatever makes that checker fall over.
 """
 from __future__ import annotations
 
@@ -40,7 +33,7 @@ class Result:
 
 
 def trial_code(payload: dict[str, Any]) -> str | None:
-    """The candidate this payload is trying out, or None for the plan on its own."""
+    """The candidate this payload is trying out, or None for the plan alone."""
     extra = [c for c in payload.get("plannedCourses") or [] if c.get("laneIndex") == 99]
     return extra[0]["code"] if extra else None
 
@@ -81,7 +74,7 @@ def kept(checker: Checker) -> list[str]:
 
 
 def test_a_candidate_the_checker_refuses_is_not_offered() -> None:
-    """The filter doing its ordinary job, so that the tests below mean something."""
+    """The filter's ordinary path, as a control for the tests below."""
     assert kept(Checker(refuses=("B",))) == ["A", "C"]
 
 
@@ -90,12 +83,7 @@ def test_a_candidate_the_checker_could_not_judge_is_not_offered() -> None:
 
 
 def test_a_checker_that_cannot_judge_the_plan_at_all_leaves_the_list_alone() -> None:
-    """
-    With no baseline there is nothing to compare a candidate against, so the
-    filter stands down rather than measuring every candidate against a baseline
-    it never computed. That is the same list the engine shows when no checker is
-    configured at all.
-    """
+    """With no baseline the filter stands down, giving the same list as no checker."""
     assert kept(Checker(raises_on=(None,), refuses=("B",))) == ["A", "B", "C"]
 
 

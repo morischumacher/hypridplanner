@@ -1,11 +1,7 @@
 // @vitest-environment jsdom
 /**
- * Parking a course.
- *
- * The parking stage is addressed by course code, and a caller may name a course
- * either by its code or by handing over the whole card. What it must never do
- * is park something the plan cannot name again, because a stage entry nothing
- * matches cannot be dragged back out.
+ * Parking a course. The stage is addressed by course code, so an entry parked
+ * without one cannot be dragged back out.
  */
 import { describe, expect, it } from "vitest";
 
@@ -21,7 +17,7 @@ interface Board {
     input: UseCoursePlacementInput;
 }
 
-/** A canvas with nothing on it, and the stubs a placement needs around one. */
+/** An empty canvas, and the stubs a placement needs around one. */
 function emptyBoard(): Board {
     const board: Board = { nodes: [], input: null as unknown as UseCoursePlacementInput };
     board.input = {

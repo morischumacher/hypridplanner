@@ -1,12 +1,9 @@
-"""
-Recording hook for the response-shape contract.
-
-Committing a shape is an assertion about the wire format, so capture is opt-in:
+"""Recording hook for the response-shape contract. Capture is opt-in:
 
     RECORD_RESPONSE_SHAPES=1 pytest tests/api
 
-Without the flag, an endpoint with no recorded shape skips rather than silently
-recording whatever it happens to return today.
+Without the flag, an endpoint with no recorded shape skips rather than recording
+whatever it returns today.
 """
 from __future__ import annotations
 

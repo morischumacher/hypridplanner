@@ -1,11 +1,9 @@
 /**
- * Keeps what a course card shows in step with what the plan knows about it.
+ * Keeps a course card's node data in step with the plan.
  *
- * The card reads everything off its node, so notes, marks, the semesters it may
- * be moved to and the handlers it calls all have to be written onto the node
- * whenever any of them changes. The comparison before each write is what stops
- * that turning into a loop: the effect runs on every change to the node array
- * and would otherwise produce one.
+ * A card reads everything off its node, so notes, grades, target semesters and
+ * handlers are all written onto it. The effect runs on every node-array change,
+ * so each write is guarded by a comparison to avoid a loop.
  *
  * The two "add to plan" handlers are written only where a node has none, so a
  * card built with its own handler keeps it.
@@ -24,7 +22,7 @@ import type {
     SemesterOption,
 } from "./types.ts";
 
-/** How a menu entry is compared with the one already on the node. */
+/** Compares a menu entry with the one already on the node. */
 function semesterSignature(semesters: readonly SemesterOption[]): string {
     return semesters
         .map((semester) => `${Number(semester?.id) || 0}:${semester?.title || ""}:${semester?.isParking ? 1 : 0}:${semester?.isPlus ? 1 : 0}`)

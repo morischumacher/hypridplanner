@@ -1,11 +1,8 @@
-"""
-Structural tests for the recommendation channels.
+"""Structural tests for the recommendation channels: that each is a Strategy, that
+its name is its toggle key, and that composing them honours the toggles.
 
-The golden master pins what the channels answer. It cannot see the contract they
-answer through, because a channel that stopped being a strategy would simply stop
-contributing and the corpus would record the silence as the new truth. These
-tests check the shape instead: that every channel is one, that its name is the
-toggle key it is switched by, and that composing them honours those toggles.
+The golden master cannot see this, since a channel that stopped being a strategy
+would go silent and the corpus would record the silence as the new truth.
 """
 from __future__ import annotations
 
@@ -50,12 +47,12 @@ def test_a_channel_switched_off_is_not_composed() -> None:
 
 
 def test_a_channel_not_mentioned_is_on() -> None:
-    """The stored toggles predate some channels, so absence has to mean enabled."""
+    """Stored toggles predate some channels, so absence must mean enabled."""
     assert [channel.name for channel in enabled_channels({})] == NAMES
 
 
 def test_a_channel_yields_nothing_when_it_has_no_evidence() -> None:
-    """Every channel has to tolerate a plan it can say nothing about."""
+    """Every channel must tolerate a plan it can say nothing about."""
     plan = context()
     from app.recommendations.context import Course
 

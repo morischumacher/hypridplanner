@@ -1,11 +1,10 @@
 /**
- * Filling an empty planner with the prebuilt plan for a curriculum.
+ * Fills an empty planner with a curriculum's prebuilt plan.
  *
- * Both appliers throw the canvas away and lay the whole degree out again rather
- * than adding to what is there, and both write the result through in the same
- * breath: the nodes go to React Flow and to the plan in one pass, with the
- * pending-save flag cleared, so the prefill is never seen as a stream of
- * separate additions by anything watching the plan.
+ * Both appliers discard the canvas and lay the degree out again rather than
+ * adding to it, and both write nodes to React Flow and to the plan in one pass
+ * with the pending-save flag cleared, so a prefill reaches plan watchers as one
+ * change rather than a stream of additions.
  */
 
 import { useCallback } from "react";
@@ -29,9 +28,8 @@ import type {
 import type { StickyViolation } from "../rule-check/index.ts";
 
 /**
- * What a card built here carries. Only the two fields this module reads back
- * are named; the rest are the handlers and flags the card components expect,
- * and naming them would fix a shape that belongs to those components.
+ * A card built here. Only the two fields this module reads back are named; the
+ * rest are handlers and flags owned by the card components.
  */
 export interface PrefillNodeData {
     code?: string | null | undefined;
@@ -39,7 +37,7 @@ export interface PrefillNodeData {
     [key: string]: unknown;
 }
 
-/** A node on the canvas, open for the same reason its data is. */
+/** A node on the canvas, left open for the same reason its data is. */
 export interface PrefillNode {
     id: string;
     type?: string | undefined;
@@ -48,7 +46,7 @@ export interface PrefillNode {
     [key: string]: unknown;
 }
 
-/** The module panel a run of the bachelor applier decided to draw. */
+/** A module panel the bachelor applier decided to draw. */
 interface PrefillGroupMeta {
     groupId: string;
     module: PlannedModule | null;
@@ -57,7 +55,7 @@ interface PrefillGroupMeta {
     category: string;
 }
 
-/** The default card colour, used where the exam subject has none of its own. */
+/** Fallback card colour for an exam subject with none of its own. */
 const FALLBACK_SUBJECT_COLOR = "#2563eb";
 
 export interface UsePrefilledPlansInput {
@@ -92,7 +90,7 @@ export interface UsePrefilledPlansInput {
 }
 
 export interface UsePrefilledPlansResult {
-    /** False when the programme on screen is not the bachelor, or nothing matched. */
+    /** False when the programme is not the bachelor, or nothing matched. */
     applyBachelorPrefilledPlan: (focusName: string | null | undefined) => boolean;
     applyMasterPrefilledPlan: () => boolean;
 }
@@ -225,8 +223,8 @@ export function usePrefilledPlans({
                     data: {
                         label: course?.name || course?.code || "Course",
                         code: course?.code ?? null,
-                        // A prefill template records no teaching format, so the card
-                        // takes it from the catalogue.
+                        // Prefill templates carry no teaching format, so the
+                        // card takes it from the catalogue.
                         type: getCourseTypeForCode(catalog, course?.code),
                         ects: course?.ects ?? null,
                         moduleMeta: null,
@@ -384,8 +382,8 @@ export function usePrefilledPlans({
                     data: {
                         label: course?.name || course?.code || "Course",
                         code: course?.code ?? null,
-                        // A prefill template records no teaching format, so the card
-                        // takes it from the catalogue.
+                        // Prefill templates carry no teaching format, so the
+                        // card takes it from the catalogue.
                         type: getCourseTypeForCode(catalog, course?.code),
                         ects: course?.ects ?? null,
                         moduleMeta: null,

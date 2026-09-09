@@ -54,9 +54,8 @@ function buildTree(catalog, subjectColors, termAvailabilityForCode) {
             const hasNoCourses = rawCourses.length === 0;
             const courses = rawCourses;
 
-            // Match table behavior: module wrapper only if module has multiple courses.
-            // For modules without explicit child courses (e.g. FWTS), also render as
-            // direct course node like table/sidebar.
+            // Matches the table and sidebar: a module wrapper only for multi-course modules,
+            // modules without child courses render as a single course node.
             if (hasNoCourses || courses.length === 1) {
                 const course = courses[0];
                 const resolvedCode = hasNoCourses ? (mod?.code ?? "") : (course?.code ?? mod?.code ?? "");
@@ -322,8 +321,8 @@ function relaxFiltersForExpandedSubtree({
         if (!changed) break;
     }
 
-    // Force-unblock progress/obligation/terms for manually expanded subtree.
-    // This avoids a dead-end where strict empty selections hide all children.
+    // Relax progress/obligation/term filters for a manually expanded subtree, otherwise
+    // strict empty selections hide every child and the expand does nothing.
     const stillHidden = descendantNodes
         .filter((node) => !GraphFilterEngine.nodeMatchesFilters(node, next, programCode));
     if (stillHidden.length > 0) {
@@ -557,7 +556,7 @@ function mergeNodesWithPinnedPositions(nextNodes, prevNodes, edges, persistedPos
             };
         }
 
-        // New node (e.g. after expand): inherit parent's horizontal shift if parent moved.
+        // A node added by an expand inherits the parent's horizontal shift.
         const parentId = parentByChild.get(nextNode.id);
         if (!parentId) return nextNode;
 
@@ -617,7 +616,7 @@ function enforceHierarchicalOrder(nodes, subjectOrder, movedNodeIds) {
         return y;
     };
 
-    // 1) Resolve overlaps within each subject, but keep manually moved nodes pinned.
+    // 1) Resolve overlaps within each subject, manually moved nodes stay pinned.
     for (const subjectId of subjectIds) {
         const group = Array.from(byId.values())
             .filter((n) => n?.data?.subjectId === subjectId)
@@ -630,7 +629,7 @@ function enforceHierarchicalOrder(nodes, subjectOrder, movedNodeIds) {
         }
     }
 
-    // 2) Keep exam-subject order strict: subject bands are stacked from top to bottom.
+    // 2) Stack subject bands top to bottom so exam-subject order stays strict.
     let cursorY = 0;
     for (const subjectId of subjectIds) {
         const group = Array.from(byId.values()).filter((n) => n?.data?.subjectId === subjectId);
@@ -707,20 +706,10 @@ export default function CurriculumGraphView({
     const collapsedBeforeForceHierarchyRef = useRef(null);
     const [isProgramSwitching, setIsProgramSwitching] = useState(false);
     const [isFiltersOpen, setIsFiltersOpen] = useState(true);
-    // Prerequisite relations are fetched once per programme and drawn only on
-    // request: they are a second edge type over the containment tree, and the
-    // curricula in scope encode few of them (Section: prerequisite edges).
+    // Fetched once per programme, drawn only on request: a second edge type over the
+    // containment tree that the curricula in scope encode few of.
     const [prerequisiteRelations, setPrerequisiteRelations] = useState([]);
     const [showPrerequisiteEdges, setShowPrerequisiteEdges] = useState(false);
-    // The curriculum's expected prior knowledge is stated per module, so it is
-    // revealed per node rather than all at once: this holds the one node a
-    // student has asked to see it for.
-    //
-    // One at a time, rather than a set. An edge has two endpoints, so a set of
-    // revealed nodes draws the union of their relations, and a node whose only
-    // relation is already drawn by the node at the other end can be switched on
-    // and off without the picture changing at all. A control that sometimes does
-    // nothing visible reads as broken, which is exactly how it was reported.
     const [interactionMode, setInteractionMode] = useState("pan");
     const [graphHorizontalSemantics, setGraphHorizontalSemantics] = useState("hierarchy");
     const [graphHorizontalCustomText, setGraphHorizontalCustomText] = useState("");
@@ -758,8 +747,8 @@ export default function CurriculumGraphView({
         const hasConfiguredFilters = Boolean(graphViewState?.filtersConfigured);
         const hasPersistedFilters =
             graphViewState?.filters && typeof graphViewState.filters === "object";
-        // On first interaction we may set filtersConfigured before persisting filters.
-        // In that transient state, keep safe defaults instead of strict empty filters.
+        // filtersConfigured can be set before the filters themselves are persisted, so
+        // fall back to defaults rather than to strict empty filters.
         if (!hasConfiguredFilters || !hasPersistedFilters) return buildDefaultFilters(filters);
         return filters;
     }, [
@@ -818,8 +807,7 @@ export default function CurriculumGraphView({
             if (saved) {
                 return next;
             }
-            // Program-specific default: start collapsed for this program's tree.
-            // Do not reuse previous program's collapsed set.
+            // Collapsed sets are per programme, never carried over from the previous one.
             return next;
         });
     }, [root, graphViewState?.collapsedIds, hasCatalogContent]);
@@ -900,20 +888,14 @@ export default function CurriculumGraphView({
         const filters = graphFilters;
         if (!filters) return false;
 
-        // Progress states
         if (Array.isArray(filters.progressStates) && filters.progressStates.length > 0 && filters.progressStates.length < 4) return true;
-        // Term availabilities
         if (Array.isArray(filters.termAvailabilities) && filters.termAvailabilities.length > 0 && filters.termAvailabilities.length < 3) return true;
-        // Obligation types
         const allObligations = obligationOptions.map((x) => x.value).filter(Boolean);
         if (Array.isArray(filters.obligationTypes) && filters.obligationTypes.length > 0 && filters.obligationTypes.length < allObligations.length) return true;
-        // Course types
         const allCourseTypes = Array.isArray(filterOptions?.courseTypes) ? filterOptions.courseTypes : [];
         if (Array.isArray(filters.courseTypes) && filters.courseTypes.length > 0 && filters.courseTypes.length < allCourseTypes.length) return true;
-        // Exam subjects
         const allSubjects = Array.isArray(filterOptions?.examSubjects) ? filterOptions.examSubjects : [];
         if (Array.isArray(filters.examSubjects) && filters.examSubjects.length > 0 && filters.examSubjects.length < allSubjects.length) return true;
-        // ECTS range
         if (filters.ectsRange && filterOptions?.ectsBounds) {
             if (Number(filters.ectsRange.min) > Number(filterOptions.ectsBounds.min) ||
                 Number(filters.ectsRange.max) < Number(filterOptions.ectsBounds.max)) {
@@ -933,7 +915,7 @@ export default function CurriculumGraphView({
             if (isFilteringActive) {
                 const nextCollapsed = new Set(base);
 
-                // Auto-expand any subject/module node in the tree that contains at least one course node matching the active filters
+                // Auto-expand subject and module nodes containing a course that matches the filters.
                 const allTreeNodes = [];
                 const collectNodes = (n) => {
                     if (n.level === "subject" || n.level === "module") {
@@ -989,8 +971,7 @@ export default function CurriculumGraphView({
                 setPrerequisiteRelations(relations);
             })
             .catch(() => {
-                // The graph is usable without them; an unavailable list simply
-                // draws no prerequisite edges rather than blocking the view.
+                // The graph is usable without them, so draw no prerequisite edges.
                 if (!cancelled) setPrerequisiteRelations([]);
             });
         return () => { cancelled = true; };
@@ -1047,8 +1028,6 @@ export default function CurriculumGraphView({
         () => GraphFilterEngine.computeVisibleNodeIds(nodes, autoEdges, graphFilters, programCode),
         [nodes, autoEdges, graphFilters, programCode]
     );
-    // The sidebar's switch owns the curriculum's course-to-course relations,
-    // enforced and advisory alike, which belong to the whole graph.
     const prerequisiteEdges = useMemo(
         () => (showPrerequisiteEdges
             ? buildPrerequisiteEdges(prerequisiteRelations, nodes, visibleNodeIds)
@@ -1170,7 +1149,6 @@ export default function CurriculumGraphView({
         for (const n of group) {
             startMap.set(n.id, { x: Number(n?.position?.x ?? 0), y: Number(n?.position?.y ?? 0) });
         }
-        // Ensure leader is always present.
         if (!startMap.has(node.id)) {
             startMap.set(node.id, { x: Number(node?.position?.x ?? 0), y: Number(node?.position?.y ?? 0) });
         }
@@ -1207,7 +1185,7 @@ export default function CurriculumGraphView({
         dragStartPosById.current = new Map();
         if (movedNodeIds.length === 0) return;
 
-        // Enforce horizontal-only drag for single and multi-selection drags.
+        // Drags are horizontal only, for both single and multi-selection.
         setDisplayNodes((prev) =>
             prev.map((n) =>
                 movedNodeIds.includes(n.id)
@@ -1894,7 +1872,6 @@ export default function CurriculumGraphView({
                 </ReactFlow>
             )}
 
-            {/* Graph Layout Semantics Pill */}
             <div
                 style={{
                     position: "absolute",
@@ -1970,7 +1947,6 @@ export default function CurriculumGraphView({
                 >
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#1f2937" }}>Configure Graph Axis Semantics</div>
                     
-                    {/* Horizontal Axis */}
                     <div style={{ display: "grid", gap: 6 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563" }}>Horizontal Axis Semantics</div>
                         <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "#374151", cursor: "pointer" }}>
@@ -2020,7 +1996,6 @@ export default function CurriculumGraphView({
 
                     <hr style={{ border: "0", borderTop: "1px solid #e5e7eb", margin: "4px 0" }} />
 
-                    {/* Vertical Axis */}
                     <div style={{ display: "grid", gap: 4 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563" }}>Vertical Axis Semantics</div>
                         <div style={{ fontSize: 11, color: "#6b7280", fontStyle: "italic" }}>

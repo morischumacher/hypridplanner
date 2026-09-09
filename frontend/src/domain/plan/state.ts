@@ -1,13 +1,9 @@
 /**
- * The planner's state: one plan per programme, and the last change it made.
+ * Planner state: one plan per programme, plus the last change made.
  *
- * A plan is kept for every programme the student has opened rather than being
- * swapped out when they switch, so a master plan survives a detour into the
- * bachelor curriculum and back.
- *
- * The empty values below are shared rather than built on demand. An absent plan
- * is read on every render, and handing out a fresh empty object each time would
- * look like a change to everything downstream that compares by identity.
+ * The empty values below are shared singletons, not built on demand: an absent
+ * plan is read on every render, and a fresh object each time would look like a
+ * change to consumers that compare by identity.
  */
 
 import type { GraphFilters } from "../filters.ts";
@@ -16,15 +12,12 @@ import type { CourseModuleMeta, Point } from "../types.ts";
 import type { PlanDiff } from "./diff.ts";
 import { emptyCoursesOnlyPlan } from "./semesters.ts";
 
-/** The programme a fresh planner starts on, and the one it returns to. */
+/** The programme a fresh planner starts on. */
 export const DEFAULT_PROGRAM_CODE = "066 937";
 
 /**
- * A course as a plan stores it.
- *
- * This is not `PlannedCourse` from `../types.ts`. That one is what a prefill
- * template produces and carries its semester with it, while a plan course is
- * found by the semester it is filed under and remembers where its card sits.
+ * A course as a plan stores it. Distinct from `PlannedCourse` in `../types.ts`,
+ * which is prefill output and carries its own semester.
  */
 export interface PlanCourse {
     id: string;
@@ -41,7 +34,7 @@ export interface PlanCourse {
     module: CourseModuleMeta | null;
 }
 
-/** A plan course together with the semester it was filed under. */
+/** A plan course plus the semester it is filed under. */
 export interface PlanCourseInSemester extends PlanCourse {
     semesterId: number;
 }
@@ -49,12 +42,12 @@ export interface PlanCourseInSemester extends PlanCourse {
 /** A plan: one-based semester numbers to the courses placed in them. */
 export type CoursesBySemester = Record<number, PlanCourse[]>;
 
-/** What the student records about a course beyond where they put it. */
+/** Per-course annotations. */
 export interface CourseMeta {
     notes: string;
-    /** Kept as typed, so that a half-written number survives a re-render. */
+    /** Kept as a string so a half-typed number survives a re-render. */
     estimatedHours: string;
-    /** Austrian marks run from 1 to 5; anything above 5 is stored as "5". */
+    /** Austrian grades run 1 to 5; anything above 5 is stored as "5". */
     grade: string;
 }
 
@@ -70,12 +63,9 @@ export interface GraphViewState {
     collapsedIds: string[] | null;
     nodePosById: Record<string, Point>;
     filters: GraphFilters;
-    /**
-     * Whether the student has touched the filters. Until they have, the graph
-     * is free to pick defaults that suit the programme.
-     */
+    /** Until set, the graph may pick programme-specific filter defaults. */
     filtersConfigured: boolean;
-    /** Superseded by `nodePosById`, and still found in stored plans. */
+    /** Superseded by `nodePosById`; still present in stored plans. */
     nodeXById?: Record<string, number> | undefined;
 }
 
@@ -117,7 +107,7 @@ export interface LoadLimitsChange extends SemesterLoadLimits {
     type: "semester_load_limits_updated";
 }
 
-/** A transition worth telling the rule checker and the recommender about. */
+/** A transition reported to the rule checker and the recommender. */
 export type PlanChangeBody =
     | PlanUpdatedChange
     | CourseStatusChange
@@ -125,10 +115,7 @@ export type PlanChangeBody =
     | FocusChange
     | LoadLimitsChange;
 
-/**
- * A change, with the identifier its consumers compare. They use it for identity
- * and for staleness only, never as a time.
- */
+/** A change with its identifier. The id marks identity and staleness, not time. */
 export type PlanChange = PlanChangeBody & { id: number };
 
 export interface PlannerState {
@@ -176,10 +163,9 @@ export const EMPTY_COURSE_META: CourseMeta = Object.freeze({
 const emptyPlansByMinCount = new Map<number, CoursesBySemester>();
 
 /**
- * The plan a programme with nothing in it reads as. One instance per semester
- * count, because this is what the adapter hands to the view when no plan has
- * been made yet, and its identity has to survive re-renders. Anything that
- * fills a plan in builds its own with `emptyCoursesOnlyPlan`.
+ * The empty plan, one shared instance per semester count so its identity
+ * survives re-renders. Anything that fills a plan builds its own with
+ * `emptyCoursesOnlyPlan`.
  */
 export function sharedEmptyCoursesBySemester(minCount: number): CoursesBySemester {
     const existing = emptyPlansByMinCount.get(minCount);
@@ -189,7 +175,7 @@ export function sharedEmptyCoursesBySemester(minCount: number): CoursesBySemeste
     return created;
 }
 
-/** A programme with nothing recorded for it yet. */
+/** A programme plan with nothing recorded yet. */
 export function emptyProgrammePlan(programmeCode: string): ProgrammePlan {
     const bounds = semesterBoundsForProgram(programmeCode);
     return {
@@ -204,7 +190,7 @@ export function emptyProgrammePlan(programmeCode: string): ProgrammePlan {
     };
 }
 
-/** The plan held for a programme, or the empty one it would start from. */
+/** The plan held for a programme, or the empty one it starts from. */
 export function programmePlan(state: PlannerState, programmeCode: string): ProgrammePlan {
     return state.byProgramme[programmeCode] ?? emptyProgrammePlan(programmeCode);
 }

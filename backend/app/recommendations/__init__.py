@@ -1,18 +1,4 @@
-"""
-Course recommendations.
-
-Six channels answer the same question from different evidence: what the student
-said they were interested in, which courses the catalogue calls similar, what the
-curriculum expects to come first, what other students took next, what a career
-direction needs, and what similar students chose. Each is a strategy in its own
-module, and `engine` composes the ones the student has switched on.
-
-The channels are independent of one another but not of their order. A course is
-recommended once, with one reason, and the engine settles which channel gets to
-give that reason.
-
-`Recommender` is the only entry point anything outside this package should need.
-"""
+"""Course recommendations. Six channels, composed by `engine`; `Recommender` is the entry point."""
 from __future__ import annotations
 
 import json
@@ -26,13 +12,8 @@ __all__ = ["Recommender", "Strategy", "Suggestion"]
 
 
 def _parse_toggles(toggles: Any) -> Any:
-    """
-    Read the channel switches, which do not always arrive as a dictionary.
-
-    asyncpg hands back a JSON column as text when the connection's codecs are not
-    yet registered, so the stored value may still be a string by the time it gets
-    here.
-    """
+    # asyncpg returns a JSON column as text when the connection's codecs are not
+    # registered yet, so the toggles may still be a string here.
     if not isinstance(toggles, str):
         return toggles or {}
     try:

@@ -1,26 +1,10 @@
-/**
- * Shared driving code for the end-to-end suite.
- *
- * Two things here are worth knowing before reading a test.
- *
- * Each test signs up its own user. The planner is entirely per-user state, and a
- * shared account would make the tests order-dependent for no benefit; sign-up is
- * two requests and costs less than the isolation is worth.
- *
- * Dropping a course is native HTML5 drag-and-drop, which Playwright's mouse API
- * does not produce. `dropCourse` dispatches the drag events directly with a
- * shared DataTransfer, which is what the application's own handlers listen for.
- */
+/** Shared driving code for the end-to-end suite. Each test signs up its own user. */
 import { expect } from "@playwright/test";
 
 export const MASTER = "066 937";
 export const BACHELOR = "033 521";
 
-/**
- * Where the API answers. The config picks the port and hands it to the bundle
- * at build time, so a test that wants to talk to the API directly has to work
- * it out the same way rather than read it back out of the page.
- */
+/** The port is handed to the bundle at build time and cannot be read back out of the page. */
 const API_BASE = `http://127.0.0.1:${process.env.E2E_API_PORT ?? "8100"}`;
 
 async function authHeaders(page) {
@@ -29,11 +13,8 @@ async function authHeaders(page) {
 }
 
 /**
- * The planner document as the server holds it.
- *
- * Some of what the planner stores belongs to a programme the student is not
- * looking at, and there is no screen that shows it. The stored document is
- * where it can be seen, so it is what those tests assert on.
+ * The planner document as the server holds it. Some of what it stores belongs to
+ * a programme that is not on screen, so no screen shows it.
  */
 export async function readPlannerDocument(page) {
     const response = await page.request.get(`${API_BASE}/planner-state`, {
@@ -65,7 +46,7 @@ export async function signUp(page) {
 
 /**
  * Complete the first-run setup. The start season fixes the parity of every lane,
- * so tests that care about term rules must set it rather than inherit a default.
+ * so tests that care about term rules set it explicitly.
  */
 export async function completeSetup(page, { program = MASTER, season = "winter", year = 2026 } = {}) {
     const modal = page.getByText("Complete Signup Setup").locator("..");
@@ -77,7 +58,7 @@ export async function completeSetup(page, { program = MASTER, season = "winter",
     await expect(page.locator("#semester-lane-1")).toBeVisible();
 }
 
-/** Sign up and set up in one step; the common preamble of every flow. */
+/** Sign up and set up in one step, the preamble of every flow. */
 export async function startPlanning(page, options) {
     const username = await signUp(page);
     await completeSetup(page, options);
@@ -85,10 +66,9 @@ export async function startPlanning(page, options) {
 }
 
 /**
- * Open the exam-subject groups in the catalogue sidebar.
- *
- * The group headings are captured before any of them is clicked, because
- * expanding one adds buttons and would otherwise shift the indices underneath.
+ * Open the exam-subject groups in the catalogue sidebar. The headings are
+ * captured before any is clicked, because expanding one adds buttons and shifts
+ * the indices underneath.
  */
 export async function expandCatalog(page, groups = 3) {
     const headings = page.locator("#course-catalog-sidebar button").filter({ hasText: /\d+ Module/ });
@@ -119,13 +99,11 @@ export function feedback(page) {
 }
 
 /**
- * Drag a catalogue entry onto a lane.
- *
- * The application reads the payload from `dataTransfer` and falls back to a ref
- * captured on dragstart, so both halves of the gesture have to be dispatched:
+ * Drag a catalogue entry onto a lane. This is native HTML5 drag-and-drop, which
+ * Playwright's mouse API does not produce, so the events are dispatched directly:
  * dragstart on the source, then dragover and drop on the canvas at coordinates
- * that fall inside the target lane. The lane is what the drop handler projects
- * the pointer position onto, so the coordinates are the assertion, not a detail.
+ * inside the target lane. The drop handler projects the pointer position onto a
+ * lane, so the coordinates carry the assertion.
  */
 export async function dropCourse(page, source, laneSelector) {
     const handle = await source.elementHandle();
@@ -153,12 +131,8 @@ export async function dropCourse(page, source, laneSelector) {
 }
 
 /**
- * Assert the ECTS total a lane prints in its header.
- *
- * This is the plan's own arithmetic rather than a restatement of what the test
- * just did, so it is worth asserting separately from the card being on screen.
- * The read polls: the header is recomputed a tick after the drop settles, and a
- * single read is a race that fails perhaps one run in ten.
+ * Assert the ECTS total a lane prints in its header. The read polls: the header
+ * is recomputed a tick after the drop settles, so a single read races it.
  */
 export async function expectLaneEcts(page, laneSelector, expected) {
     await expect
@@ -171,10 +145,8 @@ export async function expectLaneEcts(page, laneSelector, expected) {
 }
 
 /**
- * Bring the lanes into view.
- *
- * The canvas opens scrolled so that the first row of cards sits above the
- * viewport, and a card that is not on screen cannot be dragged. Panning is
+ * Bring the lanes into view. The canvas opens with the first row of cards above
+ * the viewport, and a card that is not on screen cannot be dragged. Panning is
  * itself a drag on the canvas background.
  */
 export async function panIntoView(page) {
@@ -186,11 +158,9 @@ export async function panIntoView(page) {
 }
 
 /**
- * Move a course already on the canvas into another lane.
- *
- * This is React Flow's own pointer drag rather than HTML5 drag-and-drop, and it
- * is the gesture that matters most: a course's horizontal position *is* its
- * semester, so this is where the plan is really edited.
+ * Move a course already on the canvas into another lane. This is React Flow's
+ * own pointer drag rather than HTML5 drag-and-drop, and a course's horizontal
+ * position is its semester.
  */
 export async function dragCardToLane(page, code, laneSelector) {
     const node = page.locator(".react-flow__node").filter({

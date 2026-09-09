@@ -1,13 +1,7 @@
 /**
- * The programmes the planner supports, and the fixed text that goes with them.
- *
- * The two programme codes are the identity the whole planner keys off, and they
- * are spaced exactly as the curriculum regulations print them; a code without
- * its space matches nothing, on purpose.
- *
- * The long German passages below are quoted from the curriculum regulations and
- * are shown to students verbatim, so they are held as data rather than as
- * component markup: an editor changing a rule should not have to read JSX.
+ * Supported programmes and their fixed text. Programme codes are spaced exactly
+ * as the curriculum regulations print them; the unspaced form matches nothing.
+ * The German passages are quoted verbatim from the regulations.
  */
 
 export { BACHELOR_PROGRAM_CODE } from "./terms.ts";
@@ -25,7 +19,7 @@ export const PROGRAM_OPTIONS: ProgrammeOption[] = [
     { code: "033 521", label: "Bachelor Informatics" },
 ];
 
-/** The bachelor focus areas, spelled as the rule checker expects them. */
+/** Bachelor focus areas, spelled as the rule checker expects them. */
 export const BACHELOR_FOCUS_OPTIONS: string[] = [
     "Artificial Intelligence und Machine Learning",
     "Cybersecurity",
@@ -60,7 +54,7 @@ export const DEFAULT_DONE_SECTION_ORDER: string[] = [
 export interface RuleCheckState {
     sending: boolean;
     error: string;
-    /** The rule checker's reply, whose shape is the backend's to decide. */
+    /** The rule checker's reply; shape is owned by the backend. */
     response: unknown;
     lastUpdatedAt: number | null;
 }
@@ -73,10 +67,8 @@ export const EMPTY_RULE_CHECK_STATE: RuleCheckState = {
 };
 
 /**
- * Reconciles a stored dashboard section order with the sections that currently
- * exist. Unknown keys are dropped and new ones are appended, so a student who
- * reordered their dashboard before a section was added keeps their order and
- * still sees the addition.
+ * Reconciles a stored section order with the sections that currently exist:
+ * unknown keys are dropped, new ones appended.
  */
 export function sanitizeSectionOrder(rawOrder: unknown, defaults: readonly string[]): string[] {
     const base: readonly string[] = Array.isArray(defaults) ? defaults : [];

@@ -13,15 +13,10 @@ _CURRICULUM = load_curriculum(BACHELOR)
 
 @dataclass
 class _PlanTotals:
-    """
-    The sums one pass over the courses produces.
+    """The sums one pass over the courses produces, shared by every rule.
 
-    Almost every rule needs a different slice of the same arithmetic, so it is
-    computed once and handed around rather than recomputed per rule.
-
-    `validated` is the part of the plan that survived parsing. A course whose
-    credits could not be read is reported once and then plays no further part, so
-    the rules that run afterwards read it rather than the payload.
+    `validated` is the part of the plan that survived parsing; later rules read
+    it rather than the payload, so a broken course contributes nothing.
     """
 
     validated: List[Tuple[dict[str, Any], str]] = field(default_factory=list)
@@ -37,29 +32,18 @@ class _PlanTotals:
 
 
 class RuleChecker:
-    """
-    Compliance checking for the TU Wien bachelor programme in Informatics.
+    """Compliance checking for the TU Wien bachelor programme in Informatics.
 
-    Three things about this curriculum shape the checks below.
-
-    The introductory phase, StEOP, is a gate rather than a requirement: until it
-    is complete, only a limited amount of other work may be taken. It is measured
-    twice, once over completed courses to decide whether the gate has opened, and
-    once over completed and planned together to show progress.
-
-    A focus area is optional. Choosing one adds requirements without removing
-    any, and students name theirs inconsistently, so it is matched through a
-    table of aliases rather than by exact title.
-
-    Several modules are split into parts that come in variants. A plan may take
-    any one variant, and mixing parts from two variants of the same module is
-    rejected.
+    Three properties of this curriculum shape the checks. The introductory phase
+    (StEOP) is a gate, so it is measured twice: over completed courses to decide
+    whether the gate has opened, and over completed plus planned for progress. A
+    focus area is optional and students name theirs inconsistently, so it is
+    matched through aliases rather than by exact title. Several modules come in
+    variants, and mixing parts of two variants of one module is rejected.
     """
 
-    # The thresholds the curriculum sets, and the two the application adds.
-    # MAX and RECOMMENDED_ECTS_PER_SEMESTER are not curriculum law: they are the
-    # plan-sanity limits the planner enforces, one as a rejection and one as a
-    # warning. All nine are read from the curriculum document.
+    # MAX and RECOMMENDED_ECTS_PER_SEMESTER are planner limits rather than
+    # curriculum law, one enforced as a rejection and one as a warning.
     TOTAL_ECTS = _CURRICULUM.TOTAL_ECTS
     MIN_NARROW_ELECTIVE_MODULES = _CURRICULUM.MIN_NARROW_ELECTIVE_MODULES
     TRANSFERABLE_SKILLS_MIN_ECTS = _CURRICULUM.TRANSFERABLE_SKILLS_MIN_ECTS
@@ -70,8 +54,8 @@ class RuleChecker:
     STEOP_POOL_MIN_ECTS = _CURRICULUM.STEOP_POOL_MIN_ECTS
     MAX_NON_STEOP_ECTS_BEFORE_STEOP = _CURRICULUM.MAX_NON_STEOP_ECTS_BEFORE_STEOP
 
-    # Which of the compulsory introductory-phase courses the plan has to carry.
-    # The wording each one is reported as is prose and stays below.
+    # The compulsory introductory-phase courses, with the wording each is
+    # reported as when missing.
     _STEOP_MANDATORY_MISSING = {
         "eidi1": "StEOP Pflicht-LV fehlt: Einführung in die Programmierung 1 (5.5 ECTS)",
         "ma": "StEOP Pflicht-LV fehlt: Mathematisches Arbeiten (2.0 ECTS)",
@@ -123,8 +107,6 @@ class RuleChecker:
         )
 
     def __init__(self) -> None:
-        # The curriculum itself is data, loaded from app/curriculum/bachelor.json.
-        # What stays here is the checking, which is the part that is code.
         curriculum = load_curriculum(BACHELOR)
         self.program_code: str = curriculum.program_code
         self.exam_subject_aliases: Dict[str, str] = curriculum.exam_subject_aliases
@@ -155,9 +137,8 @@ class RuleChecker:
         if k in self.course_to_module:
             return self.course_to_module[k]
 
-        # Fallback: many catalog courses use short LV codes (e.g. MDGAM-VU),
-        # while focus rules are module-title based. Use course name/title to
-        # recover the module title if available.
+        # Catalogue courses use short LV codes (e.g. MDGAM-VU) while focus rules
+        # are keyed by module title, so fall back to the course name.
         name = str(course.get("name") or course.get("title") or "").strip()
         if name:
             nk = self._norm(name)
@@ -200,10 +181,9 @@ class RuleChecker:
         if kind is None:
             return incoming
 
-        # FWTS accepts both free-choice and transferable-skills tagging.
-        # Keep explicit transferable_skills assignments, and also treat
-        # legacy FWTS payload categories (e.g. "elective") as transferable
-        # so existing plans are counted correctly for the TS minimum.
+        # FWTS accepts both free-choice and transferable-skills tagging. Older
+        # payloads tag it "elective", which is read as transferable so existing
+        # plans still count towards the TS minimum.
         if kind == "fwts":
             if incoming in ("free", "transferable_skills"):
                 return incoming
@@ -243,10 +223,10 @@ class RuleChecker:
         return out
 
     def _steop_mandatory_tag(self, course: dict[str, Any]) -> Optional[str]:
-        """Which of the three compulsory StEOP courses this is, recognised by its own code or title.
+        """Which of the three compulsory StEOP courses this is, by code or title.
 
-        Deliberately not resolved through the module mapping: the StEOP names
-        individual courses, not whole modules.
+        Not resolved through the module mapping: the StEOP names individual
+        courses rather than whole modules.
         """
         k = self._norm(self._course_code(course))
         if k in (self._norm("Einführung in die Programmierung 1"), self._norm("EIDI1"), self._norm("EIDI1-VU")):
@@ -315,14 +295,12 @@ class RuleChecker:
         return float(m["min_ects"] if m["min_ects"] is not None else m["ects"])
 
     def _module_is_complete(self, mod_all: Dict[str, float], module_key: str) -> bool:
-        """Has the plan booked enough ECTS on this module?"""
         req = self._required_ects_for_module(module_key)
         if req is None:
             return False
         return mod_all.get(module_key, 0.0) >= req - 1e-6
 
     def _title_is_complete(self, mod_all: Dict[str, float], title: str) -> bool:
-        """Same question as _module_is_complete, but asked by module title."""
         return self._module_is_complete(mod_all, self._norm(title))
 
     def _collect_plan_totals(
@@ -331,10 +309,10 @@ class RuleChecker:
         warnings: List[str],
         errors: List[str],
     ) -> _PlanTotals:
-        """Sum the plan up per lane, module, category and exam subject in one pass.
+        """Sum the plan per lane, module, category and exam subject in one pass.
 
-        A course that fails validation is reported and then skipped, so a broken
-        entry never contributes ECTS to any of the totals.
+        A course that fails validation is reported once and skipped, so it never
+        contributes ECTS to any total.
         """
         totals = _PlanTotals()
 
@@ -401,10 +379,10 @@ class RuleChecker:
         errors: List[str],
         missing: List[str],
     ) -> None:
-        """Is any semester too full? Above the recommendation we warn, above the maximum we reject.
+        """Warn above the recommended load, reject above the maximum.
 
-        Skipped once the plan already has errors, because the totals of a plan we
-        could not fully parse would produce misleading load figures.
+        Skipped once the plan has errors, since the totals of a partly parsed
+        plan would give misleading load figures.
         """
         if errors:
             return
@@ -422,7 +400,7 @@ class RuleChecker:
                 errors.append(f"rejected: semester {li+1} exceeds max load ({s:.1f} ECTS > {max_ects_per_semester:.1f}).")
 
     def _check_variant_mixing(self, totals: _PlanTotals, errors: List[str]) -> None:
-        """Some modules are offered either as one VU or as a VO plus a UE, and the two forms cannot be combined."""
+        """Some modules are offered as one VU or as a VO plus a UE; the forms cannot be mixed."""
         for module_key, parts in totals.split_module_parts.items():
             if "vu" in parts and ("vo" in parts or "ue" in parts):
                 module_title = self.modules.get(module_key, {}).get("title") or module_key
@@ -431,7 +409,7 @@ class RuleChecker:
                 )
 
     def _steop_missing(self, steop_plan: Dict[str, Any]) -> List[str]:
-        """Which parts of the StEOP the plan still does not cover, mandatory LVs first, then the pool gap."""
+        """The uncovered parts of the StEOP: mandatory LVs first, then the pool gap."""
         if steop_plan["isComplete"]:
             return []
 
@@ -442,7 +420,7 @@ class RuleChecker:
             if tag not in present:
                 missing.append(self._STEOP_MANDATORY_MISSING[tag])
 
-        # The pool is a free choice, so we can only name the gap and the menu.
+        # The pool is a free choice, so only the gap and the menu can be named.
         pool_missing = max(0.0, self.STEOP_POOL_MIN_ECTS - float(steop_plan["poolEcts"]))
         if pool_missing > 1e-6:
             missing.append(
@@ -460,7 +438,7 @@ class RuleChecker:
         return by_lane
 
     def _steop_completion_lane(self, items_done: List[Tuple[dict[str, Any], str]]) -> Optional[int]:
-        """In which semester the completed courses first satisfy the StEOP, or None if they never do."""
+        """The semester in which the completed courses first satisfy the StEOP, or None."""
         if not items_done:
             return None
 
@@ -487,9 +465,11 @@ class RuleChecker:
         warnings: List[str],
         errors: List[str],
     ) -> float:
-        """Until the StEOP is passed, only so many ECTS outside it may be completed, and only from a permitted list.
+        """Before the StEOP is passed, only a capped amount of ECTS outside it may
+        be completed, and only from a permitted list.
 
-        Returns the non-StEOP ECTS completed before that point, which the dashboard also reports.
+        Returns the non-StEOP ECTS completed before that point, which the
+        dashboard also reports.
         """
         non_steop_ects_before = 0.0
         illegal_non_steop: List[str] = []
@@ -510,7 +490,8 @@ class RuleChecker:
                     code_k = self._norm(self._course_code(c))
                     module_title = self._infer_module_title(c)
 
-                    # The incoming category may disagree with the curriculum, so judge on the canonical one.
+                    # The incoming category may disagree with the curriculum, so
+                    # the canonical one decides.
                     canonical_cat = self._canonical_category(c, module_title, warnings)
 
                     if (code_k not in self.allowed_before_steop_extra) and (not self._is_fwts_like(canonical_cat, module_title)):
@@ -535,7 +516,7 @@ class RuleChecker:
         steop_complete_lane_done: Optional[int],
         errors: List[str],
     ) -> None:
-        """The Bachelorarbeit may not be finished before the StEOP is. Merely planning it early is fine."""
+        """The Bachelorarbeit may not be completed before the StEOP; planning it early is allowed."""
         thesis_done_lane: Optional[int] = None
         for c, _ in items_done:
             mod_title = self._infer_module_title(c)
@@ -550,7 +531,7 @@ class RuleChecker:
                 errors.append("rejected: Bachelorarbeit is DONE before StEOP completion.")
 
     def _recommended_sequencing_warnings(self, totals: _PlanTotals) -> List[str]:
-        """Where the plan puts a course before the one usually taken first. Advisory only, never a rejection."""
+        """Courses planned before the one usually taken first. Advisory, never a rejection."""
         warnings: List[str] = []
 
         for prereq, target in self.soft_prereqs:
@@ -578,10 +559,11 @@ class RuleChecker:
         totals: _PlanTotals,
         warnings: List[str],
     ) -> float:
-        """Trim the Transferable Skills that exceed the creditable maximum and return the ECTS that still count.
+        """Drop the Transferable Skills above the creditable maximum, returning the
+        ECTS that still count.
 
-        Anything above the cap stays in the plan but earns nothing, so it is removed
-        from the category, from the FWTS module and from the overall total.
+        The excess stays in the plan but earns nothing, so it is removed from the
+        category, the FWTS module and the overall total.
         """
         ts_ects = totals.cat_ects.get("transferable_skills", 0.0)
         excess_ts = max(0.0, ts_ects - self.TRANSFERABLE_SKILLS_MAX_ECTS)
@@ -609,10 +591,8 @@ class RuleChecker:
         total_ects: float,
         missing: List[str],
     ) -> Tuple[List[str], List[str]]:
-        """What the degree still requires: compulsory modules, thesis, narrow electives, Transferable Skills and the total.
-
-        Also returns the completed and the available narrow elective modules, which the dashboard reports.
-        """
+        """What the degree still requires, plus the completed and available narrow
+        elective modules for the dashboard."""
         for mk, m in self.modules.items():
             if m["kind"] == "mandatory":
                 req = self._required_ects_for_module(mk) or 0.0
@@ -648,7 +628,7 @@ class RuleChecker:
         return narrow_completed, narrow_all
 
     def _resolve_focus_key(self, payload: dict[str, Any]) -> str:
-        """Which Vertiefung the payload selected, as a curriculum key. Empty when none was chosen."""
+        """The selected Vertiefung as a curriculum key, empty when none was chosen."""
         focus_raw = payload.get("selectedFocus") or payload.get("vertiefung")
         focus_key_in = self._norm(focus_raw) if focus_raw else ""
         return self.focus_aliases.get(focus_key_in, focus_key_in)
@@ -660,10 +640,10 @@ class RuleChecker:
         totals: _PlanTotals,
         warnings: List[str],
     ) -> Tuple[Dict[str, Any], List[str]]:
-        """How far the plan has come towards the selected Vertiefung, as a checklist plus its open items.
+        """Progress towards the selected Vertiefung, as a checklist plus its open items.
 
-        A Vertiefung asks for some modules outright and for a number of modules out
-        of one or more lists, so the checklist mixes both kinds of entry.
+        A Vertiefung requires some modules outright and a count out of one or
+        more lists, so the checklist mixes both kinds of entry.
         """
         focus_raw = payload.get("selectedFocus") or payload.get("vertiefung")
         focus_stats: Dict[str, Any] = {"selected": focus_raw, "recognized": False}
@@ -760,10 +740,10 @@ class RuleChecker:
         focus_key: str,
         totals: _PlanTotals,
     ) -> List[str]:
-        """The same open Vertiefung items again, phrased for the missing-requirements list.
+        """The open Vertiefung items again, phrased for the missing-requirements list.
 
-        These lines name the Vertiefung and spell out the modules still on offer,
-        which the compact checklist wording does not.
+        These lines name the Vertiefung and the modules still on offer, which the
+        compact checklist wording does not.
         """
         f = self.focuses.get(focus_key)
         if not f:
@@ -807,7 +787,7 @@ class RuleChecker:
         steop_complete_lane_done: Optional[int],
         non_steop_ects_before: float,
     ) -> Dict[str, Any]:
-        """The StEOP section of the dashboard: what is actually passed, and what the plan will amount to."""
+        """The StEOP section of the dashboard: what is passed, and what the plan amounts to."""
         return {
             "done": {
                 "completeLaneIndex": steop_complete_lane_done,
@@ -831,7 +811,7 @@ class RuleChecker:
         warnings: List[str],
         errors: List[str],
     ) -> Dict[str, Any]:
-        """Everything the front end shows about the plan, gathered into one dictionary."""
+        """Everything the front end shows about the plan, in one dictionary."""
         subj_pretty: Dict[str, float] = {}
         for k, v in totals.subj_ects.items():
             subj_pretty[k.title() if k not in ("(none)",) else k] = round(v, 2)
@@ -851,9 +831,8 @@ class RuleChecker:
         return {
             "programCode": self.program_code,
             "totalEcts": round(total_ects, 2),
-            # The same shape the master checker reports, so a reader of the
-            # stats does not have to know which programme produced them to
-            # find out what the degree is measured against.
+            # The shape the master checker also reports, so stats can be read
+            # without knowing which programme produced them.
             "ects": {
                 "total": round(total_ects, 2),
                 "target_total": self.TOTAL_ECTS,
@@ -879,7 +858,7 @@ class RuleChecker:
 
     @staticmethod
     def _rejection_message(payload: dict[str, Any], errors: List[str]) -> str:
-        """The first error, named after the edit that triggered it so the user knows what to undo."""
+        """The first error, named after the edit that triggered it."""
         change = payload.get("change") or {}
         ccode = change.get("courseCode")
         ctype = change.get("type")
@@ -888,7 +867,7 @@ class RuleChecker:
         return errors[0]
 
     def _wrong_program_result(self, payload: dict[str, Any]) -> Optional[RuleCheckResult]:
-        """Refuse a payload from another degree programme, since none of our rules would apply to it."""
+        """Refuse a payload from another degree programme, whose rules do not apply here."""
         program = str(payload.get("programCode") or "").strip()
         if program and program != self.program_code:
             return RuleCheckResult(
@@ -911,8 +890,8 @@ class RuleChecker:
 
         items = self._extract_courses(payload)
         if not items:
-            # Continue with empty items so dashboard sections (StEOP, narrow electives, etc.)
-            # are still fully populated on initial load.
+            # Continue with empty items so the dashboard sections are still
+            # populated on initial load.
             warnings.append("No courses in plan.")
 
         totals = self._collect_plan_totals(items, warnings, errors)
@@ -927,7 +906,8 @@ class RuleChecker:
         )
         self._check_variant_mixing(totals, errors)
 
-        # The done-only snapshot gates later courses; done+planned drives the UI progress.
+        # The done-only snapshot gates later courses; done plus planned drives
+        # the progress display.
         counted = totals.validated
         items_done = [(c, s) for (c, s) in counted if s == "done"]
         steop_done = self._steop_snapshot(items_done)

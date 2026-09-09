@@ -1,11 +1,6 @@
 /**
- * When each course is offered, once the student's own corrections are applied
- * over what the catalogue says.
- *
- * An override wins over the catalogue even where the catalogue is right, and a
- * course named by neither reads as offered in both terms. That is the lenient
- * answer on purpose: a course nobody can place is a worse failure than a course
- * placed too freely.
+ * Term availability per course, with profile overrides applied over the
+ * catalogue. A course named by neither falls back to "both".
  */
 
 import { useCallback, useMemo } from "react";

@@ -1,23 +1,13 @@
-"""
-Build the rule-engine fixture corpus.
+"""Build the rule-engine fixture corpus from the real catalogue.
 
-The rule checkers are pure: `RuleChecker.evaluate(payload) -> RuleCheckResult` reads
-only the dictionary it is given, with no database and no I/O. That makes them the
-best possible subject for a golden master. This script generates a spread of
-payloads from the real catalogue and records what the current implementation
-answers for each; `test_rule_engine_golden.py` then fails if any answer changes.
-
-The corpus is deliberately adversarial rather than representative. It includes the
-states the evaluation study showed students actually reaching, which is where
-regressions would hurt most: over-filled semesters, an under-filled reduced-load
-semester, courses placed in the wrong term, an incomplete introductory phase, and
-plans that the tool reported as complete while a stated constraint was unmet.
+The corpus is adversarial rather than representative: over-filled semesters, an
+under-filled reduced-load semester, wrong-term placements, an incomplete
+introductory phase.
 
     python3 -m tests.golden.build_fixtures        # regenerate fixtures + snapshots
 
-Regenerating is a deliberate act. If a snapshot changes, either a behaviour change
-was intended and the diff should be reviewed line by line, or a regression has just
-been recorded as the new truth.
+Regenerating is a deliberate act. A changed snapshot is either an intended
+behaviour change to be reviewed line by line, or a regression recorded as truth.
 """
 from __future__ import annotations
 
@@ -31,16 +21,15 @@ HERE = Path(__file__).resolve().parent
 CORPUS = HERE / "fixtures.json"
 SNAPSHOT = HERE / "snapshots.json"
 
-# The checkers compare against the spaced form printed in the curriculum
-# regulations. The route normalises the spacing before choosing a checker but
-# passes the payload through untouched, so fixtures must use the spaced form
-# or every scenario short-circuits on a programme mismatch.
+# The spaced form, as printed in the regulations. The route normalises spacing
+# before choosing a checker but passes the payload through untouched, so an
+# unspaced code here short-circuits every scenario on a programme mismatch.
 BACHELOR = "033 521"
 MASTER = "066 937"
 
 
 def load_catalogue() -> list[dict[str, Any]]:
-    """Read the course catalogue straight from the development database."""
+    """Read the course catalogue from the development database."""
     import asyncio
     import asyncpg
 
@@ -104,7 +93,7 @@ def build(catalogue: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     ordered = [c for c in catalogue if c.get("ects")]
     cases: dict[str, dict[str, Any]] = {}
 
-    # --- degenerate inputs, which is where an unguarded change breaks first
+    # --- degenerate inputs
     cases["empty-plan"] = payload()
     cases["empty-plan-master"] = payload(programCode=MASTER)
     cases["missing-program-code"] = payload(programCode=None)
@@ -127,7 +116,7 @@ def build(catalogue: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             programCode=MASTER, plannedCourses=spread
         )
 
-    # --- workload band: the study's most consequential rule surface
+    # --- workload band
     heavy = [course(c, 0) for c in ordered[:12]]          # everything in one lane
     cases["all-in-one-lane"] = payload(plannedCourses=heavy)
     cases["all-in-one-lane-low-cap"] = payload(
@@ -157,15 +146,14 @@ def build(catalogue: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             doneCourses=[course(c, 0) for c in steop_like],
             plannedCourses=[course(c, 3) for c in ordered[20:30]],
         )
-        # The introductory-phase passes read a course's credits themselves, so a
-        # value they cannot read has to reach them as a verdict rather than as a
-        # raise. Recorded on a completed course, which is the path that also
-        # runs the completion-semester scan and the pre-phase allowance.
+        # Unreadable credits must reach the introductory-phase passes as a verdict,
+        # not a raise. On a completed course, which also runs the completion-semester
+        # scan and the pre-phase allowance.
         cases["steop-done-with-unreadable-ects"] = payload(
             doneCourses=[{**course(c, 0), "ects": "n/a"} for c in steop_like]
         )
 
-    # --- focus area, including values the engine has to normalise
+    # --- focus area, including values the engine must normalise
     for focus in (None, "", "Cybersecurity", "cyber", "Artificial Intelligence",
                   "ai", "Visual Computing", "not-a-real-focus"):
         cases[f"focus-{focus or 'none'}"] = payload(
@@ -173,7 +161,7 @@ def build(catalogue: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             selectedFocus=focus,
         )
 
-    # --- a change event, which is what a drag actually sends
+    # --- a change event, as a drag sends it
     if len(ordered) > 3:
         cases["change-move-between-lanes"] = payload(
             plannedCourses=[course(c, i % 4) for i, c in enumerate(ordered[:10])],
@@ -186,7 +174,7 @@ def build(catalogue: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         plannedCourses=[course(c, 4 + (i % 4)) for i, c in enumerate(ordered[15:35])],
     )
 
-    # --- duplicates, which the study saw the UI produce
+    # --- duplicates, which the UI can produce
     if ordered:
         dup = course(ordered[0], 0)
         cases["duplicate-course"] = payload(plannedCourses=[dup, dict(dup)])
@@ -211,7 +199,7 @@ def main() -> None:
         checker = Master() if case.get("programCode") == MASTER else Bachelor()
         try:
             snapshots[name] = asdict(checker.evaluate(case))
-        except Exception as exc:  # a raising input is behaviour too, and must be pinned
+        except Exception as exc:  # a raising input is behaviour too, so pin it
             snapshots[name] = {"__raised__": f"{type(exc).__name__}: {exc}"}
 
     CORPUS.write_text(json.dumps(cases, indent=1, sort_keys=True, ensure_ascii=False))
@@ -219,8 +207,8 @@ def main() -> None:
     raised = sum(1 for v in snapshots.values() if "__raised__" in v)
     distinct = len({json.dumps(v, sort_keys=True) for v in snapshots.values()})
     # A corpus whose scenarios nearly all answer the same thing pins nothing. This
-    # caught a first draft in which every payload was rejected on a programme-code
-    # mismatch before any rule ran.
+    # caught a draft where every payload was rejected on a programme-code mismatch
+    # before any rule ran.
     if distinct < len(snapshots) * 0.5:
         raise SystemExit(
             f"corpus is degenerate: only {distinct} distinct answers across "

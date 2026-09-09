@@ -1,15 +1,9 @@
 /**
- * The plan state machine: `(state, action) -> state`, and nothing else.
+ * The plan state machine. Pure: no clock, no randomness, no network, so a
+ * change carries a monotonic counter rather than a timestamp.
  *
- * Nothing here reads a clock, a random number or the network, so a transition
- * can be tested by calling it. That is also why a change carries a counter
- * rather than a timestamp: consumers compare identifiers to tell a stale answer
- * from a current one, and a counter says that better than a time does.
- *
- * State that did not change keeps its identity, down to each part of a
- * programme's plan. The view is rendered from those parts and compares them by
- * identity, so returning a fresh object for an unchanged plan would be read as
- * an edit.
+ * Unchanged state keeps its identity down to each part of a programme's plan,
+ * because the view compares those parts by reference.
  */
 
 import { BACHELOR_PROGRAM_CODE, semesterBoundsForProgram } from "../terms.ts";
@@ -38,11 +32,7 @@ function sameCodes(current: readonly string[], next: readonly string[]): boolean
     return current.length === next.length && current.every((code, index) => code === next[index]);
 }
 
-/**
- * Clears the mark recorded for each of these courses and leaves the rest of
- * their notes alone. A mark belongs to a course the student has passed, so it
- * cannot outlive the course being un-ticked or dropped from the plan.
- */
+/** Clears the grade of each course, leaving the rest of its metadata alone. */
 function clearGrades(
     byCode: Record<string, CourseMeta>,
     courseCodes: readonly string[]
@@ -61,12 +51,10 @@ function clearGrades(
 }
 
 /**
- * Writes a patch to one programme's plan and records the change it made.
+ * Writes a patch to one programme's plan and records the change.
  *
- * A silent action applies the patch and records nothing. The rollback path
- * depends on that: a rollback is what the planner does when the rule check
- * refuses a change, and recording it would ask for another check, whose refusal
- * would roll back again, for ever.
+ * A silent action records nothing. Rollbacks rely on this: recording one would
+ * trigger another rule check, whose refusal would roll back again.
  */
 function commit(
     state: PlannerState,
@@ -115,9 +103,8 @@ export function plannerReducer(state: PlannerState, action: PlanAction): Planner
             );
             const currentDone = Array.isArray(plan.doneCourseCodes) ? plan.doneCourseCodes : [];
             const prunedDone = currentDone.filter((code) => plannedCodes.has(code));
-            // A course dragged off the canvas is no longer done, and its mark
-            // goes with it. The two lists are read from the same plan here; the
-            // pruning and the mark-clearing cannot disagree about what left.
+            // A course removed from the canvas is no longer done, and its grade
+            // goes with it.
             const removedByPrune = currentDone.filter((code) => !plannedCodes.has(code));
 
             return commit(
@@ -142,8 +129,7 @@ export function plannerReducer(state: PlannerState, action: PlanAction): Planner
             const bounds = semesterBoundsForProgram(programmeCode);
             const plan = programmePlan(state, programmeCode);
 
-            // Where the card sits now, so that the rule checker can talk about
-            // the semester the student is looking at.
+            // The rule checker reports against the semester the card sits in.
             let laneIndex: number | null = null;
             let semesterId: number | null = null;
             for (const id of numericSemesterIds(plan.coursesBySemester, bounds.min, bounds.max)) {
@@ -266,8 +252,7 @@ export function plannerReducer(state: PlannerState, action: PlanAction): Planner
         case "focus/selected": {
             const programmeCode = state.programCode;
             const focus = typeof action.focus === "string" ? action.focus : "";
-            // Only the bachelor curriculum has focus areas, so only its rule
-            // set has anything to say when one is chosen.
+            // Only the bachelor curriculum has focus areas.
             const change: PlanChangeBody | null = programmeCode === BACHELOR_PROGRAM_CODE
                 ? { type: "focus_updated", selectedFocus: focus || null }
                 : null;
@@ -323,7 +308,7 @@ export function plannerReducer(state: PlannerState, action: PlanAction): Planner
             const nodePosById = safePatch.nodePosById && typeof safePatch.nodePosById === "object"
                 ? safePatch.nodePosById
                 : (current.nodePosById ?? {});
-            // Card positions were once kept as an x coordinate alone.
+            // Legacy snapshots stored card positions as an x coordinate alone.
             const nodePosCandidate = Object.keys(nodePosById).length > 0
                 ? nodePosById
                 : Object.fromEntries(
@@ -332,9 +317,8 @@ export function plannerReducer(state: PlannerState, action: PlanAction): Planner
                         .map(([id, x]) => [id, { x, y: 0 }])
                 );
             const nextFilters = sanitizeGraphFilters(safePatch.filters ?? current.filters);
-            // Filters are compared by value: they are rebuilt from the
-            // catalogue on every pass over the graph, and an equal set that is
-            // a different object would redraw it.
+            // Filters are compared by value because they are rebuilt from the
+            // catalogue on every pass; an equal but fresh object would redraw.
             const filtersUnchanged =
                 JSON.stringify(current.filters ?? null) === JSON.stringify(nextFilters ?? null);
             const filters = filtersUnchanged ? (current.filters ?? nextFilters) : nextFilters;
@@ -371,9 +355,8 @@ export function plannerReducer(state: PlannerState, action: PlanAction): Planner
                 programCode: DEFAULT_PROGRAM_CODE,
                 byProgramme: {},
                 lastChange: null,
-                // The counter carries on across a clear, so that a request
-                // still in flight cannot be answered by an identifier that has
-                // come round again.
+                // The counter survives a clear so an in-flight request cannot be
+                // matched against a reused identifier.
                 changeCounter: state.changeCounter,
             };
         }

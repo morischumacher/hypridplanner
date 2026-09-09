@@ -1,11 +1,6 @@
 /**
- * A plan document written by an earlier client.
- *
- * The document on the server outlives any one version of the code that reads
- * it, and a student whose plan fails to load has lost their work whether or not
- * the failure is loud. What is fixed here is the shape already stored for every
- * participant of the study, so this reads it exactly as it stands rather than
- * as the current writer happens to emit it.
+ * A plan document written by an earlier client, fixed here as it is stored on
+ * the server rather than as the current writer emits it.
  */
 import { describe, expect, it } from "vitest";
 import { plannerStateFromSnapshot } from "../../src/domain/plan/snapshot.ts";

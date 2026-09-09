@@ -1,15 +1,5 @@
-/**
- * The planner's state as React sees it.
- *
- * The state machine itself is `domain/plan`: a reducer, with no React and no
- * effects in it. Everything here is the adapter around it. It holds the current
- * state, reads out the plan for the programme on screen, and turns what the
- * student did into an action.
- *
- * What it reads out is handed on exactly as the reducer stored it, never
- * rebuilt per render, because the application decides what to redraw and what
- * to ask the server about again by comparing these values by identity.
- */
+// React adapter around the `domain/plan` reducer. Values are passed through as the
+// reducer stored them, never rebuilt per render, because consumers compare by identity.
 import React, { createContext, useCallback, useContext, useMemo, useReducer } from "react";
 import {
     DEFAULT_SEMESTER_LOAD_LIMITS,
@@ -89,12 +79,8 @@ export function ProgramProvider({ children, initialProgramCode = MASTER_PROGRAM_
         dispatch({ type: "courses/doneChanged", courseCodes, done: nextDone });
     }, []);
 
-    /**
-     * Puts a course's status back after the rule check refused the change. It
-     * is the same transition as `setCourseDone`, recorded as silent: a change
-     * the planner made to undo a rejection must not be sent for checking, or
-     * the rejection and the undo would answer each other for ever.
-     */
+    // Same transition as setCourseDone but marked silent, so undoing a rejected change
+    // is not itself sent for rule checking and cannot loop.
     const rollbackCourseDone = useCallback((courseCode, nextDone) => {
         dispatch({ type: "course/doneChanged", courseCode, done: nextDone, meta: { silent: true } });
     }, []);
@@ -136,9 +122,8 @@ export function ProgramProvider({ children, initialProgramCode = MASTER_PROGRAM_
         dispatch({ type: "semester/noteChanged", semesterId, note });
     }, []);
 
-    // The snapshot is built from the plans and the current programme alone, so
-    // it is those that this function follows. Recording a change would
-    // otherwise look like new state to save.
+    // Deps are narrowed to the fields the snapshot reads, so lastChange updates
+    // do not make it look like there is new state to save.
     const exportPlannerStateSnapshot = useCallback(
         () => snapshotFromPlannerState(state),
         [state.programCode, state.byProgramme]

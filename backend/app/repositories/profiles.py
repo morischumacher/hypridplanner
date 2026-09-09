@@ -1,7 +1,4 @@
-"""
-Per-programme profile: the start term, the recommendation profile, and any
-course whose term the student has corrected for themselves.
-"""
+"""Per-programme profile: start term, recommendation profile, and per-course term overrides."""
 from __future__ import annotations
 
 import json
@@ -15,12 +12,7 @@ class ProfileRepository:
         self._connection = connection
 
     async def first_programme(self, user_id: str) -> str | None:
-        """
-        The programme the account is locked to.
-
-        A student picks a programme once. The earliest profile row is what that
-        choice became, and every later write is checked against it.
-        """
+        """The programme the account is locked to: the earliest profile row."""
         row = await self._connection.fetchrow(
             """
             SELECT program_code
@@ -75,12 +67,7 @@ class ProfileRepository:
     async def create_start_term(
         self, user_id: str, program_code: str, season: str, year: int
     ) -> dict[str, Any] | None:
-        """
-        Claim the start term, and report whether this call is what claimed it.
-
-        `DO NOTHING` means a row already existed, and the caller has to decide
-        whether the existing one agrees with what was asked for.
-        """
+        """Claim the start term. None means a row already existed, for the caller to reconcile."""
         row = await self._connection.fetchrow(
             """
             INSERT INTO user_program_profile

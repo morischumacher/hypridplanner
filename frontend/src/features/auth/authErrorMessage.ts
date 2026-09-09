@@ -1,12 +1,8 @@
 /**
- * What to tell someone whose sign-in or sign-up did not work.
+ * User-facing messages for failed sign-in and sign-up.
  *
- * The transport's own words are not an answer: "Signup failed: 409 Conflict
- * {"detail":"Username already exists"}" tells a student what the server thinks
- * and nothing about what to do next, and that is what the evaluation recorded
- * (E-P41). Every message here names the problem and the next action, and the
- * status decides which one, so an unrecognised failure still says something
- * true rather than leaking the response body.
+ * Messages are chosen by status code alone, so an unrecognised failure still
+ * produces something actionable rather than leaking the response body.
  */
 
 export type AuthMode = "signin" | "signup";

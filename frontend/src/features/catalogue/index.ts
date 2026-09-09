@@ -1,11 +1,8 @@
 /**
- * The catalogue feature: the courses a programme offers, and the term each of
- * them is offered in.
+ * The courses a programme offers and the terms they run in.
  *
- * The two hooks are deliberately not one. The fetch has to be the planner's
- * first request, while the term answers need the overrides the student stores
- * in their profile, so the term hook is called only once the profile has been
- * read.
+ * The two hooks are kept separate: the fetch is the planner's first request,
+ * while term resolution needs the profile overrides, which arrive later.
  */
 
 export { useCatalogue } from "./useCatalogue.ts";

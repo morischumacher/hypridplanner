@@ -1,14 +1,11 @@
 /**
- * The dashboard's own view state: which panels the student has open, and the
- * order they dragged their sections into.
+ * Dashboard view state: which panels are open and the section order.
  *
- * All of it is persisted with the plan, and it is restored from two different
- * places: once when the planner state arrives, and again every time the student
- * switches programme. Both go through `applyStoredDashboardUi`, so a value that
- * survives a reload also survives a programme switch. The two paths are not
- * quite symmetric, and deliberately so: a programme with no stored entry is
- * left showing whatever is on screen, while a first load with no stored entry
- * resets the section orders to their defaults.
+ * All of it is persisted with the plan and restored from two places, both
+ * through `applyStoredDashboardUi`: when the planner state arrives, and on a
+ * programme switch. The paths differ on purpose. A programme with no stored
+ * entry keeps what is on screen, while a first load with none resets the
+ * section orders to their defaults.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -22,9 +19,8 @@ import {
 } from "../../domain/programmes.ts";
 
 /**
- * Which half of the dashboard is showing. Held as a string rather than a union
- * because the stored value is whatever a previous version wrote, and the
- * sections test it for equality rather than switching on it.
+ * Which half of the dashboard is showing. A string rather than a union: the
+ * stored value is whatever a previous version wrote, and it is only compared.
  */
 export type DashboardViewMode = string;
 
@@ -56,9 +52,9 @@ export interface DashboardUiGlobalSnapshot {
 }
 
 /**
- * The panel state of every programme, in the two maps the stored document keeps
- * it in. This is the only copy there is of a programme that is not on screen,
- * so a save has to be given it or it writes that programme away.
+ * Panel state for every programme, in the two maps the stored document uses.
+ * This is the only copy for programmes not on screen, so a save that omits it
+ * erases them.
  */
 export interface StoredDashboardUi {
     byProgram: Record<string, unknown>;
@@ -111,7 +107,7 @@ export interface DashboardPanels {
     /** What the persist snapshot files under the current programme. */
     dashboardUiForProgram: DashboardUiSnapshot;
     dashboardUiGlobal: DashboardUiGlobalSnapshot;
-    /** What it files under all the others. Read when a save is built. */
+    /** What it files under all other programmes; read when a save is built. */
     storedDashboardUiRef: MutableRefObject<StoredDashboardUi>;
     /** Takes the whole planner state document, not just its dashboard part. */
     restoreDashboardUiFromPlannerState: (state: unknown) => void;
@@ -142,9 +138,8 @@ export function useDashboardPanels({ programCode }: UseDashboardPanelsInput): Da
         DEFAULT_DONE_SECTION_ORDER
     );
 
-    // The panel state of every programme, kept so that a switch can replay it
-    // without going back to the server, and so that a save has something to
-    // write for the programmes that are not on screen.
+    // Panel state of every programme, so a switch replays without a fetch and a
+    // save still has entries for the programmes not on screen.
     const storedDashboardUiRef = useRef<StoredDashboardUi>({ byProgram: {}, global: {} });
 
     const applyStoredDashboardUi = useCallback((stored: unknown) => {
@@ -233,11 +228,9 @@ export function useDashboardPanels({ programCode }: UseDashboardPanelsInput): Da
         isLegendOpen,
     }), [isRuleDashboardOpen, isLegendOpen]);
 
-    // The programme on screen writes back what it is showing, so that a save
-    // made after the student has moved on still carries what they left behind.
-    // It runs after the restore above, and on a switch the two settle in that
-    // order: the entry is written once with what is still on screen and again
-    // with what the switch put there.
+    // Writes the on-screen programme back into the ref. Runs after the restore
+    // above, so on a switch the entry is written once with the outgoing state
+    // and again with the incoming one.
     useEffect(() => {
         storedDashboardUiRef.current = {
             byProgram: {
@@ -295,9 +288,9 @@ export function useDashboardPanels({ programCode }: UseDashboardPanelsInput): Da
 }
 
 /**
- * Closes the two sections that would otherwise sit open with nothing under
- * them. It runs whether or not the dashboard is on screen, because the panel
- * state it corrects is persisted either way.
+ * Closes the two sections that would otherwise sit open over an empty list.
+ * Runs whether or not the dashboard is on screen, since the state is persisted
+ * either way.
  */
 export function useEmptySectionAutoClose(
     panels: DashboardPanels,

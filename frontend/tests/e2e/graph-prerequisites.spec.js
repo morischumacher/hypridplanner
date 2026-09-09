@@ -1,19 +1,12 @@
-/**
- * The prerequisite relations the graph draws.
- *
- * One switch draws the curriculum's course-to-course orderings, enforced and
- * advisory alike, and the two are drawn differently so an edge says whether it
- * binds. The split falls between the programmes: the Master's two are enforced,
- * the Bachelor's two advisory. This is the end-to-end coverage of the graph
- * view; the flows above it exercise the table, and a graph regression would
- * otherwise reach a student before it reached CI.
- */
 import { test, expect } from "@playwright/test";
 import { startPlanning, BACHELOR, MASTER } from "./support/planner.js";
 
 const prerequisiteEdges = (page) => page.locator('.react-flow__edge[data-testid^="rf__edge-prereq-"]');
 
 async function openGraph(page) {
+    // The prefill prompt blocks every other interaction until it is answered.
+    const dismiss = page.getByRole("button", { name: "Not now" });
+    if (await dismiss.isVisible().catch(() => false)) await dismiss.click();
     await page.getByRole("button", { name: /Graph View/i }).click();
     await expect(page.locator(".react-flow__node").first()).toBeVisible({ timeout: 20000 });
 }
@@ -36,8 +29,6 @@ test.describe("prerequisite relations in the graph", () => {
 
         await page.getByText(/Show prerequisites/).click();
         await expect(prerequisiteEdges(page)).toHaveCount(2);
-
-        // Every drawn edge states the one thing an edge here can state.
         await expect(page.getByText("required before").first()).toBeVisible();
     });
 
@@ -54,8 +45,8 @@ test.describe("prerequisite relations in the graph", () => {
     });
 
     test("the bachelor's two advisory pairs are drawn, and say they are advisory", async ({ page }) => {
-        // The engine warns on these rather than refusing them, so they are drawn
-        // dashed and labelled differently from the master's enforced pairs.
+        // The engine warns on these rather than refusing them, so they are labelled
+        // differently from the master's enforced pairs.
         await startPlanning(page, { program: BACHELOR });
         await openGraph(page);
         await expandEverything(page);

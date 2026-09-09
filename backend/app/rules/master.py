@@ -10,22 +10,16 @@ _CURRICULUM = load_curriculum(MASTER)
 
 
 class RuleChecker:
-    """
-    Rule engine for TU Wien MSc Software Engineering (120 ECTS).
+    """Rule engine for TU Wien MSc Software Engineering (120 ECTS).
 
-    Assumptions / conventions (robust to variants):
-    - payload contains either:
-        * payload["lanes"] = [{"laneIndex": int, "plannedCourses": [...], "doneCourses": [...]}]
-      OR top-level planned/done lists with optional per-course laneIndex.
-    - each course has: code, ects, category, examSubject (some may be empty for free/diploma items).
-    - category is mapped into internal buckets via synonyms (mandatory/core/elective/free/transferable/diploma...).
-    - "Wahlmodul" gating: electives of an examSubject that has core modules require all that subject’s core modules.
+    The payload carries either `lanes` or top-level planned/done lists with an
+    optional per-course laneIndex; both forms are accepted. Categories arrive as
+    synonyms and are mapped into internal buckets. Electives of an exam subject
+    that has core modules require all of that subject's core modules.
     """
 
-    # The thresholds the curriculum sets, and the two the application adds.
-    # MAX and RECOMMENDED_ECTS_PER_SEMESTER are not curriculum law: they are the
-    # plan-sanity limits the planner enforces, one as a rejection and one as a
-    # warning. All five are read from the curriculum document.
+    # MAX and RECOMMENDED_ECTS_PER_SEMESTER are planner limits rather than
+    # curriculum law, one enforced as a rejection and one as a warning.
     TOTAL_ECTS = _CURRICULUM.TOTAL_ECTS
     SUBJECT_MODULES_MIN_ECTS = _CURRICULUM.SUBJECT_MODULES_MIN_ECTS
     TRANSFERABLE_SKILLS_MIN_ECTS = _CURRICULUM.TRANSFERABLE_SKILLS_MIN_ECTS
@@ -33,8 +27,6 @@ class RuleChecker:
     RECOMMENDED_ECTS_PER_SEMESTER = _CURRICULUM.RECOMMENDED_ECTS_PER_SEMESTER
 
     def __init__(self) -> None:
-        # The curriculum itself is data, loaded from app/curriculum/master.json.
-        # What stays here is the checking, which is the part that is code.
         curriculum = load_curriculum(MASTER)
         self.exam_subjects: set = curriculum.exam_subjects
         self.core_by_exam_subject: Dict[str, Any] = curriculum.core_by_exam_subject
@@ -93,7 +85,7 @@ class RuleChecker:
         if sequencing_warnings:
             stats.setdefault("warnings", []).extend(sequencing_warnings)
 
-        # ✅ NEW: core/elective relationship is missing+warning, not a violation
+        # The core/elective relationship is missing+warning, not a violation.
         core_warnings, core_missing = self._core_dependency_feedback(parsed)
         if core_warnings:
             stats.setdefault("warnings", []).extend(core_warnings)
@@ -112,10 +104,10 @@ class RuleChecker:
     def _extract_lanes(self, payload: Dict[str, Any]) -> List[Dict[str, Any]]:
         if isinstance(payload.get("lanes"), list):
             return payload["lanes"]
-        # Support payload that is already a single lane-like object
+        # A payload that is itself a single lane-like object.
         if "laneIndex" in payload and ("plannedCourses" in payload or "doneCourses" in payload):
             return [payload]
-        # Support top-level planned/done: group by per-course laneIndex when present.
+        # Top-level planned/done: group by per-course laneIndex when present.
         if isinstance(payload.get("plannedCourses"), list) or isinstance(payload.get("doneCourses"), list):
             lanes_by_idx: Dict[int, Dict[str, Any]] = {}
 
@@ -146,7 +138,6 @@ class RuleChecker:
 
     @staticmethod
     def _norm_key(s: Any) -> str:
-        # normalized key for matching
         return RuleChecker._norm(s).lower()
 
     @staticmethod
@@ -158,7 +149,7 @@ class RuleChecker:
         s = str(v).strip()
         if not s:
             return None
-        # accept German decimal comma
+        # German decimal comma.
         s = s.replace(",", ".")
         try:
             return float(s)
@@ -175,7 +166,7 @@ class RuleChecker:
         if c in self.category_map:
             return self.category_map[c]
 
-        # try to infer from code if category is messy/missing
+        # Fall back to the code when the category is missing or malformed.
         if "transferable" in ck or "soft skills" in ck:
             return "transferable_skills"
         if "freie wahl" in ck or "free choice" in ck:
@@ -196,7 +187,7 @@ class RuleChecker:
         parsed: List[Dict[str, Any]] = []
 
         if not lanes:
-            # empty plan is acceptable; still produce dashboard
+            # An empty plan is acceptable and still produces a dashboard.
             return parsed, None
 
         for lane in lanes:
@@ -231,7 +222,7 @@ class RuleChecker:
                     if mapped_cat is None:
                         return [], f"Course '{code}' has unknown category '{raw_cat}'."
 
-                    # Normalize examSubject key; allow empty for free/diploma items
+                    # Empty is allowed for free and diploma items.
                     exam_key = self._norm_key(exam_subject)
                     if mapped_cat in {"mandatory", "core", "elective", "extension"}:
                         if not exam_key:
@@ -257,9 +248,6 @@ class RuleChecker:
                             "status": status,
                         }
                     )
-
-        # Also tolerate per-course laneIndex if top-level lists were given (rare); ignore if lanes already exist
-        # (We keep lane-based as the canonical structure.)
 
         return parsed, None
 
@@ -290,7 +278,6 @@ class RuleChecker:
             else:
                 planned_ects += ects
 
-        # Buckets for the explicit curriculum constraints
         subject_modules_ects = 0.0  # Pflicht/Core/Wahl, excluding free-choice module
         free_module_ects = 0.0
         transferable_ects = 0.0
@@ -325,7 +312,8 @@ class RuleChecker:
 
         total_ects = done_ects + planned_ects
 
-        # Infer diploma components if only a generic diploma item exists (e.g., "Diplomarbeit" 30 ECTS)
+        # A plan may carry one generic diploma item (e.g. "Diplomarbeit" 30 ECTS)
+        # instead of the three components, so the components are inferred from it.
         thesis_need = 27.0
         seminar_need = 1.5
         defense_need = 1.5
@@ -335,7 +323,7 @@ class RuleChecker:
         seminar_total = diploma_seminar
         defense_total = diploma_defense
 
-        # allocate generic diploma ects to missing components in order (thesis -> seminar -> defense)
+        # Allocation order matters: thesis, then seminar, then defense.
         alloc = min(remaining_generic, max(0.0, thesis_need - thesis_total))
         thesis_total += alloc
         remaining_generic -= alloc
@@ -348,10 +336,8 @@ class RuleChecker:
         defense_total += alloc
         remaining_generic -= alloc
 
-        # Missing list
         missing: List[str] = []
 
-        # Mandatory modules presence
         for m in self.mandatory_modules.keys():
             if not any(c.get("rule_key") == self._norm_key(m) for c in courses):
                 if m == "Seminar in Computer Science":
@@ -359,14 +345,14 @@ class RuleChecker:
                 else:
                     missing.append(f"Mandatory: {m} (6.0 ECTS) is missing.")
 
-        # Minimum 81 ECTS in Pflicht/Core/Wahl modules (excluding free-choice module)
+        # Minimum ECTS in Pflicht/Core/Wahl modules, free choice excluded.
         if subject_modules_ects + 1e-9 < self.SUBJECT_MODULES_MIN_ECTS:
             need = self.SUBJECT_MODULES_MIN_ECTS - subject_modules_ects
             missing.append(
                 f"At least {self.SUBJECT_MODULES_MIN_ECTS:.1f} ECTS from Pflicht/Core/Wahl modules (excluding Free Choice/TS): need {need:.1f} more."
             )
 
-        # Diploma (30 ECTS total, split as 27 + 1.5 + 1.5)
+        # Diploma: 30 ECTS total, split 27 + 1.5 + 1.5.
         if diploma_ects + 1e-9 < 30.0:
             missing.append(f"Diploma requirement: need {30.0 - diploma_ects:.1f} more ECTS in Diplomarbeit (total 30.0).")
         if thesis_total + 1e-9 < thesis_need:
@@ -376,18 +362,18 @@ class RuleChecker:
         if defense_total + 1e-9 < defense_need:
             missing.append(f"Diploma requirement: Final oral exam/defense needs {defense_need - defense_total:.1f} more ECTS (target 1.5).")
 
-        # Transferable skills minimum within Free Choice module
+        # Transferable skills minimum, counted inside the Free Choice module.
         if transferable_ects + 1e-9 < self.TRANSFERABLE_SKILLS_MIN_ECTS:
             missing.append(
                 f"Transferable Skills: need {self.TRANSFERABLE_SKILLS_MIN_ECTS - transferable_ects:.1f} more ECTS (minimum {self.TRANSFERABLE_SKILLS_MIN_ECTS:.1f})."
             )
 
-        # Total ECTS to reach 120 (note: curriculum allows >=120, so only missing when below)
+        # The curriculum allows more than the target, so only a shortfall counts.
         if total_ects + 1e-9 < self.TOTAL_ECTS:
             missing.append(f"Total ECTS: need {self.TOTAL_ECTS - total_ects:.1f} more to reach {self.TOTAL_ECTS:.0f}.")
 
-        # Free-choice ECTS needed to reach 120 once subject modules + diploma are counted
-        # Free module can shrink if subject modules exceed 81; but TS min still applies (handled above).
+        # The free module shrinks when subject modules exceed their minimum; the
+        # transferable-skills minimum is checked separately above.
         needed_free = max(0.0, self.TOTAL_ECTS - (subject_modules_ects + diploma_ects))
         if free_module_ects + 1e-9 < needed_free:
             missing.append(f"Free Choice/Transferable Skills module: need {needed_free - free_module_ects:.1f} more ECTS to reach total 120.")
@@ -467,7 +453,8 @@ class RuleChecker:
         return hard_error, warnings, missing
 
     def _check_known_module_consistency(self, courses: List[Dict[str, Any]]) -> Optional[str]:
-        # If a known mandatory/core module appears with wrong examSubject or ects out of range or wrong category -> reject.
+        # A known mandatory or core module with the wrong examSubject, an ECTS
+        # value out of range, or the wrong category is rejected.
         known = {}
         known.update(self.mandatory_modules)
         known.update(self.core_modules)
@@ -481,18 +468,17 @@ class RuleChecker:
             cat = c["category"]
             exam_key = c["examSubject_key"]
 
-            # Advanced Topics family: min 3 ECTS
+            # The Advanced Topics family has a 3 ECTS floor.
             for prefix in self.advanced_topics_prefixes:
                 if self._norm_key(rule_name).startswith(self._norm_key(prefix)):
                     if ects + 1e-9 < 3.0:
                         return f"'{code}' is an Advanced Topics module and must be at least 3.0 ECTS (currently {ects:.1f})."
-                    # examSubject should be non-empty, but may be handled in parse; no further check here.
                     break
 
-            # Exact match with known spec?
             spec = known.get(rule_name) or known.get(self._best_known_name(rule_key, known))
             if spec is None:
-                # If user marks something as core/mandatory but we don't recognize it, reject as “misattributed category”.
+                # A course marked core or mandatory that the curriculum does not
+                # know is a misattributed category.
                 if cat in {"mandatory", "core"}:
                     return (
                         f"Course '{code}' is marked as '{cat}', but it is not a known {cat} module in this curriculum. "
@@ -507,13 +493,11 @@ class RuleChecker:
                     f"but it belongs to '{spec['examSubject']}' in the curriculum."
                 )
 
-            # ECTS range check
             mn = float(spec.get("ects_min", 0.0))
             mx = float(spec.get("ects_max", 1e9))
             if ects + 1e-9 < mn or ects > mx + 1e-9:
                 return f"Course '{code}' has {ects:.1f} ECTS, but the allowed range is {mn:.1f}–{mx:.1f} ECTS."
 
-            # Category consistency for known mandatory/core modules
             expected_kind = spec.get("kind")
             if expected_kind in {"mandatory", "core"}:
                 if cat != expected_kind:
@@ -523,14 +507,14 @@ class RuleChecker:
 
     @staticmethod
     def _best_known_name(code_key: str, known: Dict[str, Dict[str, Any]]) -> Optional[str]:
-        # try to match by normalized keys
         for k in known.keys():
             if RuleChecker._norm_key(k) == code_key:
                 return k
         return None
 
     def _check_prerequisites(self, courses: List[Dict[str, Any]]) -> Optional[str]:
-        # Build earliest lane index per course code
+        # Earliest lane index per course, so a repeated course is judged on its
+        # first occurrence.
         lane_of: Dict[str, int] = {}
         for c in courses:
             k = c.get("rule_key") or c["code_key"]
@@ -540,7 +524,6 @@ class RuleChecker:
             canonical = self._canonical_rule_name(name)
             return lane_of.get(self._norm_key(canonical))
 
-        # Check explicit prerequisites (if these items are used)
         for course_name, prereqs in self.prerequisites.items():
             course_lane = find_lane(course_name)
             if course_lane is None:
@@ -555,7 +538,6 @@ class RuleChecker:
                         f"but its prerequisite '{p}' is in semester {pre_lane + 1}."
                     )
 
-        # Also ensure: if a user takes a known core module and its examSubject electives exist earlier, core should not be later (handled in core gating)
         return None
 
     def _recommended_sequencing_warnings(self, courses: List[Dict[str, Any]]) -> List[str]:
@@ -584,10 +566,10 @@ class RuleChecker:
         return warnings
 
     def _core_dependency_feedback(self, courses: List[Dict[str, Any]]) -> Tuple[List[str], List[str]]:
-        """
-        If an examSubject has electives selected, its core modules must ALSO be in the plan
-        to satisfy completion rules. Timing does NOT matter for validity, but we warn if
-        an elective is scheduled before its core.
+        """Electives in an exam subject require that subject's core modules in the plan.
+
+        Timing does not affect validity, so an elective scheduled before its core
+        only produces a warning.
         """
         warnings: List[str] = []
         missing: List[str] = []
@@ -598,9 +580,8 @@ class RuleChecker:
             if ek:
                 courses_by_exam.setdefault(ek, []).append(c)
 
-        # code_key -> laneIndex (earliest occurrence, any status)
+        # Earliest occurrence per course, over any status and over done only.
         lane_of: Dict[str, int] = {}
-        # code_key -> laneIndex (earliest occurrence, done only)
         done_lane_of: Dict[str, int] = {}
         for c in courses:
             k = c.get("rule_key") or c["code_key"]
@@ -617,22 +598,20 @@ class RuleChecker:
             if not electives:
                 continue
 
-            # 1) Missing requirement: core must be present somewhere in plan
+            # 1) The core must be present somewhere in the plan.
             missing_cores_in_plan = [core for core in core_list if self._norm_key(core) not in lane_of]
             if missing_cores_in_plan:
-                # One consolidated missing message per exam subject
                 missing.append(
                     f"Core requirement for '{electives[0]['examSubject']}': add core module(s): {', '.join(missing_cores_in_plan)} "
                     "(required because you selected electives in this exam subject)."
                 )
-                # Also a warning to make it visible immediately
                 warnings.append(
                     f"You selected electives in '{electives[0]['examSubject']}' but core module(s) are not in your plan yet: {', '.join(missing_cores_in_plan)}."
                 )
-                # Can't do ordering warnings if cores aren't scheduled
+                # Ordering warnings need a scheduled core.
                 continue
 
-            # 2) Core completion requirement: planned is not enough, core must be done.
+            # 2) The core must be done, not merely planned.
             missing_core_completions = [core for core in core_list if self._norm_key(core) not in done_lane_of]
             if missing_core_completions:
                 missing.append(
@@ -644,7 +623,7 @@ class RuleChecker:
                     f"{', '.join(missing_core_completions)}."
                 )
 
-            # 3) Ordering warning only (not a violation): elective before core
+            # 3) An elective before its core warns rather than rejects.
             for e in electives:
                 e_lane = e["laneIndex"]
                 for core in core_list:

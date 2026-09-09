@@ -13,7 +13,7 @@ import {
 import { displayCourseHeader, displayCourseTitle } from "../domain/course-names.ts";
 import { BACHELOR_PROGRAM_CODE } from "../domain/terms.ts";
 
-/** CourseCard — React Flow node renderer */
+// React Flow node renderer for a course.
 export default function CourseCard({ data }) {
     if (data?.collapsedGhost) {
         return (
@@ -158,8 +158,7 @@ export default function CourseCard({ data }) {
     return (
         <div
             className="card study-planner-course-card"
-            // Test hooks. The end-to-end suite has to identify a card and read its
-            // state without depending on colours or on where the code is printed.
+            // Test hooks for the end-to-end suite.
             data-testid="course-card"
             data-course-code={data?.code ?? ""}
             data-course-status={data?.status ?? ""}
@@ -197,25 +196,18 @@ export default function CourseCard({ data }) {
                 gap: 10,
             }}
         >
-            {/* ── Recommendation Patch ── */}
-            {/* Removed from main plan view per user request (RP only) */}
-
-            {/* four handles with IDs so edges can target specific sides */}
+            {/* Handles carry side IDs so edges can target a specific side. */}
             {!data?.groupId && (
                 <>
-                    {/* top */}
                     <Handle id="top" type="target" position={Position.Top} />
                     <Handle id="top" type="source" position={Position.Top} />
 
-                    {/* right */}
                     <Handle id="right" type="target" position={Position.Right} />
                     <Handle id="right" type="source" position={Position.Right} />
 
-                    {/* bottom */}
                     <Handle id="bottom" type="target" position={Position.Bottom} />
                     <Handle id="bottom" type="source" position={Position.Bottom} />
 
-                    {/* left */}
                     <Handle id="left" type="target" position={Position.Left} />
                     <Handle id="left" type="source" position={Position.Left} />
                 </>

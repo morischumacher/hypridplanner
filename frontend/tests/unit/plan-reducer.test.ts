@@ -1,16 +1,3 @@
-/**
- * The plan state machine.
- *
- * These are the transitions the evaluation chapter describes: a course placed,
- * moved, ticked off, parked, a plan loaded and cleared. They are checked here
- * by calling the reducer, which is the point of it being one.
- *
- * Two properties are load-bearing beyond the individual transitions. A silent
- * action must leave the recorded change alone, because that is what stops a
- * rejected rule check and its rollback from answering each other for ever; and
- * an unchanged part of a plan must keep its identity, because the view decides
- * what to redraw by comparing those parts.
- */
 import { describe, expect, it } from "vitest";
 
 import { laneX } from "../../src/domain/layout.ts";
@@ -725,7 +712,7 @@ describe("plan/imported", () => {
             type: "plan/imported",
             snapshot: { coursesByProgram: { [BACHELOR]: { 2: [], 99: [] } } },
         });
-        // Semester ninety-nine is past the programme's maximum and is dropped.
+        // Semester 99 is past the programme's maximum and is dropped.
         expect(Object.keys(planOf(state, BACHELOR).coursesBySemester)).toEqual(["1", "2", "3", "4", "5", "6"]);
     });
 
@@ -811,9 +798,7 @@ describe("the change counter", () => {
             if (state.lastChange) ids.push(state.lastChange.id);
         }
         expect(state.changeCounter).toBe(5);
-        // The silent rollback, the note and the mark leave the identifier where
-        // it was; the placement, the tick, the focus, the bulk tick and the
-        // limits each move it on by one.
+        // The silent rollback, the note and the mark leave the identifier alone.
         expect(ids).toEqual([1, 2, 2, 2, 2, 3, 4, 5]);
         for (let i = 1; i < ids.length; i += 1) {
             expect(ids[i]).toBeGreaterThanOrEqual(ids[i - 1] as number);

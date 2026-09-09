@@ -1,15 +1,13 @@
 /**
  * The prebuilt bachelor plan.
  *
- * The plan is a template of course aliases rather than of course codes, because
- * the catalogue renames courses between curriculum versions far more often than
- * it renumbers them, and a template that misses is worse than useless: it
- * silently drops a course from a student's plan. Every alias that finds nothing
- * is therefore reported back rather than skipped quietly.
+ * The template matches on course aliases rather than codes, since the catalogue
+ * renames courses more often than it renumbers them. Aliases that match nothing
+ * are reported back rather than dropped.
  *
- * A summer start mirrors the plan across the winter/summer pairs of semesters,
- * except where a course is only ever taught in one of them. Those exceptions are
- * listed explicitly below, since nothing in the catalogue records them.
+ * A summer start mirrors the plan across the winter/summer semester pairs.
+ * Courses taught in only one season are exempt and listed explicitly, since the
+ * catalogue does not record that.
  */
 
 import type {
@@ -19,7 +17,7 @@ import type {
     PrefillTemplateItem,
 } from "../types.ts";
 
-/** The focus areas the plan knows how to specialise for. */
+/** The focus areas the plan can specialise for. */
 export type FocusKey =
     | "ai_ml"
     | "cybersecurity"
@@ -98,11 +96,7 @@ const FOCUS_ADDITIONS: Record<FocusKey, PrefillTemplateItem[]> = {
     general: [],
 };
 
-/**
- * Courses the baseline plan drops for a given focus. A focus adds depth in one
- * area at the cost of breadth elsewhere, and the plan has to stay within the
- * ECTS a semester can hold.
- */
+/** Courses the baseline plan drops per focus, to keep each semester within its ECTS budget. */
 const FOCUS_EXCLUSIONS: Record<FocusKey, string[]> = {
     general: [
         "Einführung in Visual Computing",
@@ -188,7 +182,7 @@ const FOCUS_EXCLUSIONS: Record<FocusKey, string[]> = {
     ],
 };
 
-/** Winter and summer semesters swap places when the student starts in summer. */
+/** Semester pairs swapped for a summer start. */
 const SUMMER_SWAP_MAP: Record<number, number> = {
     1: 2,
     2: 1,
@@ -208,14 +202,14 @@ function normalizeText(value: unknown): string {
         .trim();
 }
 
-/** Thesis work stays at the end of the degree whichever season it started in. */
+/** Thesis work stays at the end of the degree, exempt from the summer swap. */
 const SUMMER_LOCKED_ALIAS_SET = new Set([
     "Wissenschaftliches Arbeiten",
     "Bachelorarbeit",
     "Bachelorarbeit für Informatik und Wirtschaftsinformatik",
 ].map((entry) => normalizeText(entry)));
 
-/** The programming sequence is taught in a fixed order regardless of season. */
+/** The programming sequence is taught in a fixed order regardless of start season. */
 const STRICT_FIXED_ALIAS_SEMESTER = new Map<string, number>([
     [normalizeText("Einführung in die Programmierung 1"), 1],
     [normalizeText("Einführung in die Programmierung 2"), 2],
@@ -241,9 +235,8 @@ function resolveFocusKey(selectedFocus: string | null | undefined): FocusKey {
 }
 
 /**
- * Every course the catalogue offers, one entry each. A module with no courses
- * of its own still yields an entry, because some requirements are stated at
- * module level and the plan has to be able to name them.
+ * One entry per catalogue course. A module with no courses of its own still
+ * yields an entry, since some requirements are stated at module level.
  */
 function flattenCatalogCourses(catalog: Catalogue | null | undefined): FlattenedCourse[] {
     const out: FlattenedCourse[] = [];
@@ -292,9 +285,8 @@ function flattenCatalogCourses(catalog: Catalogue | null | undefined): Flattened
 }
 
 /**
- * How well a catalogue entry answers an alias. A code match outranks a name
- * match, which outranks a module match, and a matching ECTS value breaks ties
- * between the split variants of a module that share a name.
+ * How well a catalogue entry answers an alias. Code beats name beats module,
+ * and a matching ECTS value breaks ties between split variants sharing a name.
  */
 function scoreMatch(entry: FlattenedCourse, aliasNorm: string, desiredEcts: number | null = null): number {
     let score = 0;

@@ -1,11 +1,7 @@
-"""
-Producing course recommendations.
+"""Producing course recommendations.
 
-The recommender needs three things: what the student has told us about their
-interests, every course the programme offers, and a rule checker to discard
-candidates the curriculum would refuse. The first two are reads; the third is
-the same rule set the compliance check uses, so a recommendation can never be
-something the planner would then reject.
+Candidates are filtered with the same rule set the compliance check uses, so a
+recommendation cannot be something the planner would then reject.
 """
 from __future__ import annotations
 

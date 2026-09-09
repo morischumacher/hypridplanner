@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { CANVAS_HEIGHT, LANE_WIDTH } from "../domain/layout.ts";
 
 
-/** LaneColumn — background strip for each semester lane. */
+// Background strip for one semester lane.
 export default function LaneColumn({ data }) {
     const [isInfoOpen, setIsInfoOpen] = useState(false);
     const infoRef = useRef(null);
@@ -13,10 +13,8 @@ export default function LaneColumn({ data }) {
     const courseNotes = Array.isArray(data?.courseNotes) ? data.courseNotes : [];
     const additionalNote = String(data?.additionalNote || "");
     const isParkingLane = Boolean(data?.isParking) || Number(data?.semesterId) === 0;
-    // The lanes alternate between winter and summer, and a season-locked course
-    // fits only one of them. The card and the catalogue row already carry the
-    // course's own marker; without the lane's the student has to count parity
-    // by hand, place, and be refused, which is the study's most frequent defect.
+    // Lanes alternate winter/summer, so the lane carries a season marker too, otherwise
+    // placing a season-locked course means counting parity by hand.
     const season = String(data?.season || "");
     const seasonGlyph = season === "summer" ? "\u2600\ufe0f" : (season === "winter" ? "\u2744\ufe0f" : "");
     const seasonLabel = season === "summer" ? "Summer semester" : (season === "winter" ? "Winter semester" : "");

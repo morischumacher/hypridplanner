@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Planner User Study Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="uni-logo-box">
+        <img src="tuwien-lted-logo.png" alt="TU Wien & LTeD Lab" class="uni-logo">
+      </div>
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">📊</span>
+          <div class="logo-text">
+            <h2>Study Planner</h2>
+            <span class="lang-en">User Study Guide</span>
+            <span class="lang-de">Nutzerstudie</span>
+          </div>
+        </div>
+        <!-- Language Switcher Toggle -->
+        <div class="lang-switcher">
+          <button class="btn-lang active" data-lang="en" onclick="setLanguage('en')">EN</button>
+          <button class="btn-lang" data-lang="de" onclick="setLanguage('de')">DE</button>
+        </div>
+      </div>
+      
+      <div class="session-timer-box">
+        <span class="timer-label lang-en">TOTAL SESSION TIME</span>
+        <span class="timer-label lang-de">GESAMTZEIT</span>
+        <span id="session-timer" class="timer-display">00:00:00</span>
+      </div>
+
+      <nav class="step-nav">
+        <ul>
+          <li class="step-nav-item active" data-step="0">
+            <span class="step-num">1</span>
+            <span class="step-name lang-en">Demographics</span>
+            <span class="step-name lang-de">Demografie</span>
+          </li>
+          <li class="step-nav-item" data-step="1">
+            <span class="step-num">2</span>
+            <span class="step-name lang-en">Recording Consent</span>
+            <span class="step-name lang-de">Einverständnis</span>
+          </li>
+          <li class="step-nav-item" data-step="2">
+            <span class="step-num">3</span>
+            <span class="step-name lang-en">Video Tutorial</span>
+            <span class="step-name lang-de">Video-Einführung</span>
+          </li>
+          <li class="step-nav-item" data-step="3">
+            <span class="step-num">4</span>
+            <span class="step-name lang-en">Scenario A</span>
+            <span class="step-name lang-de">Szenario A</span>
+          </li>
+          <li class="step-nav-item" data-step="4">
+            <span class="step-num">5</span>
+            <span class="step-name lang-en">Scenario A Q</span>
+            <span class="step-name lang-de">Szenario A F</span>
+          </li>
+          <li class="step-nav-item" data-step="5">
+            <span class="step-num">6</span>
+            <span class="step-name lang-en">Scenario B</span>
+            <span class="step-name lang-de">Szenario B</span>
+          </li>
+          <li class="step-nav-item" data-step="6">
+            <span class="step-num">7</span>
+            <span class="step-name lang-en">Scenario B Q</span>
+            <span class="step-name lang-de">Szenario B F</span>
+          </li>
+          <li class="step-nav-item" data-step="7">
+            <span class="step-num">8</span>
+            <span class="step-name lang-en">Open Discovery</span>
+            <span class="step-name lang-de">Freie Erkundung</span>
+          </li>
+          <li class="step-nav-item" data-step="8">
+            <span class="step-num">9</span>
+            <span class="step-name lang-en">Final Evaluation</span>
+            <span class="step-name lang-de">Gesamtbewertung</span>
+          </li>
+          <li class="step-nav-item" data-step="9">
+            <span class="step-num">10</span>
+            <span class="step-name lang-en">Voice Interview</span>
+            <span class="step-name lang-de">Interview</span>
+          </li>
+          <li class="step-nav-item" data-step="10">
+            <span class="step-num">11</span>
+            <span class="step-name lang-en">Save & Submit</span>
+            <span class="step-name lang-de">Speichern</span>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="lang-en">Diploma Thesis Study - Moritz Schumacher</span>
+        <span class="lang-de">Diplomarbeit-Studie - Moritz Schumacher</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- STEP 1: WELCOME & DEMOGRAPHICS -->
+      <section class="step-card active" id="step-card-0">
+        <div class="card-header">
+          <span class="badge lang-en">Step 1 of 11</span>
+          <span class="badge lang-de">Schritt 1 von 11</span>
+          <h1 class="lang-en">Welcome to the User Study</h1>
+          <h1 class="lang-de">Willkommen zur Nutzerstudie</h1>
+          <p class="subtitle lang-en">Thank you for participating today. This study evaluates an interactive, graph-based study planner tool. It will take approximately 45–60 minutes.</p>
+          <p class="subtitle lang-de">Vielen Dank für Ihre Teilnahme heute. Diese Studie evaluiert ein interaktives, graphenbasiertes Studienplanungstool. Sie wird etwa 45–60 Minuten dauern.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="study-intro" style="margin-bottom: 24px; padding: 20px; background: rgba(0, 0, 0, 0.015); border: 1px solid var(--border-color); border-radius: var(--border-radius-md);">
+            <h3 class="lang-en" style="margin-bottom: 8px; font-family: var(--font-display); font-size: 16px;">📖 About the Study</h3>
+            <h3 class="lang-de" style="margin-bottom: 8px; font-family: var(--font-display); font-size: 16px;">📖 Über diese Studie</h3>
+            
+            <p class="lang-en" style="font-size: 14px; line-height: 1.6; color: var(--text-secondary);">
+              This study evaluates an interactive study planning tool designed to support students in structuring their academic paths. Based on previously collected requirements, we want to evaluate how effectively the current implementation performs. Conceptually, this research investigates how a combination of a visual dependency graph and a semester layout table can help students organize their curriculum and manage constraints.
+            </p>
+            <p class="lang-de" style="font-size: 14px; line-height: 1.6; color: var(--text-secondary);">
+              Im Rahmen dieser Studie evaluieren wir ein interaktives Studienplanungstool, das Studierende bei der Strukturierung ihres Studiums unterstützen soll. Basierend auf zuvor erhobenen Anforderungen möchten wir herausfinden, wie gut das entwickelte Tool diese Aufgabe erfüllt. Konzeptionell untersuchen wir dabei, wie eine Kombination aus einem visuellen Abhängigkeitsgraphen und einer Semestertabelle Studierende dabei unterstützt, ihr Curriculum zu organisieren und Richtlinien einzuhalten.
+            </p>
+          </div>
+
+          <form id="form-demographics" class="form-grid">
+            <div class="form-group full-width">
+              <label for="participant-id" class="lang-en">Participant ID / Code (Assigned by researcher)</label>
+              <label for="participant-id" class="lang-de">Teilnehmer-ID / Code (vom Versuchsleiter zugewiesen)</label>
+              <input type="text" id="participant-id" required placeholder="e.g. P01" data-placeholder-en="e.g. P01" data-placeholder-de="z. B. P01">
+            </div>
+
+            <div class="form-group">
+              <label for="age" class="lang-en">Age</label>
+              <label for="age" class="lang-de">Alter</label>
+              <input type="number" id="age" min="15" max="100" required placeholder="e.g. 23" data-placeholder-en="e.g. 23" data-placeholder-de="z. B. 23">
+            </div>
+
+            <div class="form-group">
+              <label for="gender" class="lang-en">Gender</label>
+              <label for="gender" class="lang-de">Geschlecht</label>
+              <select id="gender" required>
+                <option value="" disabled selected class="lang-en">Select option</option>
+                <option value="" disabled selected class="lang-de">Bitte wählen</option>
+                <option value="Male" class="lang-en">Male</option>
+                <option value="Male" class="lang-de">Männlich</option>
+                <option value="Female" class="lang-en">Female</option>
+                <option value="Female" class="lang-de">Weiblich</option>
+                <option value="Non-binary" class="lang-en">Non-binary / Diverse</option>
+                <option value="Non-binary" class="lang-de">Divers</option>
+                <option value="Prefer not to say" class="lang-en">Prefer not to say</option>
+                <option value="Prefer not to say" class="lang-de">Keine Angabe</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="major" class="lang-en">Study Program / Major</label>
+              <label for="major" class="lang-de">Studiengang / Hauptfach</label>
+              <input type="text" id="major" required placeholder="e.g. Computer Science" data-placeholder-en="e.g. Computer Science" data-placeholder-de="z. B. Informatik">
+            </div>
+
+            <div class="form-group">
+              <label for="semester" class="lang-en">Current Semester</label>
+              <label for="semester" class="lang-de">Aktuelles Semester</label>
+              <input type="number" id="semester" min="1" max="25" required placeholder="e.g. 3" data-placeholder-en="e.g. 3" data-placeholder-de="z. B. 3">
+            </div>
+
+            <div class="form-group full-width">
+              <label for="experience" class="lang-en">Prior experience with academic planner tools?</label>
+              <label for="experience" class="lang-de">Bisherige Erfahrung mit Studienplanungstools?</label>
+              <select id="experience" required>
+                <option value="" disabled selected class="lang-en">Select option</option>
+                <option value="" disabled selected class="lang-de">Bitte wählen</option>
+                <option value="None" class="lang-en">None (I have never used one)</option>
+                <option value="None" class="lang-de">Keine (Ich habe noch nie eines benutzt)</option>
+                <option value="Little" class="lang-en">Little (I have tried one once or twice)</option>
+                <option value="Little" class="lang-de">Gering (Ich habe es ein- oder zweimal probiert)</option>
+                <option value="Regular" class="lang-en">Regular (I use Excel or other tools to plan semesters)</option>
+                <option value="Regular" class="lang-de">Regelmäßig (Ich benutze Excel oder andere Tools)</option>
+              </select>
+            </div>
+          </form>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-primary" onclick="nextStep(0)">
+            <span class="lang-en">Start Study & Consent <span class="arrow">→</span></span>
+            <span class="lang-de">Studie & Einverständnis starten <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 2: RECORDING CONSENT -->
+      <section class="step-card" id="step-card-1">
+        <div class="card-header">
+          <span class="badge lang-en">Step 2 of 11</span>
+          <span class="badge lang-de">Schritt 2 von 11</span>
+          <h1 class="lang-en">Recording Consent & Think-Aloud</h1>
+          <h1 class="lang-de">Einverständnis zur Aufzeichnung & Lautes Denken</h1>
+          <p class="subtitle lang-en">Please confirm you are ready for screen and audio recording and understand the study setup.</p>
+          <p class="subtitle lang-de">Bitte bestätigen Sie, dass Sie bereit für die Bildschirm- und Tonaufzeichnung sind und das Studiendesign verstehen.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="instruction-block">
+            <h3 class="lang-en">🗣️ Think-Aloud Method</h3>
+            <h3 class="lang-de">🗣️ Methode des lauten Denkens</h3>
+            <p class="lang-en">During the scenarios, we want you to use the <strong>think-aloud method</strong>. This means speaking your thoughts continuously while solving tasks. Say everything that goes through your mind: what you look at, what you are trying to do, what makes you hesitate, and what you find easy or frustrating.</p>
+            <p class="lang-de">Während der Szenarien möchten wir Sie bitten, laut zu denken (<strong>Think-Aloud-Methode</strong>). Das bedeutet, dass Sie Ihre Gedanken während der Aufgabenbearbeitung kontinuierlich aussprechen. Sagen Sie alles, was Ihnen durch den Kopf geht: worauf Sie schauen, was Sie versuchen zu tun, was Sie zögern lässt und was Sie einfach oder frustrierend finden.</p>
+            <p class="highlight-text lang-en"><em>Example: "Now I'm looking for cybersecurity courses... Oh, this one needs a prerequisite. Let's see where that is. Ah, I see a connection. Let me drag this here."</em></p>
+            <p class="highlight-text lang-de"><em>Beispiel: „Jetzt suche ich nach Cybersecurity-Kursen... Oh, dieser erfordert eine Voraussetzung. Mal sehen, wo das ist. Ah, ich sehe eine Verbindung. Ich ziehe das mal hierhin.“</em></p>
+          </div>
+
+          <div class="consent-box" style="margin-top: 24px; padding: 20px; background: rgba(255, 255, 255, 0.6); border: 1px solid var(--border-color); border-radius: var(--border-radius-md);">
+            <h3 class="lang-en" style="margin-bottom: 12px; color: var(--danger);">🔴 Recording Permission</h3>
+            <h3 class="lang-de" style="margin-bottom: 12px; color: var(--danger);">🔴 Einverständniserklärung</h3>
+            <p class="lang-en" style="font-size: 14px; margin-bottom: 16px;">Ensure that your screen and audio recording software has been started by the researcher before you proceed.</p>
+            <p class="lang-de" style="font-size: 14px; margin-bottom: 16px;">Stellen Sie sicher, dass Ihre Bildschirm- und Tonaufzeichnungs-Software vom Versuchsleiter gestartet wurde, bevor Sie fortfahren.</p>
+            
+            <label class="checkbox-container" style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 14px; font-weight: 500;">
+              <input type="checkbox" id="recording-consent-chk" style="margin-top: 3px; transform: scale(1.1);">
+              <span class="lang-en">I agree to participate in this study. I consent to having my screen and audio recorded and analyzed anonymously for research purposes.</span>
+              <span class="lang-de">Ich stimme der Teilnahme an dieser Studie zu. Ich bin damit einverstanden, dass mein Bildschirm und Ton aufgezeichnet und für Forschungszwecke anonymisiert analysiert werden.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+            <span class="lang-en">Go to Video Tutorial <span class="arrow">→</span></span>
+            <span class="lang-de">Zum Video-Tutorial <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 3: VIDEO TUTORIAL (NEW) -->
+      <section class="step-card" id="step-card-2">
+        <div class="card-header">
+          <span class="badge lang-en">Step 3 of 11</span>
+          <span class="badge lang-de">Schritt 3 von 11</span>
+          <h1 class="lang-en">Tool Introduction Video</h1>
+          <h1 class="lang-de">Einführungsvideo des Planers</h1>
+          <p class="subtitle lang-en">Please watch this short tutorial video explaining the core functionalities of the study planner tool before starting the scenarios.</p>
+          <p class="subtitle lang-de">Bitte schauen Sie sich dieses kurze Einführungsvideo an, in dem die wichtigsten Funktionen des Studienplaners erklärt werden, bevor Sie mit den Aufgaben beginnen.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="video-container" style="display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; padding: 20px 0;">
+            <div class="instruction-block" style="width: 100%; max-width: 600px;">
+              <p class="lang-en">Before starting the scenarios, please watch the short tutorial video explaining the core functionalities of the study planner tool.</p>
+              <p class="lang-de">Bevor Sie mit den Szenarien beginnen, schauen Sie sich bitte das kurze Einführungsvideo an, in dem die wichtigsten Funktionen des Studienplaners erklärt werden.</p>
+            </div>
+            
+            <a href="tutorial.mp4" id="btn-video-tutorial" target="_blank" class="btn btn-action btn-pulse-purple" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 14px 28px; font-size: 16px; font-weight: 600;">
+              <span class="lang-en">Watch Video Tutorial <span class="external-icon">↗</span></span>
+              <span class="lang-de">Video-Einführung ansehen <span class="external-icon">↗</span></span>
+            </a>
+            
+            <div class="info-banner" style="width: 100%; max-width: 600px;">
+              <p class="lang-en">ℹ️ <strong>Note:</strong> The link opens in a new tab. If the video does not load, the researcher will show it to you directly. Once finished, return to this tab and click the button below to start Scenario A.</p>
+              <p class="lang-de">ℹ️ <strong>Hinweis:</strong> Der Link öffnet sich in einem neuen Tab. Falls das Video nicht geladen werden kann, wird der Versuchsleiter es Ihnen zeigen. Kehren Sie danach hierher zurück und klicken Sie auf Weiter, um Szenario A zu starten.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+            <span class="lang-en">Start Scenario A <span class="arrow">→</span></span>
+            <span class="lang-de">Szenario A starten <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 4: SCENARIO A -->
+      <section class="step-card" id="step-card-3">
+        <div class="card-header">
+          <div class="header-row">
+            <div>
+              <span class="badge lang-en">Step 4 of 11</span>
+              <span class="badge lang-de">Schritt 4 von 11</span>
+              <h1 class="lang-en">Scenario A: Cybersecurity (Baseline)</h1>
+              <h1 class="lang-de">Szenario A: Cybersecurity (Vergleichsgruppe)</h1>
+            </div>
+            <div class="phase-timer-box">
+              <span class="lang-en">Task Time:</span>
+              <span class="lang-de">Bearbeitungszeit:</span>
+              <span id="timer-scenario-a" class="phase-timer">00:00</span>
+            </div>
+          </div>
+          <p class="subtitle lang-en">Read the persona details and complete the planning task below. Please remember to think aloud!</p>
+          <p class="subtitle lang-de">Lesen Sie die Persona-Details und bearbeiten Sie die Planungsaufgabe. Denken Sie bitte an das laute Denken!</p>
+        </div>
+        
+        <div class="card-body">
+          <!-- Baseline Condition Warning Banner -->
+          <div class="info-banner" style="background: rgba(79, 70, 229, 0.08); border-color: rgba(79, 70, 229, 0.25); margin-bottom: 20px;">
+            <h4 class="lang-en" style="color: var(--primary); margin-bottom: 4px;">⚠️ Condition: Baseline (Without Graph)</h4>
+            <h4 class="lang-de" style="color: var(--primary); margin-bottom: 4px;">⚠️ Bedingung: Vergleichsgruppe (Ohne Graph)</h4>
+            <p class="lang-en">For this scenario, you will plan without using the visual graph.</p>
+            <p class="lang-de">In diesem Szenario planen Sie ohne den visuellen Graphen.</p>
+          </div>
+
+          <div class="scenario-grid">
+            <div class="scenario-details">
+              <div class="detail-section">
+                <h3 class="lang-en">👤 Background Persona</h3>
+                <h3 class="lang-de">👤 Persona-Hintergrund</h3>
+                <div class="info-pill-container">
+                  <span class="lang-en"><span class="info-pill">1st-Semester Bachelor Student</span></span>
+                  <span class="lang-de"><span class="info-pill">Bachelorstudienanfänger (1. Semester)</span></span>
+                  <span class="lang-en"><span class="info-pill highlight">Goal: Specialize in Cybersecurity</span></span>
+                  <span class="lang-de"><span class="info-pill highlight">Ziel: Spezialisierung in Cybersecurity</span></span>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <h3 class="lang-en">🎯 Planning Task</h3>
+                <h3 class="lang-de">🎯 Planungsaufgabe</h3>
+                <p class="lang-en">Plan semesters <strong>1–7</strong> using the interactive planner tool.</p>
+                <p class="lang-de">Planen Sie die Semester <strong>1 bis 7</strong> im interaktiven Studienplaner.</p>
+              </div>
+
+              <div class="detail-section">
+                <h3 class="lang-en">⚠️ Constraints</h3>
+                <h3 class="lang-de">⚠️ Bedingungen & Restriktionen</h3>
+                <ul>
+                  <li class="lang-en">Target <strong>~30 ECTS</strong> per semester (acceptable range: <strong>27 to 33 ECTS</strong>).</li>
+                  <li class="lang-de">Ziel sind <strong>ca. 30 ECTS</strong> pro Semester (erlaubter Bereich: <strong>27 bis 33 ECTS</strong>).</li>
+                  <li class="lang-en">Include exactly <strong>one internship semester</strong>. The internship semester is limited to a maximum of <strong>9 ECTS</strong>.</li>
+                  <li class="lang-de">Planen Sie genau <strong>ein Praktikumssemester</strong> ein. Dieses darf maximal <strong>9 ECTS</strong> umfassen.</li>
+                </ul>
+              </div>
+
+              <div class="detail-section">
+                <h3 class="lang-en">💡 Strategy Guidance</h3>
+                <h3 class="lang-de">💡 Strategiehinweis</h3>
+                <ul>
+                  <li class="lang-en">Follow interests and select security/networking-related modules.</li>
+                  <li class="lang-de">Folgen Sie Ihren Interessen und wählen Sie Module aus den Bereichen Sicherheit & Netzwerke.</li>
+                  <li class="lang-en">Stick with related domains to build deep specialization.</li>
+                  <li class="lang-de">Bleiben Sie in verwandten Themenbereichen, um eine tiefgehende Spezialisierung aufzubauen.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="scenario-action-panel">
+              <div class="action-card">
+                <h3 class="lang-en">🖥️ Planner Tool URL</h3>
+                <h3 class="lang-de">🖥️ Studienplaner-URL</h3>
+                <p class="lang-en">Click below to open the planner tool. Keep this guide open in the background. Once finished, return here to fill out the questionnaire.</p>
+                <p class="lang-de">Klicken Sie unten, um den Studienplaner zu öffnen. Lassen Sie diesen Leitfaden im Hintergrund offen. Wenn Sie fertig sind, kehren Sie hierher zurück.</p>
+                
+                <div class="tool-url-config">
+                  <label for="planner-url-a">URL:</label>
+                  <input type="text" id="planner-url-a" value="https://studyplanner-moritz-schumachers-projects.vercel.app/" placeholder="https://studyplanner-moritz-schumachers-projects.vercel.app/">
+                </div>
+                
+                <a href="https://studyplanner-moritz-schumachers-projects.vercel.app/" id="link-planner-a" target="_blank" class="btn btn-action btn-pulse" onclick="startScenarioTimer('scenario-a')">
+                  <span class="lang-en">Open Study Planner <span class="external-icon">↗</span></span>
+                  <span class="lang-de">Studienplaner öffnen <span class="external-icon">↗</span></span>
+                </a>
+                
+                <div class="reminder-box">
+                  <p class="reminder-text lang-en">⌛ <strong>Estimated duration:</strong> ~15 minutes</p>
+                  <p class="reminder-text lang-de">⌛ <strong>Geschätzte Dauer:</strong> ~15 Minuten</p>
+                  <p class="reminder-text lang-en">🗣️ <strong>Remember:</strong> Talk aloud throughout the planning task!</p>
+                  <p class="reminder-text lang-de">🗣️ <strong>Denken Sie daran:</strong> Bitte während der gesamten Aufgabe laut denken!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+            <span class="lang-en">Proceed to Questionnaire <span class="arrow">→</span></span>
+            <span class="lang-de">Zum Fragebogen <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 5: SCENARIO A QUESTIONNAIRE -->
+      <section class="step-card" id="step-card-4">
+        <div class="card-header">
+          <span class="badge lang-en">Step 5 of 11</span>
+          <span class="badge lang-de">Schritt 5 von 11</span>
+          <h1 class="lang-en">Scenario A Evaluation</h1>
+          <h1 class="lang-de">Szenario A Bewertung</h1>
+          <p class="subtitle lang-en">Please provide feedback about your experience with Scenario A.</p>
+          <p class="subtitle lang-de">Bitte bewerten Sie Ihre Erfahrungen mit Szenario A.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="questionnaire-container">
+            <h3 class="section-title lang-en">📊 Technology Acceptance Model (TAM)</h3>
+            <h3 class="section-title lang-de">📊 Technologie-Akzeptanz-Modell (TAM)</h3>
+            <p class="sec-text lang-en">Please rate the following statements on a scale from 1 (Strongly Disagree) to 7 (Strongly Agree).</p>
+            <p class="sec-text lang-de">Bitte bewerten Sie die folgenden Aussagen auf einer Skala von 1 (Stimme überhaupt nicht zu) bis 7 (Stimme vollkommen zu).</p>
+
+            <div class="likert-group">
+              <span class="group-title lang-en">Perceived Usefulness</span>
+              <span class="group-title lang-de">Nützlichkeit</span>
+              
+              <!-- PU1 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">1. The interface helped me create a study plan more effectively.</p>
+                <p class="question-text lang-de">1. Die Benutzeroberfläche half mir, einen Studienplan effektiver zu erstellen.</p>
+                <div class="likert-scale" data-question="a-pu1">
+                  <label><input type="radio" name="a-pu1" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-pu1" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-pu1" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-pu1" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-pu1" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-pu1" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-pu1" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PU2 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">2. The interface improved my productivity when dealing with course dependencies and constraints.</p>
+                <p class="question-text lang-de">2. Die Benutzeroberfläche verbesserte meine Produktivität im Umgang mit Modulabhängigkeiten und Studienrestriktionen.</p>
+                <div class="likert-scale" data-question="a-pu2">
+                  <label><input type="radio" name="a-pu2" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-pu2" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-pu2" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-pu2" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-pu2" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-pu2" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-pu2" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PU3 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">3. The interface would be useful for planning my own studies.</p>
+                <p class="question-text lang-de">3. Die Benutzeroberfläche wäre für die Planung meines eigenen Studiums nützlich.</p>
+                <div class="likert-scale" data-question="a-pu3">
+                  <label><input type="radio" name="a-pu3" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-pu3" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-pu3" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-pu3" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-pu3" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-pu3" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-pu3" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="likert-group">
+              <span class="group-title lang-en">Perceived Ease of Use</span>
+              <span class="group-title lang-de">Benutzerfreundlichkeit</span>
+              
+              <!-- PEU1 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">4. Learning to use the interface was easy for me.</p>
+                <p class="question-text lang-de">4. Den Umgang mit der Benutzeroberfläche zu erlernen, fiel mir leicht.</p>
+                <div class="likert-scale" data-question="a-peu1">
+                  <label><input type="radio" name="a-peu1" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-peu1" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-peu1" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-peu1" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-peu1" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-peu1" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-peu1" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PEU2 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">5. The interface made it easy to keep an overview while planning.</p>
+                <p class="question-text lang-de">5. Die Benutzeroberfläche machte es einfach, während der Semesterplanung den Überblick zu behalten.</p>
+                <div class="likert-scale" data-question="a-peu2">
+                  <label><input type="radio" name="a-peu2" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-peu2" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-peu2" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-peu2" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-peu2" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-peu2" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-peu2" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PEU3 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">6. Interacting with the interface felt clear and understandable.</p>
+                <p class="question-text lang-de">6. Die Interaktion mit der Benutzeroberfläche war klar und verständlich.</p>
+                <div class="likert-scale" data-question="a-peu3">
+                  <label><input type="radio" name="a-peu3" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-peu3" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-peu3" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-peu3" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-peu3" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-peu3" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-peu3" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task completion, satisfaction, difficulty attributes -->
+            <div class="likert-group">
+              <span class="group-title lang-en">Task Completion & Satisfaction</span>
+              <span class="group-title lang-de">Aufgabenabschluss & Zufriedenheit</span>
+
+              <!-- Success -->
+              <div class="question-select-row">
+                <p class="question-text lang-en">7. How successful were you in meeting all task constraints (e.g. semesters 1-7, 30 ECTS ±3, internship semester max 9 ECTS)?</p>
+                <p class="question-text lang-de">7. Wie erfolgreich waren Sie beim Einhalten aller Studienbedingungen (z. B. Semester 1-7, 30 ECTS ±3, Praktikum max. 9 ECTS)?</p>
+                <div class="custom-radio-group">
+                  <label class="radio-card">
+                    <input type="radio" name="a-success" value="Yes" required>
+                    <span class="radio-label lang-en">Fully Successful</span>
+                    <span class="radio-label lang-de">Vollständig erfolgreich</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="a-success" value="Partially">
+                    <span class="radio-label lang-en">Partially Successful</span>
+                    <span class="radio-label lang-de">Teilweise erfolgreich</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="a-success" value="No">
+                    <span class="radio-label lang-en">Not Successful</span>
+                    <span class="radio-label lang-de">Nicht erfolgreich</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Satisfaction -->
+              <div class="likert-row">
+                <p class="question-text lang-en">8. Rate your satisfaction with the semester plan you created for Scenario A.</p>
+                <p class="question-text lang-de">8. Wie zufrieden sind Sie mit dem von Ihnen erstellten Semesterplan in Szenario A?</p>
+                <div class="likert-scale" data-question="a-satisfaction">
+                  <label><input type="radio" name="a-satisfaction" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-satisfaction" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-satisfaction" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-satisfaction" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-satisfaction" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-satisfaction" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-satisfaction" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Very Dissatisfied</span>
+                  <span class="lang-de">Sehr unzufrieden</span>
+                  <span class="lang-en">Very Satisfied</span>
+                  <span class="lang-de">Sehr zufrieden</span>
+                </div>
+              </div>
+
+              <!-- Difficulty -->
+              <div class="likert-row">
+                <p class="question-text lang-en">9. How easy or difficult did you find it to complete the task with this tool?</p>
+                <p class="question-text lang-de">9. Wie einfach oder schwierig war es für Sie, die Aufgabe mit diesem Tool zu bearbeiten?</p>
+                <div class="likert-scale" data-question="a-difficulty">
+                  <label><input type="radio" name="a-difficulty" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="a-difficulty" value="2"><span>2</span></label>
+                  <label><input type="radio" name="a-difficulty" value="3"><span>3</span></label>
+                  <label><input type="radio" name="a-difficulty" value="4"><span>4</span></label>
+                  <label><input type="radio" name="a-difficulty" value="5"><span>5</span></label>
+                  <label><input type="radio" name="a-difficulty" value="6"><span>6</span></label>
+                  <label><input type="radio" name="a-difficulty" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Very Difficult</span>
+                  <span class="lang-de">Sehr schwierig</span>
+                  <span class="lang-en">Very Easy</span>
+                  <span class="lang-de">Sehr einfach</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(4)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(4)">
+            <span class="lang-en">Next Scenario <span class="arrow">→</span></span>
+            <span class="lang-de">Nächstes Szenario <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 6: SCENARIO B -->
+      <section class="step-card" id="step-card-5">
+        <div class="card-header">
+          <div class="header-row">
+            <div>
+              <span class="badge lang-en">Step 6 of 11</span>
+              <span class="badge lang-de">Schritt 6 von 11</span>
+              <h1 class="lang-en">Scenario B: Artificial Intelligence (Graph Enabled)</h1>
+              <h1 class="lang-de">Szenario B: Künstliche Intelligenz (Mit Graph)</h1>
+            </div>
+            <div class="phase-timer-box">
+              <span class="lang-en">Task Time:</span>
+              <span class="lang-de">Bearbeitungszeit:</span>
+              <span id="timer-scenario-b" class="phase-timer">00:00</span>
+            </div>
+          </div>
+          <p class="subtitle lang-en">Read the persona details and complete the planning task below. Remember to think aloud!</p>
+          <p class="subtitle lang-de">Lesen Sie die Persona-Details und bearbeiten Sie die Planungsaufgabe. Denken Sie bitte an das laute Denken!</p>
+        </div>
+        
+        <div class="card-body">
+          <!-- Experimental Condition Banner -->
+          <div class="info-banner" style="background: rgba(147, 51, 234, 0.08); border-color: rgba(147, 51, 234, 0.25); margin-bottom: 20px;">
+            <h4 class="lang-en" style="color: var(--secondary); margin-bottom: 4px;">⚠️ Condition: Experimental (With Graph)</h4>
+            <h4 class="lang-de" style="color: var(--secondary); margin-bottom: 4px;">⚠️ Bedingung: Experimentalgruppe (Mit Graph)</h4>
+            <p class="lang-en">For this scenario, you should use whole tool including the visual graph.</p>
+            <p class="lang-de">In diesem Szenario sollten Sie das gesamte Tool inklusive des visuellen Graphen nutzen.</p>
+          </div>
+
+          <div class="scenario-grid">
+            <div class="scenario-details">
+              <div class="detail-section">
+                <h3 class="lang-en">👤 Background Persona</h3>
+                <h3 class="lang-de">👤 Persona-Hintergrund</h3>
+                <div class="info-pill-container">
+                  <span class="lang-en"><span class="info-pill">1st-Semester Bachelor Student</span></span>
+                  <span class="lang-de"><span class="info-pill">Bachelorstudienanfänger (1. Semester)</span></span>
+                  <span class="lang-en"><span class="info-pill highlight purple">Goal: Specialize in Artificial Intelligence</span></span>
+                  <span class="lang-de"><span class="info-pill highlight purple">Ziel: Spezialisierung in Künstlicher Intelligenz</span></span>
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <h3 class="lang-en">🎯 Planning Task</h3>
+                <h3 class="lang-de">🎯 Planungsaufgabe</h3>
+                <p class="lang-en">Plan semesters <strong>1–8</strong> using the interactive planner tool.</p>
+                <p class="lang-de">Planen Sie die Semester <strong>1 bis 8</strong> im interaktiven Studienplaner.</p>
+              </div>
+
+              <div class="detail-section">
+                <h3 class="lang-en">⚠️ Constraints</h3>
+                <h3 class="lang-de">⚠️ Bedingungen & Restriktionen</h3>
+                <ul>
+                  <li class="lang-en">Target <strong>~24 ECTS</strong> per semester (acceptable range: <strong>21 to 27 ECTS</strong>).</li>
+                  <li class="lang-de">Ziel sind <strong>ca. 24 ECTS</strong> pro Semester (erlaubter Bereich: <strong>21 bis 27 ECTS</strong>).</li>
+                  <li class="lang-en">Include exactly <strong>one exchange semester</strong>. The exchange semester is limited to a maximum of <strong>9 ECTS</strong>.</li>
+                  <li class="lang-de">Planen Sie genau <strong>ein Auslandssemester</strong> ein. Dieses darf maximal <strong>9 ECTS</strong> umfassen.</li>
+                </ul>
+              </div>
+
+              <div class="detail-section">
+                <h3 class="lang-en">💡 Strategy Guidance</h3>
+                <h3 class="lang-de">💡 Strategiehinweis</h3>
+                <ul>
+                  <li class="lang-en">Follow interests and select AI, Data Science, and Machine Learning modules.</li>
+                  <li class="lang-de">Folgen Sie Ihren Interessen und wählen Sie Module aus den Bereichen KI, Data Science und Maschinelles Lernen.</li>
+                  <li class="lang-en">Explore new domains to build a broader understanding.</li>
+                  <li class="lang-de">Erkunden Sie neue Themenbereiche, um ein breiteres Verständnis aufzubauen.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="scenario-action-panel">
+              <div class="action-card">
+                <h3 class="lang-en">🖥️ Planner Tool URL</h3>
+                <h3 class="lang-de">🖥️ Studienplaner-URL</h3>
+                <p class="lang-en">Click below to open the planner tool. Keep this guide open in the background. Once finished, return here to fill out the questionnaire.</p>
+                <p class="lang-de">Klicken Sie unten, um das Studienplanungs-Tool zu öffnen. Lassen Sie diesen Leitfaden im Hintergrund geöffnet. Wenn Sie fertig sind, kehren Sie hierher zurück, um den Fragebogen auszufüllen.</p>
+                
+                <div class="tool-url-config">
+                  <label for="planner-url-b">URL:</label>
+                  <input type="text" id="planner-url-b" value="https://studyplanner-moritz-schumachers-projects.vercel.app/" placeholder="https://studyplanner-moritz-schumachers-projects.vercel.app/">
+                </div>
+                
+                <a href="https://studyplanner-moritz-schumachers-projects.vercel.app/" id="link-planner-b" target="_blank" class="btn btn-action btn-pulse-purple" onclick="startScenarioTimer('scenario-b')">
+                  <span class="lang-en">Open Study Planner <span class="external-icon">↗</span></span>
+                  <span class="lang-de">Studienplaner öffnen <span class="external-icon">↗</span></span>
+                </a>
+                
+                <div class="reminder-box">
+                  <p class="reminder-text lang-en">⌛ <strong>Estimated duration:</strong> ~15 minutes</p>
+                  <p class="reminder-text lang-de">⌛ <strong>Geschätzte Dauer:</strong> ~15 Minuten</p>
+                  <p class="reminder-text lang-en">🗣️ <strong>Remember:</strong> Talk aloud throughout the planning task!</p>
+                  <p class="reminder-text lang-de">🗣️ <strong>Denken Sie daran:</strong> Bitte während der gesamten Aufgabe laut denken!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(5)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(5)">
+            <span class="lang-en">Proceed to Questionnaire <span class="arrow">→</span></span>
+            <span class="lang-de">Zum Fragebogen <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 7: SCENARIO B QUESTIONNAIRE -->
+      <section class="step-card" id="step-card-6">
+        <div class="card-header">
+          <span class="badge lang-en">Step 7 of 11</span>
+          <span class="badge lang-de">Schritt 7 von 11</span>
+          <h1 class="lang-en">Scenario B Evaluation</h1>
+          <h1 class="lang-de">Szenario B Bewertung</h1>
+          <p class="subtitle lang-en">Please provide feedback about your experience with Scenario B.</p>
+          <p class="subtitle lang-de">Bitte bewerten Sie Ihre Erfahrungen mit Szenario B.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="questionnaire-container">
+            <h3 class="section-title lang-en">📊 Technology Acceptance Model (TAM)</h3>
+            <h3 class="section-title lang-de">📊 Technologie-Akzeptanz-Modell (TAM)</h3>
+            <p class="sec-text lang-en">Please rate the following statements on a scale from 1 (Strongly Disagree) to 7 (Strongly Agree).</p>
+            <p class="sec-text lang-de">Bitte bewerten Sie die folgenden Aussagen auf einer Skala von 1 (Stimme überhaupt nicht zu) bis 7 (Stimme vollkommen zu).</p>
+
+            <div class="likert-group">
+              <span class="group-title lang-en">Perceived Usefulness</span>
+              <span class="group-title lang-de">Nützlichkeit</span>
+              
+              <!-- PU1 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">1. The interface helped me create a study plan more effectively.</p>
+                <p class="question-text lang-de">1. Die Benutzeroberfläche half mir, einen Studienplan effektiver zu erstellen.</p>
+                <div class="likert-scale" data-question="b-pu1">
+                  <label><input type="radio" name="b-pu1" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-pu1" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-pu1" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-pu1" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-pu1" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-pu1" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-pu1" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PU2 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">2. The interface improved my productivity when dealing with course dependencies and constraints.</p>
+                <p class="question-text lang-de">2. Die Benutzeroberfläche verbesserte meine Produktivität im Umgang mit Modulabhängigkeiten und Studienrestriktionen.</p>
+                <div class="likert-scale" data-question="b-pu2">
+                  <label><input type="radio" name="b-pu2" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-pu2" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-pu2" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-pu2" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-pu2" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-pu2" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-pu2" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PU3 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">3. The interface would be useful for planning my own studies.</p>
+                <p class="question-text lang-de">3. Die Benutzeroberfläche wäre für die Planung meines eigenen Studiums nützlich.</p>
+                <div class="likert-scale" data-question="b-pu3">
+                  <label><input type="radio" name="b-pu3" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-pu3" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-pu3" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-pu3" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-pu3" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-pu3" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-pu3" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="likert-group">
+              <span class="group-title lang-en">Perceived Ease of Use</span>
+              <span class="group-title lang-de">Benutzerfreundlichkeit</span>
+              
+              <!-- PEU1 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">4. Learning to use the interface was easy for me.</p>
+                <p class="question-text lang-de">4. Den Umgang mit der Benutzeroberfläche zu erlernen, fiel mir leicht.</p>
+                <div class="likert-scale" data-question="b-peu1">
+                  <label><input type="radio" name="b-peu1" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-peu1" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-peu1" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-peu1" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-peu1" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-peu1" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-peu1" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PEU2 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">5. The interface made it easy to keep an overview while planning.</p>
+                <p class="question-text lang-de">5. Die Benutzeroberfläche machte es einfach, während der Semesterplanung den Überblick zu behalten.</p>
+                <div class="likert-scale" data-question="b-peu2">
+                  <label><input type="radio" name="b-peu2" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-peu2" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-peu2" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-peu2" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-peu2" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-peu2" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-peu2" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+
+              <!-- PEU3 -->
+              <div class="likert-row">
+                <p class="question-text lang-en">6. Interacting with the interface felt clear and understandable.</p>
+                <p class="question-text lang-de">6. Die Interaktion mit der Benutzeroberfläche war klar und verständlich.</p>
+                <div class="likert-scale" data-question="b-peu3">
+                  <label><input type="radio" name="b-peu3" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-peu3" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-peu3" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-peu3" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-peu3" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-peu3" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-peu3" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Strongly Disagree</span>
+                  <span class="lang-de">Stimme gar nicht zu</span>
+                  <span class="lang-en">Strongly Agree</span>
+                  <span class="lang-de">Stimme voll zu</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task completion, satisfaction, difficulty attributes -->
+            <div class="likert-group">
+              <span class="group-title lang-en">Task Completion & Satisfaction</span>
+              <span class="group-title lang-de">Aufgabenabschluss & Zufriedenheit</span>
+
+              <!-- Success -->
+              <div class="question-select-row">
+                <p class="question-text lang-en">7. How successful were you in meeting all task constraints (e.g. semesters 1-8, 24 ECTS ±3, exchange semester max 9 ECTS)?</p>
+                <p class="question-text lang-de">7. Wie erfolgreich waren Sie beim Einhalten aller Studienbedingungen (z. B. Semester 1-8, 24 ECTS ±3, Auslandssemester max. 9 ECTS)?</p>
+                <div class="custom-radio-group">
+                  <label class="radio-card">
+                    <input type="radio" name="b-success" value="Yes" required>
+                    <span class="radio-label lang-en">Fully Successful</span>
+                    <span class="radio-label lang-de">Vollständig erfolgreich</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="b-success" value="Partially">
+                    <span class="radio-label lang-en">Partially Successful</span>
+                    <span class="radio-label lang-de">Teilweise erfolgreich</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="b-success" value="No">
+                    <span class="radio-label lang-en">Not Successful</span>
+                    <span class="radio-label lang-de">Nicht erfolgreich</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Satisfaction -->
+              <div class="likert-row">
+                <p class="question-text lang-en">8. Rate your satisfaction with the semester plan you created for Scenario B.</p>
+                <p class="question-text lang-de">8. Wie zufrieden sind Sie mit dem von Ihnen erstellten Semesterplan in Szenario B?</p>
+                <div class="likert-scale" data-question="b-satisfaction">
+                  <label><input type="radio" name="b-satisfaction" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-satisfaction" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-satisfaction" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-satisfaction" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-satisfaction" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-satisfaction" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-satisfaction" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Very Dissatisfied</span>
+                  <span class="lang-de">Sehr unzufrieden</span>
+                  <span class="lang-en">Very Satisfied</span>
+                  <span class="lang-de">Sehr zufrieden</span>
+                </div>
+              </div>
+
+              <!-- Difficulty -->
+              <div class="likert-row">
+                <p class="question-text lang-en">9. How easy or difficult did you find it to complete the task with this tool?</p>
+                <p class="question-text lang-de">9. Wie einfach oder schwierig war es für Sie, die Aufgabe mit diesem Tool zu bearbeiten?</p>
+                <div class="likert-scale" data-question="b-difficulty">
+                  <label><input type="radio" name="b-difficulty" value="1" required><span>1</span></label>
+                  <label><input type="radio" name="b-difficulty" value="2"><span>2</span></label>
+                  <label><input type="radio" name="b-difficulty" value="3"><span>3</span></label>
+                  <label><input type="radio" name="b-difficulty" value="4"><span>4</span></label>
+                  <label><input type="radio" name="b-difficulty" value="5"><span>5</span></label>
+                  <label><input type="radio" name="b-difficulty" value="6"><span>6</span></label>
+                  <label><input type="radio" name="b-difficulty" value="7"><span>7</span></label>
+                </div>
+                <div class="likert-labels">
+                  <span class="lang-en">Very Difficult</span>
+                  <span class="lang-de">Sehr schwierig</span>
+                  <span class="lang-en">Very Easy</span>
+                  <span class="lang-de">Sehr einfach</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(6)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(6)">
+            <span class="lang-en">Proceed to Open Discovery <span class="arrow">→</span></span>
+            <span class="lang-de">Zur freien Erkundung <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 8: OPEN DISCOVERY -->
+      <section class="step-card" id="step-card-7">
+        <div class="card-header">
+          <div class="header-row">
+            <div>
+              <span class="badge lang-en">Step 8 of 11</span>
+              <span class="badge lang-de">Schritt 8 von 11</span>
+              <h1 class="lang-en">Open Discovery of the Tool</h1>
+              <h1 class="lang-de">Freie Erkundung des Planers</h1>
+            </div>
+            <div class="phase-timer-box">
+              <span class="lang-en">Discovery Time:</span>
+              <span class="lang-de">Erkundungszeit:</span>
+              <span id="timer-open-discovery" class="phase-timer">00:00</span>
+            </div>
+          </div>
+          <p class="subtitle lang-en">Take a few minutes to explore the tool freely, test functionalities, look at other domain filters, or modify things at your leisure.</p>
+          <p class="subtitle lang-de">Nehmen Sie sich einige Minuten Zeit, um das Tool frei zu erkunden, Funktionen zu testen und beliebige Änderungen vorzunehmen.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="instruction-block">
+            <h3 class="lang-en">🔍 Explore Freely</h3>
+            <h3 class="lang-de">🔍 Frei Ausprobieren</h3>
+            <p class="lang-en">During this phase, you are not bound by any persona constraints. Feel free to explore features you haven't used yet, add/remove courses, or navigate through the recommendation settings. Continue thinking out loud as you play with the UI!</p>
+            <p class="lang-de">In dieser Phase sind Sie an keine Restriktionen gebunden. Testen Sie Funktionen, die Sie noch nicht ausprobiert haben, fügen Sie Kurse hinzu oder entfernen Sie sie. Denken Sie bitte weiterhin laut nach!</p>
+          </div>
+
+          <div class="discovery-links-box">
+            <a href="https://studyplanner-moritz-schumachers-projects.vercel.app/" id="link-planner-discovery" target="_blank" class="btn btn-action" onclick="startScenarioTimer('open-discovery')">
+              <span class="lang-en">Access Study Planner <span class="external-icon">↗</span></span>
+              <span class="lang-de">Studienplaner öffnen <span class="external-icon">↗</span></span>
+            </a>
+            <span class="help-text lang-en">Take as long as you like (suggested: 5–8 minutes).</span>
+            <span class="help-text lang-de">Nehmen Sie sich so viel Zeit, wie Sie möchten (Empfehlung: 5–8 Minuten).</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(7)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(7)">
+            <span class="lang-en">Start Final Questionnaire <span class="arrow">→</span></span>
+            <span class="lang-de">Zum Abschluss-Fragebogen <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 9: FINAL EVALUATION (FULL UEQ - 26 ITEMS) -->
+      <section class="step-card" id="step-card-8">
+        <div class="card-header">
+          <span class="badge lang-en">Step 9 of 11</span>
+          <span class="badge lang-de">Schritt 9 von 11</span>
+          <h1 class="lang-en">Final Evaluation (UEQ)</h1>
+          <h1 class="lang-de">Gesamtbewertung (UEQ)</h1>
+          <p class="subtitle lang-en">Please rate the study planner tool as a whole using the following 26 opposite attribute pairs.</p>
+          <p class="subtitle lang-de">Bitte bewerten Sie den Studienplaner als Ganzes anhand der folgenden 26 gegensätzlichen Eigenschaftspaare.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="questionnaire-container">
+            <h3 class="section-title lang-en">⭐ User Experience Questionnaire (UEQ)</h3>
+            <h3 class="section-title lang-de">⭐ User Experience Questionnaire (UEQ)</h3>
+            <p class="sec-text lang-en">Please select the button that best represents your feeling between the two opposite extremes. Choose neutrally (4) if you feel indifferent.</p>
+            <p class="sec-text lang-de">Wählen Sie jeweils den Radiobutton aus, der Ihrem Gefühl zwischen den Extremen entspricht. Wählen Sie die neutrale Mitte (4) bei Unentschiedenheit.</p>
+
+            <div class="ueq-scale-container" style="display: flex; flex-direction: column; gap: 14px; margin-top: 20px;">
+              
+              <!-- Generated 26 UEQ Items dynamically or statically -->
+              <!-- Render statically for maximum browser performance and layout control -->
+              
+              <!-- Helper Macro representation -->
+              <script>
+                const ueqItems = [
+                  { id: 1, en: ["annoying", "enjoyable"], de: ["unangenehm", "erfreulich"] },
+                  { id: 2, en: ["not understandable", "understandable"], de: ["unverständlich", "verständlich"] },
+                  { id: 3, en: ["creative", "dull"], de: ["kreativ", "phantasielos"] },
+                  { id: 4, en: ["easy to learn", "difficult to learn"], de: ["leicht zu lernen", "schwer zu lernen"] },
+                  { id: 5, en: ["valuable", "inferior"], de: ["wertvoll", "minderwertig"] },
+                  { id: 6, en: ["boring", "exciting"], de: ["langweilig", "spannend"] },
+                  { id: 7, en: ["not interesting", "interesting"], de: ["uninteressant", "interessant"] },
+                  { id: 8, en: ["unpredictable", "predictable"], de: ["unberechenbar", "voraussagbar"] },
+                  { id: 9, en: ["leading edge", "usual"], de: ["neuartig", "herkömmlich"] },
+                  { id: 10, en: ["unpleasant", "pleasant"], de: ["unangenehm", "angenehm"] },
+                  { id: 11, en: ["secure", "insecure"], de: ["sicher", "unsicher"] },
+                  { id: 12, en: ["motivating", "demotivating"], de: ["motivierend", "demotivierend"] },
+                  { id: 13, en: ["meets expectations", "does not meet expectations"], de: ["erwartungskonform", "nicht erwartungskonform"] },
+                  { id: 14, en: ["inefficient", "efficient"], de: ["ineffizient", "effizient"] },
+                  { id: 15, en: ["clear", "confusing"], de: ["übersichtlich", "verwirrend"] },
+                  { id: 16, en: ["impractical", "practical"], de: ["unpraktisch", "praktisch"] },
+                  { id: 17, en: ["organized", "cluttered"], de: ["aufgeräumt", "überladen"] },
+                  { id: 18, en: ["attractive", "unattractive"], de: ["attraktiv", "unattraktiv"] },
+                  { id: 19, en: ["friendly", "unfriendly"], de: ["freundlich", "unfreundlich"] },
+                  { id: 20, en: ["conservative", "innovative"], de: ["konservativ", "innovativ"] },
+                  { id: 21, en: ["obstructive", "supportive"], de: ["behindernd", "unterstützend"] },
+                  { id: 22, en: ["good", "bad"], de: ["gut", "schlecht"] },
+                  { id: 23, en: ["easy", "complicated"], de: ["einfach", "kompliziert"] },
+                  { id: 24, en: ["unlikable", "pleasing"], de: ["unsympathisch", "sympathisch"] },
+                  { id: 25, en: ["state-of-the-art", "conventional"], de: ["modern", "altmodisch"] },
+                  { id: 26, en: ["fast", "slow"], de: ["schnell", "langsam"] }
+                ];
+                
+                // We will print the HTML nodes here
+                ueqItems.forEach(item => {
+                  document.write(`
+                    <div class="ueq-row" style="display: grid; grid-template-columns: 180px 1fr 180px; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px dashed rgba(15, 23, 42, 0.04);">
+                      <span class="ueq-pole ueq-left-pole" style="text-align: right; font-size: 13px; font-weight: 600; color: var(--text-secondary);">
+                        <span class="lang-en">${item.en[0]}</span>
+                        <span class="lang-de">${item.de[0]}</span>
+                      </span>
+                      <div class="ueq-scale" data-question="ueq-item${item.id}" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.02); padding: 6px 12px; border-radius: var(--border-radius-md);">
+                        ${[1, 2, 3, 4, 5, 6, 7].map(num => `
+                          <label style="display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;">
+                            <input type="radio" name="ueq-item${item.id}" value="${num}" required style="cursor: pointer; transform: scale(1.1);">
+                            <span style="font-size: 10px; color: var(--text-muted); font-weight: 700;">${num}</span>
+                          </label>
+                        `).join('')}
+                      </div>
+                      <span class="ueq-pole ueq-right-pole" style="text-align: left; font-size: 13px; font-weight: 600; color: var(--text-secondary);">
+                        <span class="lang-en">${item.en[1]}</span>
+                        <span class="lang-de">${item.de[1]}</span>
+                      </span>
+                    </div>
+                  `);
+                });
+              </script>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(8)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(8)">
+            <span class="lang-en">Proceed to Interview <span class="arrow">→</span></span>
+            <span class="lang-de">Zum Interview <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 10: SEMI-STRUCTURED INTERVIEW & VOICE FEEDBACK -->
+      <section class="step-card" id="step-card-9">
+        <div class="card-header">
+          <span class="badge lang-en">Step 10 of 11</span>
+          <span class="badge lang-de">Schritt 10 von 11</span>
+          <h1 class="lang-en">Semi-Structured Interview & Feedback</h1>
+          <h1 class="lang-de">Semi-strukturiertes Interview & Feedback</h1>
+          <p class="subtitle lang-en">Type notes directly in this tab to be saved with the study data.</p>
+          <p class="subtitle lang-de">Schreiben Sie Notizen direkt in diesen Tab, um sie mit den Studiendaten zu speichern.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="discussion-grid">
+            <div class="discussion-guide">
+              <h3 class="lang-en">🗣️ Interview Guide Topics</h3>
+              <h3 class="lang-de">🗣️ Interviewleitfaden-Themen</h3>
+              <p class="sec-text lang-en">Discuss the following topics in the voice channel:</p>
+              <p class="sec-text lang-de">Diskutieren Sie die folgenden Themen im Sprachkanal:</p>
+              
+              <div class="topic-item">
+                <strong class="lang-en">🧱 System Blocks & Friction</strong>
+                <strong class="lang-de">🧱 Hürden & System-Barrieren</strong>
+                <p class="lang-en">Were there moments where the planner tool blocked your progress or made it hard to implement your plan?</p>
+                <p class="lang-de">Gab es Momente, in denen das Planungstool Sie blockiert oder die Planung erschwert hat?</p>
+              </div>
+
+              <div class="topic-item">
+                <strong class="lang-en">🔄 Backtracking & Re-planning</strong>
+                <strong class="lang-de">🔄 Planänderungen & Löschen</strong>
+                <p class="lang-en">Did you have to backtrack or delete parts of your plan to satisfy constraints? How did the interface support/hinder this?</p>
+                <p class="lang-de">Mussten Sie oft umplanen oder Kurse löschen, um Restriktionen zu erfüllen? Wie hat Sie das Tool unterstützt?</p>
+              </div>
+
+              <div class="topic-item">
+                <strong class="lang-en">🤔 Hesitation / Orientation Behavior</strong>
+                <strong class="lang-de">🤔 Zögern / Orientierungs-Verhalten</strong>
+                <p class="lang-en">Did you feel confused or pause at certain states? How understandable was the visual feedback (e.g. recommendation arrows or warnings)?</p>
+                <p class="lang-de">Waren Sie verwirrt oder mussten innehalten? Wie verständlich war das visuelle Feedback (Pfeile, Warnungen)?</p>
+              </div>
+
+              <div class="topic-item">
+                <strong class="lang-en">💬 General Feedback</strong>
+                <strong class="lang-de">💬 Allgemeines Feedback</strong>
+                <p class="lang-en">What were your favorite aspects, and what was missing?</p>
+                <p class="lang-de">Was gefiel Ihnen am besten und was hat Ihnen gefehlt?</p>
+              </div>
+            </div>
+
+            <div class="interviewer-notes-panel">
+              <label for="interview-notes" class="lang-en">📝Notes (will be saved in the JSON file):</label>
+              <label for="interview-notes" class="lang-de">📝Notizen (werden in der JSON-Datei gespeichert):</label>
+              <textarea id="interview-notes" rows="15" placeholder="Type thoughts, comments, and interview observations here..." data-placeholder-en="Type thoughts, comments, and interview observations here..." data-placeholder-de="Schreiben Sie Gedanken, Kommentare und Beobachtungen hier auf..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(9)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-primary" onclick="nextStep(9)">
+            <span class="lang-en">Finish & Save Data <span class="arrow">→</span></span>
+            <span class="lang-de">Fertigstellen & Speichern <span class="arrow">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 11: SAVE & COMPLETION -->
+      <section class="step-card" id="step-card-10">
+        <div class="card-header">
+          <span class="badge lang-en">Step 11 of 11</span>
+          <span class="badge lang-de">Schritt 11 von 11</span>
+          <h1 class="lang-en">Study Completed</h1>
+          <h1 class="lang-de">Studie Abgeschlossen</h1>
+          <p class="subtitle lang-en">Thank you so much for your time and valuable feedback. Let's make sure the study results are safely stored.</p>
+          <p class="subtitle lang-de">Vielen Dank für Ihre Zeit und das wertvolle Feedback. Lassen Sie uns die Daten sicher speichern.</p>
+        </div>
+        
+        <div class="card-body">
+          <div class="submission-panel">
+            <div class="save-status-indicator" id="save-status">
+              <div class="status-spinner"></div>
+              <span class="lang-en">Saving results to backend...</span>
+              <span class="lang-de">Ergebnisse werden gespeichert...</span>
+            </div>
+
+            <div class="completion-details-box">
+              <h3 class="lang-en">📄 Session Data Summary</h3>
+              <h3 class="lang-de">📄 Zusammenfassung der Sitzungsdaten</h3>
+              <table class="summary-table">
+                <tr>
+                  <th class="lang-en">Participant Code:</th>
+                  <th class="lang-de">Teilnehmer-Code:</th>
+                  <td id="summary-id">-</td>
+                </tr>
+                <tr>
+                  <th class="lang-en">Total Time:</th>
+                  <th class="lang-de">Gesamtzeit:</th>
+                  <td id="summary-time">00:00:00</td>
+                </tr>
+                <tr>
+                  <th class="lang-en">Scenario A Time:</th>
+                  <th class="lang-de">Szenario A Zeit:</th>
+                  <td id="summary-time-a">00:00</td>
+                </tr>
+                <tr>
+                  <th class="lang-en">Scenario B Time:</th>
+                  <th class="lang-de">Szenario B Zeit:</th>
+                  <td id="summary-time-b">00:00</td>
+                </tr>
+                <tr>
+                  <th class="lang-en">Open Discovery Time:</th>
+                  <th class="lang-de">Erkundungszeit:</th>
+                  <td id="summary-time-discovery">00:00</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="actions-grid">
+              <button type="button" class="btn btn-action-secondary" onclick="copyResultsToClipboard()">
+                <span class="lang-en">📋 Copy Data JSON to Clipboard</span>
+                <span class="lang-de">📋 JSON in Zwischenablage kopieren</span>
+              </button>
+              
+              <button type="button" class="btn btn-action" onclick="downloadResultsJSON()">
+                <span class="lang-en">📥 Download Results JSON</span>
+                <span class="lang-de">📥 Ergebnisse als JSON downloaden</span>
+              </button>
+            </div>
+
+            <div class="data-preview-box">
+              <label class="lang-en">Data Preview:</label>
+              <label class="lang-de">Daten-Vorschau:</label>
+              <pre id="json-preview"></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="button" class="btn btn-secondary" onclick="prevStep(10)">
+            <span class="lang-en"><span class="arrow">←</span> Back</span>
+            <span class="lang-de"><span class="arrow">←</span> Zurück</span>
+          </button>
+          <button type="button" class="btn btn-accent" onclick="resetSession()">
+            <span class="lang-en">Restart New Session</span>
+            <span class="lang-de">Neue Sitzung starten</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="config-env.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

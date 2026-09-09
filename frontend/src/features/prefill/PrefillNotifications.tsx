@@ -1,10 +1,7 @@
 /**
- * The offers of a prebuilt plan, wired to the banner strip that shows them.
- *
- * The strip also carries the progress milestone, which belongs to the rule
- * check rather than to the prefill. It is passed through here because the three
- * banners share one fixed corner of the screen and only one of them may occupy
- * it at a time.
+ * The prebuilt-plan offers, wired to the banner strip that shows them. The
+ * strip also carries the progress milestone, which belongs to the rule check;
+ * it is routed through here because the three banners share one screen corner.
  */
 
 import PlannerNotifications from "../../components/app/PlannerNotifications.jsx";
@@ -53,8 +50,8 @@ export default function PrefillNotifications({
             selectedFocus={selectedFocus}
             tourCompleted={tourCompleted}
             onApplyInitialPrefill={(focus: string | null) => {
-                // Only the offer for the programme on screen is ever shown, so
-                // the applier that refuses the other one cannot be reached.
+                // Only the offer for the programme on screen is shown, so the
+                // applier for the other programme is unreachable.
                 const applied = programCode === BACHELOR_PROGRAM_CODE
                     ? applyBachelorPrefilledPlan(focus)
                     : applyMasterPrefilledPlan();

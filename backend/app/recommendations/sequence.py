@@ -1,16 +1,7 @@
-"""
-Recommending by position in a sequence.
+"""Recommending by position in the curriculum's ordering.
 
-Two questions, asked in this order and scored differently. A course the student
-has already planned may need this candidate first, which is the stronger claim:
-leaving it out would hold up something they have committed to. A course they have
-finished may be one this candidate is meant to follow, which is only a suggestion
-about what tends to come next.
-
-The ordering is the curriculum's own, so the channel says nothing the rule engine
-would contradict. The curricula state it in course names, and a channel matches
-on catalogue codes, so the relation has to be resolved against the candidate pool
-before it can be used.
+The curricula state the ordering in course names, so it is resolved against the
+candidate pool to get catalogue codes.
 """
 from __future__ import annotations
 
@@ -35,10 +26,10 @@ def _key(text: Any) -> str:
 
 
 def _codes_by_key(pool: list[dict[str, Any]]) -> dict[str, str]:
-    """What each course is called, folded, against the code the channels match on."""
+    """Folded course names and codes mapped to the catalogue code."""
     by_key: dict[str, str] = {}
-    # Sorted because the catalogue query promises no row order, and a name two
-    # courses share would otherwise resolve to whichever came back first.
+    # Sorted because the catalogue query promises no row order, and a shared name
+    # would otherwise resolve to whichever row came back first.
     for row in sorted(pool, key=lambda row: str(row.get("code"))):
         code = row.get("code")
         if not code:
@@ -51,12 +42,10 @@ def _codes_by_key(pool: list[dict[str, Any]]) -> dict[str, str]:
 
 
 def _curriculum_relations(program_code: str | None) -> list[tuple[Any, Any]]:
-    """
-    The ordering both curricula state, as pairs of the earlier course and the later.
+    """The curriculum's ordering as (earlier, later) pairs.
 
-    The bachelor document writes them as ordered pairs and the master one as a
-    course keyed to what it requires, and the master's are written twice over,
-    once by full title and once by short code.
+    The bachelor document writes ordered pairs, the master one keys a course to
+    what it requires.
     """
     if not program_code:
         return []

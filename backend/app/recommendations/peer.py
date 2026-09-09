@@ -1,19 +1,8 @@
-"""
-Recommending by what similar students chose.
+"""Recommending by what similar students chose.
 
-This is the one channel that cannot answer from a candidate alone. It first finds
-the prior students whose choices most overlap the plan, then weighs what those
-students took and the candidate did not. So the whole cohort is scored once, on
-the first candidate it is asked about, and every later candidate is a lookup.
-
-Where no prior student overlaps the plan at all, there are no neighbours to weigh
-and the channel falls back to raw popularity, which is what a student with an
-empty plan sees.
-
-The cohort itself is synthetic, stands in for real enrolment history, and is
-memoised per programme for the life of the process. The memo is bounded, because
-it is keyed by whatever programme code a request carries rather than by the two
-the catalogue holds.
+The cohort is scored once on the first candidate, then looked up. With no
+overlapping neighbours it falls back to raw popularity. The cohort is synthetic
+and stands in for real enrolment history.
 """
 from __future__ import annotations
 
@@ -24,11 +13,9 @@ from typing import Any, Iterable
 from .context import Course, PlanContext
 from .strategy import Suggestion
 
-# One entry per programme, and the catalogue holds two. The rest of the room is
-# for a programme being added or a stored plan naming a code the catalogue no
-# longer has; past that, the least recently asked-for entry goes, so a run of
-# codes nobody uses cannot displace the two that everybody does. Entries are
-# fifty sets of course codes each, which is small once and unbounded forever.
+# The catalogue holds two programmes; the spare room covers a new programme or a
+# stored plan naming a stale code. Bounded because the key is whatever programme
+# code a request carries.
 MAX_COHORTS = 4
 
 _COHORTS: dict[str, list[set[str]]] = {}
@@ -40,15 +27,10 @@ _NEIGHBOURS = 10
 
 
 def cohort_for(program_code: str, pool: list[dict[str, Any]]) -> list[set[str]]:
-    """
-    The synthetic prior students for a programme.
+    """The synthetic prior students for a programme.
 
-    Seeded from the programme code so that the same cohort comes back on every
-    run: peer evidence that changed between restarts would be worse than no peer
-    evidence, because a student would be told that different people took
-    different courses each time they reloaded. The seeding only holds if what it
-    draws from is ordered, which is why the codes are sorted rather than merely
-    de-duplicated.
+    Seeded from the programme code so the same cohort comes back on every run.
+    Codes are sorted, not just de-duplicated, or the seeding would not hold.
     """
     if not program_code:
         return []
@@ -81,14 +63,14 @@ def cohort_for(program_code: str, pool: list[dict[str, Any]]) -> list[set[str]]:
 
 
 def _remember(program_code: str, cohort: list[set[str]]) -> None:
-    """Store a cohort, dropping the least recently asked-for entries over the cap."""
+    """Store a cohort, dropping least recently used entries over the cap."""
     _COHORTS[program_code] = cohort
     while len(_COHORTS) > MAX_COHORTS:
         del _COHORTS[next(iter(_COHORTS))]
 
 
 def forget_cohorts() -> None:
-    """Drop the memoised cohorts, returning the process to how it started."""
+    """Drop the memoised cohorts."""
     _COHORTS.clear()
 
 

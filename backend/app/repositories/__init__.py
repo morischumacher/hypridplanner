@@ -1,10 +1,5 @@
-"""
-Data access.
-
-Every SQL statement in the application lives in this package. A repository is a
-thin object bound to one connection; it maps rows to plain dictionaries and does
-nothing else. Services decide when to open a connection and whether it needs a
-transaction, and reach the repositories through a unit of work.
+"""Data access. Every SQL statement lives here; a repository is bound to one
+connection and maps rows to dictionaries. Services reach them through a unit of work.
 """
 from .unit_of_work import PostgresUnitOfWork, UnitOfWork, UnitOfWorkFactory
 

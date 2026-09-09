@@ -1,14 +1,8 @@
-"""
-Generate the course metadata migration from the published syllabi.
+"""Generate the course metadata migration from the published syllabi.
 
-A one-off tool rather than part of the application. It reads the two syllabus
-text files, extracts a skills list and a description for each course, and writes
-the UPDATE statements that became the course-metadata migration. It is kept so
-that the metadata in the database can be traced back to where it came from, and
-regenerated when the university publishes a new syllabus.
-
-The input paths are set below and have to be pointed at whatever the current
-syllabus files are called.
+A one-off tool, kept so the metadata in the database can be traced to its source
+and regenerated when the university publishes a new syllabus. Point the input
+paths below at the current syllabus files.
 """
 import json
 import re
@@ -16,7 +10,6 @@ import re
 BACHELOR_SYLLABUS = "/tmp/bachelor_syl.txt"
 MASTER_SYLLABUS = "/tmp/master_syl.txt"
 
-# German stopwords to filter out from topic phrases
 DE_STOPWORDS = {
     "und", "oder", "der", "die", "das", "ein", "eine", "einen", "einem",
     "eines", "den", "dem", "des", "sich", "von", "auf", "mit", "bei",
@@ -73,14 +66,13 @@ def parse_syllabus(filepath: str) -> dict:
         if not line:
             continue
 
-        # ── Detect module boundary ──────────────────────────────────────────
+        # A module boundary: the title is the last non-blank line above this one.
         if line.startswith("Regelarbeitsaufwand:"):
             j = i - 1
             while j >= 0 and not lines[j].strip():
                 j -= 1
             if j >= 0:
                 raw_title = lines[j].strip()
-                # Strip leading page-number / ECTS fractions that can appear
                 raw_title = re.sub(r'^\d+\s*$', '', raw_title)          # pure page number
                 raw_title = re.sub(r'^\d+[.,]\d+.*?\s', '', raw_title)  # "6,0/4,0 VU …"
                 current_module = raw_title.strip()
@@ -96,7 +88,6 @@ def parse_syllabus(filepath: str) -> dict:
         if not current_module:
             continue
 
-        # ── Section markers ─────────────────────────────────────────────────
         if line.startswith("Lernergebnisse:"):
             capture_mode = "description"
             tail = line.replace("Lernergebnisse:", "").strip()
@@ -122,19 +113,17 @@ def parse_syllabus(filepath: str) -> dict:
                     modules[current_module]["topics"].append(phrase)
             continue
 
-        # Any other section header resets capture
+        # Any other section header ends the current capture.
         if any(line.startswith(s) for s in section_sections):
             capture_mode = None
             continue
 
-        # ── Capture body lines ───────────────────────────────────────────────
         if capture_mode == "description":
             modules[current_module]["description"] += line + " "
 
         elif capture_mode in ("fachkompetenzen", "inhalt"):
             target_list = "competences" if capture_mode == "fachkompetenzen" else "topics"
 
-            # Is this a continuation of the previous bullet (no leading bullet marker)?
             is_bullet = bool(re.match(r'^[•\-\*]', line)) or bool(re.match(r'^\d+[\.\)]', line))
 
             phrase = clean_phrase(line)
@@ -142,27 +131,24 @@ def parse_syllabus(filepath: str) -> dict:
                 continue
 
             if is_bullet:
-                # New bullet → new phrase
                 if is_useful_phrase(phrase):
                     modules[current_module][target_list].append(phrase)
             else:
-                # Continuation line: only merge if previous was a bullet AND merged result is short
+                # A continuation line is merged into the previous bullet only while
+                # the result stays short; anything longer is prose, and dropped.
                 lst = modules[current_module][target_list]
                 if lst and len(lst[-1]) + len(phrase) + 1 <= 100:
                     merged = lst[-1] + " " + phrase
                     lst[-1] = merged.rstrip(';,.')
-                # If it would be too long, just skip continuation lines (they are usually prose)
 
-    # ── Compile final result ─────────────────────────────────────────────────
     result = {}
     for mod, data in modules.items():
         if not mod:
             continue
 
-        # Merge topics + competences into a deduplicated skills list
+        # Topics first, then competences, deduplicated case-insensitively in order.
         all_skills_raw = data["topics"] + data["competences"]
 
-        # Lowercase + deduplicate while preserving order
         seen = set()
         skills = []
         for s in all_skills_raw:
@@ -171,7 +157,6 @@ def parse_syllabus(filepath: str) -> dict:
                 seen.add(key)
                 skills.append(s)
 
-        # Keep top 30 (topics first, then competences)
         skills = skills[:30]
 
         desc = data["description"].strip()
@@ -196,7 +181,6 @@ def generate_sql_migration():
     all_syllabi = {**bach, **mast}
     print(f"Total: {len(all_syllabi)} unique modules")
 
-    # Quick quality sanity check
     sample = list(all_syllabi.items())[:2]
     for title, meta in sample:
         print(f"\n  [{title}]")
@@ -211,7 +195,7 @@ def generate_sql_migration():
 
         written = 0
         for title, meta in all_syllabi.items():
-            # Strip null bytes from all strings — Postgres rejects \u0000 in JSON/text
+            # Postgres rejects \u0000 in JSON/text
             clean_skills = [s.replace('\x00', '') for s in meta["skills"]]
             skills_json = json.dumps(clean_skills, ensure_ascii=False).replace('\x00', '')
             clean_desc  = meta["description"].replace('\x00', '').replace("'", "''")

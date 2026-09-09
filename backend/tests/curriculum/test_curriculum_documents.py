@@ -1,11 +1,5 @@
-"""
-The curriculum documents.
-
-These files replaced roughly 600 lines of Python that built the same structures
-in a constructor. The golden master proves the values did not change; what is
-checked here is that the documents stay loadable and internally consistent, so
-that a hand edit to a JSON file fails loudly rather than producing a checker
-that silently answers differently.
+"""The curriculum documents stay loadable and internally consistent, so a hand edit
+to a JSON file fails loudly rather than producing a checker that answers differently.
 """
 from __future__ import annotations
 
@@ -46,21 +40,18 @@ def test_the_bachelor_degree_is_longer_than_the_master() -> None:
 
 
 def test_every_bachelor_course_maps_to_a_module_that_exists() -> None:
-    """
-    A course pointing at a missing module would silently lose its category.
+    """A course pointing at a missing module silently loses its category.
 
-    The two sides are keyed differently on purpose: modules are keyed by their
-    normalised title for lookup, and a course records the module's printable
-    title. The comparison is between the titles.
+    Modules are keyed by normalised title, a course records the printable one, so
+    the comparison is between titles.
     """
     curriculum = load(BACHELOR)
     titles = {module["title"] for module in curriculum.modules.values()}
     unknown = set(curriculum.course_to_module.values()) - titles
 
-    # Six do not, and this pins that rather than asserting it away: these
-    # courses resolve to a module that was never defined, and their module kind
-    # therefore falls back to a default. It is a defect to be fixed deliberately
-    # with the findings from the evaluation, not here.
+    # Six resolve to a module that was never defined and fall back to a default
+    # module kind. Pinned rather than asserted away: a known defect, to be fixed
+    # with the evaluation findings.
     assert sorted(unknown) == [
         "Abstrakte Maschinen",
         "Audio and Video Production",

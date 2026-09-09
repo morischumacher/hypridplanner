@@ -1,11 +1,7 @@
 /**
- * The caption under the canvas saying what each axis of the plan means.
- *
- * The horizontal axis is fixed: it is the sequence of semesters, and the whole
- * planner is built on that. The vertical axis means whatever the student says
- * it means, and saying so is the point of this control: an order that carries a
- * meaning only the student knows is still worth naming, so "custom" is an
- * answer here rather than a way of sorting.
+ * The caption under the canvas naming what each axis encodes. The horizontal
+ * axis is fixed to the semester sequence; the vertical one is selectable, and
+ * "custom" is a valid answer rather than a sort order.
  */
 
 import type { VerticalSemantics } from "../../domain/nodes.ts";

@@ -1,14 +1,7 @@
-"""
-Recommending by what others did next.
+"""Recommending by what students who finished a course took next.
 
-Of the prior students who finished a course, some share also took each other
-course. That share is both the score and the evidence, so a course two thirds of
-them went on to take outranks one a third of them did.
-
-The prior students are the synthetic cohort the peer channel draws its
-neighbours from, so both channels answer from one invented enrolment history and
-differ only in what they ask of it: this one asks about a course the student has
-finished, the peer channel about the plan as a whole.
+Draws on the same synthetic cohort as the peer channel, asked per finished course
+rather than about the plan as a whole.
 """
 from __future__ import annotations
 
@@ -18,14 +11,13 @@ from .context import Course, PlanContext
 from .peer import cohort_for
 from .strategy import Suggestion
 
-# Below a majority, a share is not evidence that one course leads to another, and
-# without a floor the channel would claim nearly every candidate before the
+# Without a majority floor the channel claims nearly every candidate before the
 # channels behind it are asked.
 _MINIMUM_SHARE = 0.5
 
 
 def _shares(plan: PlanContext) -> dict[str, dict[str, int]]:
-    """For each finished course, what percentage of its takers took each other course."""
+    """For each finished course, the percentage of its takers who took each other course."""
     cohort = cohort_for(plan.program_code, plan.pool) if plan.program_code else []
     if not cohort:
         return {}
@@ -67,9 +59,7 @@ class CompletedStrategy:
         if not found:
             return
 
-        # The strongest claim, and where two are equally strong the earlier code,
-        # so the student is not told about a different one of their finished
-        # courses on each reload.
+        # Strongest claim, ties broken by code so the evidence is stable across reloads.
         percentage, done = sorted(found, key=lambda claim: (-claim[0], claim[1]))[0]
         yield Suggestion(
             percentage / 100.0,

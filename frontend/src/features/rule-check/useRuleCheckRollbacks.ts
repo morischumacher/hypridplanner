@@ -1,12 +1,10 @@
 /**
- * Undoing a change the rule checker refused.
+ * Undoes a change the rule checker refused.
  *
- * A rollback is driven entirely by the diff the change carried, never by
- * comparing plans: the diff names the node ids that were added or moved and the
- * lane each moved node came from, and putting a card back means finding those
- * ids again. The array it searches must therefore be the one the diff was taken
- * from, which is why every rollback reads the canvas through the setter's
- * previous value rather than through a captured copy.
+ * A rollback is driven by the diff the change carried, never by comparing
+ * plans: the diff names the node ids added or moved and the lane each came
+ * from. It must search the array the diff was taken from, so every rollback
+ * reads the canvas through the setter's previous value, not a captured copy.
  */
 
 import { useCallback } from "react";
@@ -16,9 +14,8 @@ import { recomputeGroupFromChildren } from "../../domain/nodes.ts";
 import type { PlanNode } from "../../domain/types.ts";
 
 /**
- * A refused change as a rollback reads it. Every field is optional because a
- * rollback re-checks what it was given rather than trusting the caller to have
- * matched the change to the right rollback.
+ * A refused change as a rollback reads it. All fields optional: a rollback
+ * re-checks its input rather than trusting the caller to have matched it.
  */
 export interface RolledBackChange {
     type?: string | undefined;
@@ -33,14 +30,13 @@ export interface RolledBackChange {
 }
 
 export interface UseRuleCheckRollbacksInput {
-    /** Only ever called with an updater, so that the diff's ids are looked up in the live array. */
+    /** Called only with an updater, so the diff's ids resolve in the live array. */
     setNodes: (updater: (nodes: PlanNode[]) => PlanNode[]) => void;
     setNeedsPersist: (needsPersist: boolean) => void;
     resolveLaneCollisions: (nodes: PlanNode[]) => PlanNode[];
     /**
-     * Un-ticks a course without recording a plan change. Silence is what stops
-     * the loop: a recorded rollback would ask for another rule check, whose
-     * refusal would roll back again, and so on without end.
+     * Un-ticks a course without recording a plan change. Recording one would
+     * trigger another rule check, whose refusal would roll back again.
      */
     rollbackCourseDone: (courseCode: string, nextDone: boolean) => void;
 }
@@ -82,9 +78,8 @@ export function useRuleCheckRollbacks({
         const movedItems = Array.isArray(change?.moved) ? change.moved : [];
         if (!movedItems.length) return;
 
-        // Only by id. A plan may hold the same course twice, and the diff keeps
-        // the two apart for that reason; matching a card by its code as well
-        // would put back whichever copy came first in the array.
+        // Matched by id only: a plan may hold the same course twice, and
+        // matching by code would restore whichever copy comes first.
         const byId = new Map<string, number>();
         for (const item of movedItems) {
             const id = String(item?.id || "").trim();

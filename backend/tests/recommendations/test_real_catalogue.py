@@ -1,15 +1,7 @@
-"""
-The channels that read a relation, against real catalogue rows.
+"""The `sequence` and `completed` channels driven with real catalogue rows, so a
+relation that stops resolving to catalogue codes fails instead of going silent.
 
-`sequence` and `completed` once read a hand-written table whose course codes were
-in neither catalogue, so both channels were silent in the running system while
-every structural test around them still passed. These tests are the ones that
-noticed: they drive the channels with the recorded catalogue pools and real
-plans, so a relation that stops resolving to catalogue codes fails here rather
-than disappearing quietly.
-
-The pools come from the recorded corpus rather than the database, so this file
-runs without one.
+Pools come from the recorded corpus, so this file needs no database.
 """
 from __future__ import annotations
 
@@ -41,7 +33,7 @@ POOLS: dict[str, list[dict[str, Any]]] = _CORPUS["pools"]
 
 @pytest.fixture(autouse=True)
 def _fresh_cohorts():
-    """The cohort is memoised for the life of the process, and other tests seed it."""
+    """The cohort is memoised per process, and other tests seed it."""
     forget_cohorts()
     yield
     forget_cohorts()
@@ -116,7 +108,7 @@ def test_a_successor_of_a_completed_course_is_recommended(program_code: str) -> 
 def test_the_ordering_carries_no_relation_the_curriculum_does_not_state(
     program_code: str,
 ) -> None:
-    """Resolving names to codes must not invent pairs, only translate them."""
+    """Resolving names to codes must translate pairs, not invent them."""
     from app.recommendations.sequence import _curriculum_relations
 
     assert len(ordered_pairs(program_code, POOLS[program_code])) <= len(
@@ -125,7 +117,7 @@ def test_the_ordering_carries_no_relation_the_curriculum_does_not_state(
 
 
 def a_course_the_cohort_took(program_code: str) -> str:
-    """A catalogue code some of the synthetic prior students have in common."""
+    """A catalogue code the synthetic prior students have in common."""
     cohort = cohort_for(program_code, POOLS[program_code])
     assert cohort, f"no cohort for {program_code}"
     return sorted(cohort[0])[0]

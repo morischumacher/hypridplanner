@@ -1,11 +1,5 @@
-"""
-Recommending by curated similarity.
-
-The catalogue records, for some courses, which other courses resemble them and
-why. This channel reads those links backwards: it looks through what the student
-has already taken or planned for one that names this candidate. The score is
-fixed and high, because the link was written by someone who knows the subject
-rather than inferred from words.
+"""Recommending by the catalogue's curated similarity links, read backwards from
+the student's history. The score is fixed and high because the links are hand-written.
 """
 from __future__ import annotations
 

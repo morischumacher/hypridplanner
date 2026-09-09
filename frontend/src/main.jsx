@@ -27,11 +27,7 @@ function Root() {
                 if (cancelled) return;
                 setAuthError("");
                 if (me?.user) {
-                    // The programme the student settled on at signup, so that the
-                    // planner opens on their own plan rather than on a default
-                    // they then have to correct. A student with no programme yet
-                    // is asked for one by the signup setup, and keeps the
-                    // fallback until they answer.
+                    // Open on the programme chosen at signup instead of the default.
                     const settings = await fetchProfileSettings().catch(() => null);
                     if (cancelled) return;
                     const locked = String(settings?.locked_program_code || "").trim();
@@ -40,7 +36,7 @@ function Root() {
                 setUser(me?.user ?? null);
             } catch (e) {
                 if (cancelled) return;
-                // Avoid noisy UI errors when backend is temporarily unavailable during auth bootstrap.
+                // Backend may be unavailable during bootstrap, treat as signed out rather than an error.
                 setAuthError("");
                 setUser(null);
             } finally {

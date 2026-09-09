@@ -1,16 +1,8 @@
-"""
-Compliance checking.
+"""Compliance checking. The curricula themselves are data in `app/curriculum`.
 
-The curriculum a programme follows is data, in `app/curriculum`. What lives here
-is the checking: how a plan is read, which questions are asked of it, and in what
-order. Each programme composes its own set of questions, because the two
-curricula are not variants of one another. The bachelor programme has an
-introductory-phase gate with no counterpart in the master programme, and the
-master programme has a focus-area dependency structure with no counterpart in the
-bachelor. Sharing one pipeline would mean writing each programme's exceptions as
-conditionals inside the other's rules.
-
-`checker_for` is the only entry point anything outside this package should need.
+Each programme has its own checker rather than one shared pipeline: the bachelor
+gate (StEOP) and the master focus-area dependencies have no counterpart in the
+other. `checker_for` is the entry point for callers outside this package.
 """
 from __future__ import annotations
 
@@ -32,13 +24,11 @@ def normalise_programme_code(value: str | None) -> str:
 
 
 def checker_for(program_code: str | None, *, strict: bool = True):
-    """
-    The rule checker a programme code selects.
+    """The rule checker a programme code selects.
 
-    A missing code selects the master checker, which is what the frontend relied
-    on before it sent one. `strict=False` extends that tolerance to unrecognised
-    codes: the recommender would rather filter with the wrong rule set than fail
-    the request outright.
+    A missing code selects the master checker, for frontends predating the field.
+    `strict=False` extends that to unrecognised codes, so the recommender filters
+    with a fallback rule set instead of failing the request.
     """
     normalised = normalise_programme_code(program_code)
     checker = _BY_CODE.get(normalised)

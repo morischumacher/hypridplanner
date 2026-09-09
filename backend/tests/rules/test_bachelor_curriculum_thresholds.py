@@ -1,15 +1,8 @@
-"""
-The introductory-phase numbers belong to the curriculum, not to the checker.
+"""The introductory-phase numbers belong to the curriculum document, not the checker.
 
-ADR 0002 divides the two: what the regulations say is data in
-`app/curriculum/bachelor.json`, and what a rule does with it is code. A threshold
-written as a literal inside a check is on the wrong side of that line, and the
-next curriculum revision would be a programming task rather than an edit.
-
-Each of these asserts twice. Once that the document and the checker agree, which
-a copied literal would also satisfy, and once that changing the checker's value
-changes the verdict, which is what catches a literal left behind in one of the
-several places the same number is used.
+Each threshold is asserted twice: that the document and the checker agree, which a
+copied literal would also satisfy, and that changing the checker's value changes the
+verdict, which catches a literal left behind in one of its several uses.
 """
 from __future__ import annotations
 

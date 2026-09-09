@@ -14,8 +14,7 @@ describe("highestMilestoneCrossed", () => {
     });
 
     it("names the highest when several are crossed at once", () => {
-        // The defect the evaluation recorded: a plan hydrating from nothing to
-        // 102 of 180 ECTS announced "25% completion" beside its own 57% figures.
+        // A plan hydrating from nothing to 102 of 180 ECTS crosses 25 and 50 at once.
         expect(highestMilestoneCrossed(0, Math.round((102 / 180) * 100))).toBe(50);
         expect(highestMilestoneCrossed(0, 100)).toBe(100);
         expect(highestMilestoneCrossed(24, 76)).toBe(75);

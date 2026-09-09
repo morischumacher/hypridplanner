@@ -1,8 +1,6 @@
 /**
- * The thin bar under each of the two headline figures.
- *
- * The percentage is clamped here rather than by the caller, because the same
- * bar is fed both a share of a target and a share that can overshoot it.
+ * The bar under each headline figure. The percentage is clamped here because
+ * one of the two callers passes a share that can exceed 100.
  */
 
 export interface KpiProgressBarProps {
