@@ -22,10 +22,6 @@ Configuration is read from the environment through `api/config.js`
   which case the page tells the participant to export the results manually.
 - `TUTORIAL_VIDEO_URL` is the tutorial shown before the first scenario.
 
-`google-sheets-script.js` is the Apps Script that backed `RESULTS_SAVE_ENDPOINT`
-during the study. It is included for reference; deploy it as a web app and use
-its URL if a spreadsheet is the wanted destination.
-
 ## Usage
 
 Open `http://localhost:8080`. The guide advances through eleven steps and keeps

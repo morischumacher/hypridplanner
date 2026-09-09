@@ -497,7 +497,7 @@ async function submitToBackend(payload) {
   statusBox.innerHTML = '<div class="status-spinner"></div><span>Saving results...</span>';
 
   const url = SAVE_ENDPOINT;
-  if (!url || url.includes('YOUR_GOOGLE_SHEETS_WEB_APP_URL_HERE')) {
+  if (!url) {
     statusBox.classList.add('error');
     statusBox.innerHTML = '<span>⚠️ Save endpoint not configured. Please download or copy the JSON results manually.</span>';
     return;
