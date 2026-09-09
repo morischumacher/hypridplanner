@@ -25,8 +25,6 @@ export interface ProfileModalProps {
     onClose: () => void;
     isCurriculumSettingsOpen: boolean;
     onToggleCurriculumSettings: () => void;
-    disableGraphView: boolean;
-    onDisableGraphViewChange: (disabled: boolean) => void;
     programCode: string;
     onProgramCodeChange: (programCode: string) => void;
     isProgramLocked: boolean;
@@ -64,8 +62,6 @@ export default function ProfileModal({
     onClose,
     isCurriculumSettingsOpen,
     onToggleCurriculumSettings,
-    disableGraphView,
-    onDisableGraphViewChange,
     programCode,
     onProgramCodeChange,
     isProgramLocked,
@@ -166,17 +162,6 @@ export default function ProfileModal({
                     <div style={{ fontSize: 13, color: "#111827" }}>
                         Name: <strong>{username || "user"}</strong>
                     </div>
-                )}
-                {!isCurriculumSettingsOpen && (
-                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", userSelect: "none", marginTop: 4 }}>
-                        <input
-                            type="checkbox"
-                            checked={disableGraphView}
-                            onChange={(e) => onDisableGraphViewChange(e.target.checked)}
-                            style={{ cursor: "pointer", width: 16, height: 16 }}
-                        />
-                        Disable Graph View (User Study Persona 1)
-                    </label>
                 )}
                 {!isCurriculumSettingsOpen && (
                     <div style={{ display: "grid", gap: 4 }}>

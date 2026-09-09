@@ -164,16 +164,6 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
     const [isSigningOut, setIsSigningOut] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isRecPanelOpen, setIsRecPanelOpen] = useState(false);
-    const [profileDisableGraphView, setProfileDisableGraphView] = useState(() => {
-        return localStorage.getItem("disable-graph-view-" + currentUser?.username) === "true";
-    });
-
-    useEffect(() => {
-        if (currentUser?.username) {
-            setProfileDisableGraphView(localStorage.getItem("disable-graph-view-" + currentUser?.username) === "true");
-        }
-    }, [currentUser]);
-
     const [tableInteractionMode, setTableInteractionMode] = useState("pan");
     const {
         focusPrefillPrompt,
@@ -1000,15 +990,6 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
             onClose={() => setIsProfileOpen(false)}
             isCurriculumSettingsOpen={isCurriculumSettingsOpen}
             onToggleCurriculumSettings={() => setIsCurriculumSettingsOpen((v) => !v)}
-            disableGraphView={profileDisableGraphView}
-            onDisableGraphViewChange={(val) => {
-                setProfileDisableGraphView(val);
-                if (val) {
-                    localStorage.setItem("disable-graph-view-" + currentUser?.username, "true");
-                } else {
-                    localStorage.removeItem("disable-graph-view-" + currentUser?.username);
-                }
-            }}
             programCode={programCode}
             onProgramCodeChange={(code) => setProgramCode?.(code)}
             isProgramLocked={isProgramLocked}
@@ -1124,7 +1105,6 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
                         setActiveStep={setActiveTourStep}
                         viewMode={viewMode}
                         setViewMode={setViewMode}
-                        disableGraphView={profileDisableGraphView}
                         username={currentUser?.username}
                         onClose={() => setActiveTourStep(null)}
                     />
@@ -1152,25 +1132,23 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
                     boxSizing: "border-box",
                 }}
             >
-                {!profileDisableGraphView && (
-                    <button
-                        id="toggle-view-mode-btn"
-                        onClick={() => setViewMode("graph")}
-                        style={{
-                            border: "1px solid #d1d5db",
-                            background: "#ffffff",
-                            borderRadius: 8,
-                            padding: "6px 8px",
-                            textAlign: "center",
-                            whiteSpace: "nowrap",
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            gridColumn: "1 / -1",
-                        }}
-                    >
-                        ⇆ Graph View
-                    </button>
-                )}
+                <button
+                    id="toggle-view-mode-btn"
+                    onClick={() => setViewMode("graph")}
+                    style={{
+                        border: "1px solid #d1d5db",
+                        background: "#ffffff",
+                        borderRadius: 8,
+                        padding: "6px 8px",
+                        textAlign: "center",
+                        whiteSpace: "nowrap",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        gridColumn: "1 / -1",
+                    }}
+                >
+                    ⇆ Graph View
+                </button>
                 <button
                     id="show-all-catalog-btn"
                     onClick={() => setIsSidebarOpen((v) => !v)}
@@ -1326,7 +1304,6 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
                     setActiveStep={setActiveTourStep}
                     viewMode={viewMode}
                     setViewMode={setViewMode}
-                    disableGraphView={profileDisableGraphView}
                     username={currentUser?.username}
                     onClose={() => setActiveTourStep(null)}
                 />
