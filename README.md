@@ -21,23 +21,23 @@ Three shells, all started from the repository root. The API and the interface
 both stay in the foreground.
 
 ```bash
-# shell 1: database, migrated and seeded with both curricula
+# database, migrated and seeded with both curricula
 eval "$(./scripts/dev-db.sh up)"
 
-# shell 2: API on :8000
+# API on :8000
 cd backend
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 uvicorn app.main:app --reload
 
-# shell 3: interface on :5173
+# interface on :5173
 cd frontend
 npm install && npm run dev
 ```
 
-The API needs `DATABASE_URL` in its environment. Shell 1 prints the `export`
-line; run it in shell 2 as well, or start shell 2 from shell 1 before the
-database command blocks.
+The API needs `DATABASE_URL` in its environment, and the shell that starts it
+does not inherit one from the shell that started the database. Set it there with
+`export DATABASE_URL="$(./scripts/dev-db.sh url)"`.
 
 Any interpreter 3.11 or newer works. On macOS a bare `python3` often resolves to
 an old framework build, in which case name the version explicitly, for example
