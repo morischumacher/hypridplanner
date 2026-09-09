@@ -798,6 +798,14 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
         feedbackColor,
     } = dashboardMetrics;
 
+    // Most channels match against what the student said they were interested
+    // in, so an empty panel means something different before that is stated.
+    const hasStatedInterests = useMemo(() => {
+        const settings = profileSettingsByProgram?.[programCode];
+        const interests = Array.isArray(settings?.interests) ? settings.interests : [];
+        return interests.length > 0 || Boolean(String(settings?.careerDirection || "").trim());
+    }, [profileSettingsByProgram, programCode]);
+
     const dismissRecommendation = useCallback((id) => {
         setRecommendations((prev) => prev.filter((r) => r.id !== id));
     }, []);
@@ -1086,6 +1094,7 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
                         setRecommendations={setRecommendations}
                         recommendationToggles={profileSettingsByProgram?.[programCode]?.recommendation_toggles || {}}
                         onRecommendationToggleChange={handleRecommendationToggle}
+                        hasStatedInterests={hasStatedInterests}
                         onDragStart={handleDragStart}
                         recommendedCourseMap={recommendedCourseMap}
                         isLegendOpen={isLegendOpen}
@@ -1226,6 +1235,7 @@ export default function App({ currentUser, onSignOut, openSignupSetupOnEntry = f
                     termAvailabilityForCode={termAvailabilityForCode}
                     toggles={profileSettingsByProgram?.[programCode]?.recommendation_toggles || {}}
                     onToggleChange={handleRecommendationToggle}
+                    hasStatedInterests={hasStatedInterests}
                     width={REC_PANEL_WIDTH}
                     leftOffset={isSidebarOpen ? (SIDEBAR_VISUAL_WIDTH + SIDEBAR_LEFT_OFFSET + 8) : SIDEBAR_LEFT_OFFSET}
                     topOffset={TABLE_SIDEBAR_TOP_OFFSET}
