@@ -30,16 +30,3 @@ engine refuses.
 
 The golden masters in `backend/tests/golden/` record the answers the thesis
 reports, so a later change cannot alter them unnoticed.
-
-## Gaps between the thesis and the code
-
-- **Feature 007.** The recommender is scoped to the user experience of
-  explainable recommendations, not to accuracy (OOS5 in the thesis). The Follow-on
-  and Peer channels query a synthetic cohort in place of prior students' plans, and
-  the top candidates are trial-placed through the rule engine before they are
-  shown. All six channels were active during the evaluation; the four that read the
-  profile or the cohort return nothing without input.
-- **Feature 003.** Six bachelor courses map to a module that is not defined in
-  the curriculum data, so their module kind falls back to a default. This is
-  pinned by a test rather than fixed, so the behaviour the study observed is
-  preserved.
