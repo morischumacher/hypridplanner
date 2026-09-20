@@ -66,7 +66,7 @@ and the client, told where the API is:
 cd frontend && VITE_API_BASE=http://127.0.0.1:8000 npm run dev
 ```
 
-Signing in and opening an existing plan answers the one question the 364 tests
+Signing in and opening an existing plan answers the one question the tests
 cannot: whether a saved plan, with its parked courses, its notes and its marks,
 comes back unchanged. The tests run against a database built fresh from the
 migrations; production holds real accounts.

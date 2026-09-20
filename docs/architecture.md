@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TB
     subgraph browser["Browser"]
-        features["features/<br/>profile · dashboard · catalogue<br/>recommendations · tour<br/>rule-check · prefill · planner-board"]
+        features["features/<br/>auth · profile · dashboard · catalogue<br/>recommendations · tour<br/>rule-check · prefill · planner-board"]
         domain["domain/<br/>plan reducer · term rules<br/>layout · filters · prefill"]
         features --> domain
     end
@@ -38,8 +38,9 @@ holds SQL and nothing else.
 
 Services raise errors named for what went wrong: `ProgrammeLocked`,
 `StartTermLocked`, `SetupIncomplete`, `UnsupportedProgramme`. One table, in
-`app/api/errors.py`, maps those to status codes, and it is the only place in the
-application that knows what a status code is.
+`app/api/errors.py`, maps those to status codes. Two handlers, `curriculum.py`
+and `user_study.py`, raise their own status codes directly and do not go through
+that table.
 
 ### Compliance checking
 
@@ -48,14 +49,14 @@ modules exist, what each is worth, which course code belongs to which module,
 which courses the bachelor's introductory phase gates. `app/rules/` holds the
 checking.
 
-The two programmes have separate rule sets. Measured line by line the two
-checkers share four per cent of their text: the bachelor curriculum has an
-introductory-phase gate with no counterpart in the master programme, the master
-programme has a focus-area dependency structure with no counterpart in the
-bachelor, and normalising a title differs because the bachelor's titles are
-German and have to be accent-folded before they can be matched. What they share
-is the wire format, the result shape, the entry point, the shape of a rule set,
-and the reading of the credit limits. Both files are organised the same way.
+The two programmes have separate rule sets, and little of the checking is
+shared: the bachelor curriculum has an introductory-phase gate with no
+counterpart in the master programme, the master programme has a focus-area
+dependency structure with no counterpart in the bachelor, and normalising a
+title differs because the bachelor's titles are German and have to be
+accent-folded before they can be matched. What they share is the wire format,
+the result shape, the entry point, the shape of a rule set, and the reading of
+the credit limits. Both files are organised the same way.
 
 ### Recommendations
 
@@ -64,11 +65,9 @@ Each is an object with a name and one method, composed by an engine. The engine
 iterates candidates outer and channels inner: a course is recommended once, and
 the first channel to claim it supplies the reason the student is shown.
 
-The knowledge graph in `knowledge.py` is a prototype fixture whose course codes
-do not exist in either catalogue, so against real data the `sequence` and
-`completed` channels never fire. Output does not vary between server restarts,
-because iteration order is not left to Python's per-process hash randomisation,
-and the golden master pins that.
+Output does not vary between server restarts, because iteration order is not
+left to Python's per-process hash randomisation, and the golden master pins
+that.
 
 ## Frontend
 
@@ -95,7 +94,7 @@ node array are two representations of the same data, kept in sync in both
 directions: `nodes-to-plan.ts` derives which semester a course is in from its
 `position.x` and its order within that semester from `position.y`, while a
 rebuild reconstructs the node graph from the plan on programme switch and first
-load. Between them sit four effects that patch node data in place.
+load. Between them sit effects that patch node data in place.
 
 **The commit points differ by mutation.** Some mutations write the plan
 immediately and clear a flag; the drag handlers only raise the flag and let an
@@ -129,7 +128,7 @@ the migration scan does not pick it up.
 
 The thesis reports what eleven evaluation participants experienced, so behaviour
 has to be preserved exactly. Three layers of test make that checkable: a golden
-master over the rule engine and the recommender, a contract test over every
-endpoint's status and response shape, and end-to-end flows over what the study
-observed. The first two are recordings of current output rather than hand-written
+master over the rule engine and the recommender, a contract test over the status
+and response shape of every endpoint except `/curriculum/prerequisites` and
+`/study-results`, and end-to-end flows over what the study observed. The first two are recordings of current output rather than hand-written
 assertions.
