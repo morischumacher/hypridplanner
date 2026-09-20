@@ -33,10 +33,12 @@ reports, so a later change cannot alter them unnoticed.
 
 ## Gaps between the thesis and the code
 
-- **Feature 007.** The knowledge graph in `backend/app/recommendations/knowledge.py`
-  is a prototype fixture. None of its course codes exist in either catalogue, so
-  against real data the `sequence` and `completed` channels never fire. Four of
-  the six channels were live during the evaluation, not six.
+- **Feature 007.** The recommender is scoped to the user experience of
+  explainable recommendations, not to accuracy (OOS5 in the thesis). The Follow-on
+  and Peer channels query a synthetic cohort in place of prior students' plans, and
+  the top candidates are trial-placed through the rule engine before they are
+  shown. All six channels were active during the evaluation; the four that read the
+  profile or the cohort return nothing without input.
 - **Feature 003.** Six bachelor courses map to a module that is not defined in
   the curriculum data, so their module kind falls back to a default. This is
   pinned by a test rather than fixed, so the behaviour the study observed is

@@ -18,7 +18,7 @@ the thesis appendix.
 | E-P04 | Table and catalogue lack the graph's filters | 3 | 11/11 | Open |
 | E-P05 | Reason for a refused placement not legible | 2 | 11/11 | Open |
 | E-P10 | Requirement status behind collapsible panels | 2 | 11/11 | Open |
-| E-P29 | Winter and summer offering not glanceable | 3 | 11/11 | Closed |
+| E-P29 | Winter/summer offering not glanceable | 3 | 11/11 | Closed |
 | E-P09 | Setup defaults to the wrong programme | 1 | 11/11 | Closed |
 | E-P32 | Workload warning driven by the profile, not the task band | 2 | 11/11 | Open |
 | E-P25 | Reduced-load semester has no affordance | 2 | 11/11 | Open |
@@ -28,12 +28,12 @@ the thesis appendix.
 | E-P57 | Workload target ignores the task band | 3 | 11/11 | Open |
 | E-P38 | Parking silently removed from totals and counts | 2 | 10/11 | Open |
 | E-P35 | Lower workload bound only advisory | 2 | 10/11 | Open |
-| E-P27 | Study wording leaks into the profile UI | 1 | 10/11 | Closed |
+| E-P27 | Study wording leaks into the profile UI | 1 | 10/11 | Closed after the thesis |
 | E-P47 | Graph carries no semester dimension | 3 | 10/10 | Open |
 | E-P48 | Module ECTS selector rewrites the plan total | 3 | 10/10 | Open |
 | E-P17 | Adding a reduced-load semester not discoverable | 1 | 9/11 | Open |
 | E-P14 | Onboarding tour drives the early session | 1 | 9/11 | Open |
-| E-P37 | Parking stage not visible inside the graph | 2 | 9/11 | Open |
+| E-P37 | Parking Stage not visible inside the graph | 2 | 9/11 | Open |
 | E-P50 | Toast semantics unreliable | 2 | 9/9 | Closed |
 | E-P02 | Totals and remaining ECTS not glanceable | 2 | 8/11 | Open |
 | E-P49 | Dashboard contradicts itself on a focus area's completion | 3 | 8/8 | Open |
@@ -46,7 +46,7 @@ the thesis appendix.
 | E-P42 | Recommendation tabs render a bare empty state | 1 | 4/11 | Closed |
 | E-P68 | Recommendation provenance is opaque | 2 | 4/9 | Open |
 | E-P41 | Sign-up returns the raw server error | 1 | 1/11 | Closed |
-| E-P13 | Negative "Disable Graph View" checkbox easy to misread | 1 | 1/11 | Closed |
+| E-P13 | Negative "Disable Graph View" checkbox easy to misread | 1 | 1/11 | Closed after the thesis |
 
 Two of these cut across the whole loop rather than sitting at one stage. The
 account setup defaulted to the wrong degree programme for every participant
@@ -54,10 +54,13 @@ account setup defaulted to the wrong degree programme for every participant
 meaning was not recoverable from their appearance (E-P50 and E-P54; the code
 recording banners as unambiguous stands at 0/11). Both are closed.
 
-Seven are closed, each with a test that reproduces the observed failure before
-the fix and passes after it: E-P29, E-P50, E-P42, E-P27, E-P54, E-P09 and E-P41,
-and E-P13 went with E-P27 when the study-only interface option was removed. The
-list here is the shortlist the thesis reports in its Table 7.6, extended with the
+Six are closed as the thesis records them (Chapter 6, Section 6.7, and the
+ticks in Table 7.6), each with a test that reproduces the observed failure
+before the fix and passes after it: E-P29, E-P50, E-P42, E-P54, E-P09 and
+E-P41. Two more, E-P27 and E-P13, were closed after the thesis text was frozen,
+when the study-only graph-off option was removed; the thesis does not record
+them, so they carry no tick in Table 7.6 and are marked separately above. The
+list here is the shortlist the thesis reports in Table 7.6, extended with the
 closed defects that sit below that table's threshold; the full codebook is the
 thesis appendix. Severities and frequencies follow the appendix, which is the
 authority, so where this file disagreed with it the appendix won.
@@ -92,7 +95,7 @@ Open items only. Each names the file it lives in.
 
 **Fixed while finalising**
 
-- The master's prerequisite overlay drew nothing. The curriculum states each relation twice, written out and as course codes, and only the written-out form was served; the catalogue titles those three courses in German, so neither endpoint resolved. Both forms are served now and the caller drops the duplicate. Covered end to end.
+- The master's prerequisite overlay drew nothing. The curriculum states each relation twice, written out and as course codes, and only the written-out form was served; the catalogue titles those three courses in German, so neither endpoint resolved. Both forms are served now and the caller drops the duplicate. Covered end to end. Both study scenarios planned in the Bachelor, so no participant met this, and the thesis does not record it.
 
 **Latent**
 
@@ -100,4 +103,4 @@ Open items only. Each names the file it lives in.
 
 **Bearing on the evaluation**
 
-Two of the six recommendation channels could not fire against real data during the study: the hand-written knowledge graph named courses that exist in neither catalogue. Four channels were live in the sessions, not six. Both are serviceable now, but no participant saw them in that state.
+All six recommendation channels were active during the sessions, as the thesis states (Chapter 6, Section 6.3.2). The four that depend on the student's profile or on the synthetic cohort, Interest, Internship, Follow-on and Peer, return nothing without input, so what a participant saw varied with what they had entered.
