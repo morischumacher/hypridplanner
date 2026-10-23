@@ -111,16 +111,27 @@ async function graphView(page, OUT) {
     await page.mouse.move(1599, 5);
     await page.waitForTimeout(1000);
 
-    // Three panels, each cropped to its own content.
+    // Three panels, each cropped to its own content. The Dashboard ends below
+    // Warnings (the sections underneath are not part of the figure), and the tree
+    // is cut at the same height so the panels end in line; the collapsed subjects
+    // at the bottom of the tree fall outside the crop. Excluding them with the
+    // subject filter instead would make the application expand every remaining
+    // subject. The cut is moved up above any node it would slice.
     const filters = await box(page, "#graph-filters-panel");
-    const tree = pad(await unionBox(page, ".react-flow__node"), 10);
     const dash = await box(page, "#planner-dashboard-container");
     const warnings = await dashboardSection(page, "Warnings").evaluate((el) => el.getBoundingClientRect().bottom);
+    const dashboard = { x: dash.x + 2, y: dash.y, width: dash.width - 2, height: warnings - dash.y + 8 };
+    const tree = pad(await unionBox(page, ".react-flow__node"), 10);
+    const nodes = await page.locator(".react-flow__node").evaluateAll((els) => els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom };
+    }));
+    let cut = tree.y + dashboard.height;
+    for (const n of nodes) if (n.top < cut && n.bottom + 10 > cut) cut = Math.min(cut, n.top - 10);
     const panels = {
         "panel_filters.png": filters,
-        "panel_graph.png": tree,
-        // Ends below Warnings: the sections underneath are not part of the figure.
-        "panel_dashboard.png": { x: dash.x + 2, y: dash.y, width: dash.width - 2, height: warnings - dash.y + 8 },
+        "panel_graph.png": { ...tree, height: Math.min(tree.height, cut - tree.y) },
+        "panel_dashboard.png": dashboard,
     };
     for (const [name, clip] of Object.entries(panels)) {
         await page.screenshot({ path: path.join(OUT, name), clip });
@@ -140,7 +151,7 @@ export async function shoot({ browser, newStudent, openPlanner, api, OUT, FIXTUR
     await audit(page, "Table View");
     await page.context().close();
 
-    const page2 = await openPlanner(browser, student, { viewport: { width: 1600, height: Number(process.env.FIG_B_HEIGHT ?? 1250) } });
+    const page2 = await openPlanner(browser, student, { viewport: { width: 1600, height: Number(process.env.FIG_B_HEIGHT ?? 1320) } });
     await page2.addStyleTag({ content: "::-webkit-scrollbar { display: none; } * { scrollbar-width: none; caret-color: transparent; }" });
     await page2.waitForTimeout(2500);
     await graphView(page2, OUT);

@@ -304,7 +304,10 @@ function forbiddenStrings(realCatalogue) {
         const title = realCatalogue.get(code);
         if (title && title !== anon.title) out.add(title);
     }
-    return [...out];
+    // A real name that is a plain English word inside a generic name (e.g.
+    // "Multimedia" in "Multimedia Systems") is not a leak.
+    const generic = [...Object.values(mapping.examSubjects).map((a) => a.name), ...Object.values(mapping.modules), ...Object.values(mapping.courses).map((a) => a.title)];
+    return [...out].filter((s) => !generic.some((g) => g.includes(s)));
 }
 
 const auditReport = [];

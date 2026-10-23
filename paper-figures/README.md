@@ -30,19 +30,24 @@ All PNG, white background, rendered by Chromium (Playwright) with
 | Image | Pixels (w × h) |
 |---|---|
 | `table_view.png` | 3429 × 1815 |
-| `shell_graph_view_crop.png` | 3609 × 3468 |
+| `shell_graph_view_crop.png` | 3675 × 3099 |
 | `panel_filters.png` | 999 × 2403 |
-| `panel_graph.png` | 1209 × 3468 |
+| `panel_graph.png` | 1275 × 3051 |
 | `panel_dashboard.png` | 1329 × 3099 |
 
 Figure A: viewport 1600 × 1000 CSS px, sidebar hidden, board at React Flow's
 minimum zoom (0.5), cropped to the Parking Stage and lanes 1–5 down to the
 lowest card (the plan has seven semesters; 6–7 are left out of the crop so
-the cards stay legible at column width). Figure B: viewport 1600 × 1250 CSS px (taller so the Dashboard
+the cards stay legible at column width). Figure B: viewport 1600 × 1320 CSS px (taller so the Dashboard
 fits without scrolling), Graph View with "Algorithms and Programming" and
 "Software Engineering" expanded (plus the two-course module "Introduction to
 Programming", so all four levels show), fitted to view. The three panels are
-cropped to their own content and composed top-aligned with a 36 px (12 CSS px)
+cropped to their own content and composed top-aligned. The tree crop is
+cut at the Dashboard's height so both end in line; the four collapsed subjects
+at the bottom of the tree (Security, Mathematics and Statistics, Bachelor
+Thesis, Theoretical Computer Science) fall below the cut. The subject filter
+was not used for this because any active filter makes the application expand
+every matching subject. The panels are composed top-aligned with a 36 px (12 CSS px)
 gap. The Dashboard crop ends below *Warnings*. Scrollbars and the text caret
 are hidden by an injected stylesheet. The application's page grey `#f9fafb`
 is mapped to white in all crops. The pointer is parked outside the crops, so
