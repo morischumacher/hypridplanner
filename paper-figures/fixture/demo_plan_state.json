@@ -1,0 +1,637 @@
+{
+ "version": 1,
+ "programCode": "033 521",
+ "doneByProgram": {
+  "033 521": [
+   "CS101",
+   "SYS110",
+   "HCI110",
+   "HCI100",
+   "MATH100",
+   "DE110",
+   "CS102",
+   "MATH112",
+   "MATH122",
+   "ALG210",
+   "SEC110"
+  ]
+ },
+ "parkedByProgram": {
+  "033 521": [
+   "SE220",
+   "SE230",
+   "VC350"
+  ]
+ },
+ "coursesByProgram": {
+  "033 521": {
+   "1": [
+    {
+     "id": "CS101-1792770924419-0-graph",
+     "code": "CS101",
+     "ects": 5.5,
+     "name": "Programming 1",
+     "type": "LEX",
+     "module": {
+      "id": "mod-1792770924419-graph",
+      "code": "CS101",
+      "ects": 9.5,
+      "title": "Introduction to Programming",
+      "category": "mandatory",
+      "examSubject": "Algorithms and Programming",
+      "subjectColor": "#269bc5"
+     },
+     "category": "mandatory",
+     "position": {
+      "x": 32,
+      "y": 196
+     },
+     "laneIndex": 0,
+     "examSubject": "Algorithms and Programming",
+     "subjectColor": "#269bc5"
+    },
+    {
+     "id": "HCI110-1792770925657-0-graph",
+     "code": "HCI110",
+     "ects": 5.5,
+     "name": "Computational Thinking",
+     "type": "LEX",
+     "module": {
+      "id": "mod-1792770925657-graph",
+      "code": "HCI110",
+      "ects": 6.5,
+      "title": "Computational Thinking",
+      "category": "mandatory",
+      "examSubject": "Human-Computer Interaction",
+      "subjectColor": "#b126c5"
+     },
+     "category": "mandatory",
+     "position": {
+      "x": 32,
+      "y": 360
+     },
+     "laneIndex": 0,
+     "examSubject": "Human-Computer Interaction",
+     "subjectColor": "#b126c5"
+    },
+    {
+     "id": "SYS110-1792770925041-graph",
+     "code": "SYS110",
+     "ects": 6,
+     "name": "Digital Systems",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 32,
+      "y": 524
+     },
+     "laneIndex": 0,
+     "examSubject": "Computer Systems",
+     "subjectColor": "#26c585"
+    },
+    {
+     "id": "HCI100-1792770925657-1-graph",
+     "code": "HCI100",
+     "ects": 1,
+     "name": "Study Orientation",
+     "type": "LEX",
+     "module": {
+      "id": "mod-1792770925657-graph",
+      "code": "HCI110",
+      "ects": 6.5,
+      "title": "Computational Thinking",
+      "category": "mandatory",
+      "examSubject": "Human-Computer Interaction",
+      "subjectColor": "#b126c5"
+     },
+     "category": "mandatory",
+     "position": {
+      "x": 32,
+      "y": 688
+     },
+     "laneIndex": 0,
+     "examSubject": "Human-Computer Interaction",
+     "subjectColor": "#b126c5"
+    },
+    {
+     "id": "MATH100-1792770926241-graph",
+     "code": "MATH100",
+     "ects": 2,
+     "name": "Mathematical Reasoning",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 32,
+      "y": 852
+     },
+     "laneIndex": 0,
+     "examSubject": "Mathematics and Statistics",
+     "subjectColor": "#c57426"
+    },
+    {
+     "id": "DE110-1792770926843-graph",
+     "code": "DE110",
+     "ects": 6,
+     "name": "Database Systems",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 32,
+      "y": 1016
+     },
+     "laneIndex": 0,
+     "examSubject": "Data Engineering",
+     "subjectColor": "#aac526"
+    }
+   ],
+   "2": [
+    {
+     "id": "CS102-1792770924419-1-graph",
+     "code": "CS102",
+     "ects": 4,
+     "name": "Programming 2",
+     "type": "LEX",
+     "module": {
+      "id": "mod-1792770924419-graph",
+      "code": "CS101",
+      "ects": 9.5,
+      "title": "Introduction to Programming",
+      "category": "mandatory",
+      "examSubject": "Algorithms and Programming",
+      "subjectColor": "#269bc5"
+     },
+     "category": "mandatory",
+     "position": {
+      "x": 412,
+      "y": 360
+     },
+     "laneIndex": 1,
+     "examSubject": "Algorithms and Programming",
+     "subjectColor": "#269bc5"
+    },
+    {
+     "id": "ALG210-1792770927441-graph",
+     "code": "ALG210",
+     "ects": 6,
+     "name": "Programming Paradigms",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 412,
+      "y": 524
+     },
+     "laneIndex": 1,
+     "examSubject": "Algorithms and Programming",
+     "subjectColor": "#269bc5"
+    },
+    {
+     "id": "SEC110-1792770928059-graph",
+     "code": "SEC110",
+     "ects": 6,
+     "name": "Introduction to Security",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 412,
+      "y": 688
+     },
+     "laneIndex": 1,
+     "examSubject": "Security",
+     "subjectColor": "#267bc5"
+    },
+    {
+     "id": "MATH112-figures-2",
+     "code": "MATH112",
+     "ects": 9,
+     "name": "Discrete Mathematics (Integrated)",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 412,
+      "y": 588
+     },
+     "laneIndex": 1,
+     "examSubject": "Mathematics and Statistics",
+     "subjectColor": "#c57426"
+    },
+    {
+     "id": "MATH122-figures-2",
+     "code": "MATH122",
+     "ects": 6,
+     "name": "Calculus (Integrated)",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 412,
+      "y": 752
+     },
+     "laneIndex": 1,
+     "examSubject": "Mathematics and Statistics",
+     "subjectColor": "#c57426"
+    }
+   ],
+   "3": [
+    {
+     "id": "ALG110-1792770928693-graph",
+     "code": "ALG110",
+     "ects": 8,
+     "name": "Algorithms and Data Structures",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 792,
+      "y": 96
+     },
+     "laneIndex": 2,
+     "examSubject": "Algorithms and Programming",
+     "subjectColor": "#269bc5"
+    },
+    {
+     "id": "AI220-1792770929291-graph",
+     "code": "AI220",
+     "ects": 6,
+     "name": "Logic in Computer Science",
+     "type": "LEX",
+     "module": null,
+     "category": "core",
+     "position": {
+      "x": 792,
+      "y": 260
+     },
+     "laneIndex": 2,
+     "examSubject": "Machine Learning and Logic",
+     "subjectColor": "#2629c5"
+    },
+    {
+     "id": "SYS220-1792770929900-graph",
+     "code": "SYS220",
+     "ects": 6,
+     "name": "Computer Systems",
+     "type": "LEX",
+     "module": null,
+     "category": "core",
+     "position": {
+      "x": 792,
+      "y": 424
+     },
+     "laneIndex": 2,
+     "examSubject": "Computer Systems",
+     "subjectColor": "#26c585"
+    },
+    {
+     "id": "MATH212-figures-3",
+     "code": "MATH212",
+     "ects": 6,
+     "name": "Probability and Statistics (Integrated)",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 792,
+      "y": 588
+     },
+     "laneIndex": 2,
+     "examSubject": "Mathematics and Statistics",
+     "subjectColor": "#c57426"
+    }
+   ],
+   "4": [
+    {
+     "id": "TCS210-1792770930518-graph",
+     "code": "TCS210",
+     "ects": 6,
+     "name": "Theoretical Computer Science",
+     "type": "LEX",
+     "module": null,
+     "category": "mandatory",
+     "position": {
+      "x": 1172,
+      "y": 96
+     },
+     "laneIndex": 3,
+     "examSubject": "Theoretical Computer Science",
+     "subjectColor": "#92c526"
+    },
+    {
+     "id": "SE210-1792770931146-graph",
+     "code": "SE210",
+     "ects": 6,
+     "name": "Software Engineering",
+     "type": "LEX",
+     "module": null,
+     "category": "core",
+     "position": {
+      "x": 1172,
+      "y": 260
+     },
+     "laneIndex": 3,
+     "examSubject": "Software Engineering",
+     "subjectColor": "#c58726"
+    },
+    {
+     "id": "SYS210-1792770931736-graph",
+     "code": "SYS210",
+     "ects": 6,
+     "name": "Operating Systems",
+     "type": "LEX",
+     "module": null,
+     "category": "core",
+     "position": {
+      "x": 1172,
+      "y": 424
+     },
+     "laneIndex": 3,
+     "examSubject": "Computer Systems",
+     "subjectColor": "#26c585"
+    },
+    {
+     "id": "ALG310-1792770932338-graph",
+     "code": "ALG310",
+     "ects": 6,
+     "name": "Advanced Algorithms",
+     "type": "LEX",
+     "module": null,
+     "category": "elective",
+     "position": {
+      "x": 1172,
+      "y": 588
+     },
+     "laneIndex": 3,
+     "examSubject": "Algorithms and Programming",
+     "subjectColor": "#269bc5"
+    }
+   ],
+   "5": [
+    {
+     "id": "VC110-1792770932924-graph",
+     "code": "VC110",
+     "ects": 6,
+     "name": "Introduction to Visual Computing",
+     "type": "LEX",
+     "module": null,
+     "category": "core",
+     "position": {
+      "x": 1552,
+      "y": 96
+     },
+     "laneIndex": 4,
+     "examSubject": "Visual Computing",
+     "subjectColor": "#6cc526"
+    },
+    {
+     "id": "AI210-1792770933526-graph",
+     "code": "AI210",
+     "ects": 6,
+     "name": "Introduction to Artificial Intelligence",
+     "type": "LEX",
+     "module": null,
+     "category": "core",
+     "position": {
+      "x": 1552,
+      "y": 260
+     },
+     "laneIndex": 4,
+     "examSubject": "Machine Learning and Logic",
+     "subjectColor": "#2629c5"
+    },
+    {
+     "id": "SE310-1792770934157-graph",
+     "code": "SE310",
+     "ects": 6,
+     "name": "Software Verification",
+     "type": "LEX",
+     "module": null,
+     "category": "elective",
+     "position": {
+      "x": 1552,
+      "y": 424
+     },
+     "laneIndex": 4,
+     "examSubject": "Software Engineering",
+     "subjectColor": "#c58726"
+    },
+    {
+     "id": "ALG320-1792770934776-graph",
+     "code": "ALG320",
+     "ects": 6,
+     "name": "Functional Programming",
+     "type": "LEX",
+     "module": null,
+     "category": "elective",
+     "position": {
+      "x": 1552,
+      "y": 588
+     },
+     "laneIndex": 4,
+     "examSubject": "Algorithms and Programming",
+     "subjectColor": "#269bc5"
+    }
+   ],
+   "6": [
+    {
+     "id": "AI330-1792770935409-graph",
+     "code": "AI330",
+     "ects": 6,
+     "name": "Machine Learning",
+     "type": "LEX",
+     "module": null,
+     "category": "elective",
+     "position": {
+      "x": 1932,
+      "y": 96
+     },
+     "laneIndex": 5,
+     "examSubject": "Machine Learning and Logic",
+     "subjectColor": "#2629c5"
+    },
+    {
+     "id": "DE340-1792770936005-graph",
+     "code": "DE340",
+     "ects": 6,
+     "name": "Web Application Development",
+     "type": "LEX",
+     "module": null,
+     "category": "elective",
+     "position": {
+      "x": 1932,
+      "y": 260
+     },
+     "laneIndex": 5,
+     "examSubject": "Data Engineering",
+     "subjectColor": "#aac526"
+    },
+    {
+     "id": "SEC330-1792770936586-graph",
+     "code": "SEC330",
+     "ects": 6,
+     "name": "Privacy Engineering",
+     "type": "LEX",
+     "module": null,
+     "category": "elective",
+     "position": {
+      "x": 1932,
+      "y": 424
+     },
+     "laneIndex": 5,
+     "examSubject": "Security",
+     "subjectColor": "#267bc5"
+    }
+   ],
+   "7": [
+    {
+     "id": "THE390-1792770937180-0-graph",
+     "code": "THE390",
+     "ects": 10,
+     "name": "Bachelor Thesis",
+     "type": "PRJ",
+     "module": {
+      "id": "mod-1792770937180-graph",
+      "code": "THE390",
+      "ects": 13,
+      "title": "Bachelor Thesis",
+      "category": "elective",
+      "examSubject": "Bachelor Thesis",
+      "subjectColor": "#a8c526"
+     },
+     "category": "elective",
+     "position": {
+      "x": 2312,
+      "y": 196
+     },
+     "laneIndex": 6,
+     "examSubject": "Bachelor Thesis",
+     "subjectColor": "#a8c526"
+    },
+    {
+     "id": "THE380-1792770937180-1-graph",
+     "code": "THE380",
+     "ects": 3,
+     "name": "Scientific Writing",
+     "type": "SEM",
+     "module": {
+      "id": "mod-1792770937180-graph",
+      "code": "THE390",
+      "ects": 13,
+      "title": "Bachelor Thesis",
+      "category": "elective",
+      "examSubject": "Bachelor Thesis",
+      "subjectColor": "#a8c526"
+     },
+     "category": "elective",
+     "position": {
+      "x": 2312,
+      "y": 360
+     },
+     "laneIndex": 6,
+     "examSubject": "Bachelor Thesis",
+     "subjectColor": "#a8c526"
+    },
+    {
+     "id": "TCS320-1792770937765-graph",
+     "code": "TCS320",
+     "ects": 6,
+     "name": "Cryptography",
+     "type": "LEX",
+     "module": null,
+     "category": "elective",
+     "position": {
+      "x": 2312,
+      "y": 524
+     },
+     "laneIndex": 6,
+     "examSubject": "Theoretical Computer Science",
+     "subjectColor": "#92c526"
+    }
+   ]
+  }
+ },
+ "dashboardUiGlobal": {
+  "isLegendOpen": false,
+  "isRuleDashboardOpen": false
+ },
+ "graphViewByProgram": {
+  "033 521": {
+   "filters": {
+    "ectsRange": null,
+    "courseTypes": [],
+    "examSubjects": [],
+    "progressStates": [
+     "todo",
+     "in_plan",
+     "done"
+    ],
+    "obligationTypes": [],
+    "termAvailabilities": [
+     "summer",
+     "winter",
+     "both"
+    ]
+   },
+   "nodePosById": {},
+   "collapsedIds": null,
+   "filtersConfigured": false
+  }
+ },
+ "courseMetaByProgram": {
+  "033 521": {}
+ },
+ "dashboardUiByProgram": {
+  "033 521": {
+   "isWarningsOpen": false,
+   "isFocusInfoOpen": false,
+   "isSteopInfoOpen": false,
+   "isByCategoryOpen": false,
+   "dashboardViewMode": "planning",
+   "isDoneByCategoryOpen": false,
+   "isFocusChecklistOpen": false,
+   "isSteopChecklistOpen": false,
+   "isPerSemesterEctsOpen": false,
+   "isPlannedExamSubjectOpen": false,
+   "doneDashboardSectionOrder": [
+    "steop",
+    "focus",
+    "exam_subject",
+    "done_semester",
+    "done_grade",
+    "category"
+   ],
+   "isDonePerSemesterEctsOpen": false,
+   "isExamSubjectProgressOpen": false,
+   "isMissingRequirementsOpen": false,
+   "isDoneGradePerSemesterOpen": false,
+   "isPlannedEstimatedHoursOpen": false,
+   "plannedDashboardSectionOrder": [
+    "steop",
+    "focus",
+    "planned_exam_subject",
+    "planned_semester",
+    "planned_hours",
+    "planned_category",
+    "missing",
+    "warnings"
+   ]
+  }
+ },
+ "selectedFocusByProgram": {
+  "033 521": ""
+ },
+ "semesterNotesByProgram": {
+  "033 521": {}
+ },
+ "semesterLoadLimitsByProgram": {
+  "033 521": {
+   "maxEctsPerSemester": 42,
+   "maxWeekHoursPerSemester": 50,
+   "recommendedEctsPerSemester": 30,
+   "recommendedWeekHoursPerSemester": 40
+  }
+ }
+}

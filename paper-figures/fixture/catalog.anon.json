@@ -1,0 +1,2038 @@
+[
+ {
+  "exam_subject": "Algorithms and Programming",
+  "exam_subject_id": "4c17eeaa-a2a9-4a07-a45c-396570686528",
+  "exam_subject_code": "ALG",
+  "modules": [
+   {
+    "ects": 8.0,
+    "name": "Algorithms and Data Structures",
+    "courses": [
+     {
+      "code": "ALG110",
+      "ects": 8.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Algorithms and Data Structures",
+      "language": "en",
+      "course_id": "f73e350c-8c72-4828-a31d-659fdeaa72c7",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "d7112790-23b1-4ece-8e5d-d10e03c4ec3c",
+    "is_mandatory": true,
+    "module_exam_subject": "Algorithms and Programming",
+    "module_exam_subject_code": "ALG"
+   },
+   {
+    "ects": 6.0,
+    "name": "Advanced Algorithms",
+    "courses": [
+     {
+      "code": "ALG310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Advanced Algorithms",
+      "language": "en",
+      "course_id": "858667d5-65c6-4997-af2d-5a57e0c8b1c6",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "a646c992-5cef-4d66-8d02-729a4f00fc4d",
+    "is_mandatory": false,
+    "module_exam_subject": "Algorithms and Programming",
+    "module_exam_subject_code": "ALG"
+   },
+   {
+    "ects": 9.5,
+    "name": "Introduction to Programming",
+    "courses": [
+     {
+      "code": "CS101",
+      "ects": 5.5,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Programming 1",
+      "language": "en",
+      "course_id": "5d0ef47f-9304-45b6-9e97-ee8e9e6fa420",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     },
+     {
+      "code": "CS102",
+      "ects": 4.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Programming 2",
+      "language": "en",
+      "course_id": "9d086b55-428a-4aee-abf8-dbdda0f73c9c",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "af93bec3-69c2-4765-b1fe-bd3181b815c2",
+    "is_mandatory": true,
+    "module_exam_subject": "Algorithms and Programming",
+    "module_exam_subject_code": "ALG"
+   },
+   {
+    "ects": 6.0,
+    "name": "Functional Programming",
+    "courses": [
+     {
+      "code": "ALG320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Functional Programming",
+      "language": "en",
+      "course_id": "31c1b573-a524-4bfd-8655-273acc16d501",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "8640c546-409f-4cad-b345-4c30494c0a49",
+    "is_mandatory": false,
+    "module_exam_subject": "Algorithms and Programming",
+    "module_exam_subject_code": "ALG"
+   },
+   {
+    "ects": 6.0,
+    "name": "Logic Programming",
+    "courses": [
+     {
+      "code": "ALG330",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Logic Programming",
+      "language": "en",
+      "course_id": "b577bd52-1b40-4b17-b9bd-65a683b5afc0",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     }
+    ],
+    "category": "elective",
+    "module_id": "83f2b6c4-3005-4cbe-a68e-fa0f11a8e36d",
+    "is_mandatory": false,
+    "module_exam_subject": "Algorithms and Programming",
+    "module_exam_subject_code": "ALG"
+   },
+   {
+    "ects": 6.0,
+    "name": "Programming Paradigms",
+    "courses": [
+     {
+      "code": "ALG210",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Programming Paradigms",
+      "language": "en",
+      "course_id": "566480cd-e446-4161-82ee-0d9de4f70f39",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "3ab0100f-3166-4eba-ab65-da34a3b94bcf",
+    "is_mandatory": true,
+    "module_exam_subject": "Algorithms and Programming",
+    "module_exam_subject_code": "ALG"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Visual Computing",
+  "exam_subject_id": "28088781-dead-4015-ac61-b9d36d92f6e5",
+  "exam_subject_code": "VC",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Digital Media Production",
+    "courses": [
+     {
+      "code": "VC310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Digital Media Production",
+      "language": "en",
+      "course_id": "3155c6e2-aef1-457a-9914-fab9e0e3c4ad",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "1826f81d-cde4-49e6-8786-7a4ce1835b72",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Sound and Music Computing",
+    "courses": [
+     {
+      "code": "VC320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Sound and Music Computing",
+      "language": "en",
+      "course_id": "7a48008e-83a4-4d93-893b-106018c5cb4e",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "9852319d-1acb-442e-b719-3c43119c21a0",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Interactive Media Design",
+    "courses": [
+     {
+      "code": "VC330",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Interactive Media Design",
+      "language": "en",
+      "course_id": "cd225604-e12b-4df7-8a0d-e89de03f7621",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "43966237-8cda-4c04-b1e9-4ccaabec43a6",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Introduction to Visual Computing",
+    "courses": [
+     {
+      "code": "VC110",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Introduction to Visual Computing",
+      "language": "en",
+      "course_id": "45b089f1-7377-4fdd-99bd-83b1105cbae4",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "core",
+    "module_id": "ce19849c-1d10-4cb0-86dd-db3a6299c026",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Computer Vision",
+    "courses": [
+     {
+      "code": "VC340",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Computer Vision",
+      "language": "en",
+      "course_id": "a40b4d75-0534-4369-86d1-b43422bae9bc",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "5e28d085-615c-41cc-9687-8e7aa18a6436",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Computer Graphics",
+    "courses": [
+     {
+      "code": "VC350",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Computer Graphics",
+      "language": "en",
+      "course_id": "58004f55-cbe9-4548-a51e-fc73c51fdeb6",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "40e3d97e-69e5-44b0-93be-2d55ccd2d8da",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Data Visualisation",
+    "courses": [
+     {
+      "code": "VC360",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Data Visualisation",
+      "language": "en",
+      "course_id": "2cbff28b-faa1-4b88-828b-e587deafcc67",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "02b82b02-ca97-4e71-a90b-788afa31e200",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Multimedia Systems",
+    "courses": [
+     {
+      "code": "VC370",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Multimedia Systems",
+      "language": "en",
+      "course_id": "5f7ba142-5d40-49e1-bebd-81cdfded2b56",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "e1825b98-610e-4120-b9da-881125114773",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Graphics Programming",
+    "courses": [
+     {
+      "code": "VC380",
+      "ects": 6.0,
+      "tags": [
+       "PRJ",
+       "en"
+      ],
+      "type": "PRJ",
+      "title": "Graphics Programming",
+      "language": "en",
+      "course_id": "c24e5d4d-f6f7-4b59-89d0-2a431f9b8e78",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "20425ca7-a8f0-4efa-9fff-b5b9ce73f7a1",
+    "is_mandatory": false,
+    "module_exam_subject": "Visual Computing",
+    "module_exam_subject_code": "VC"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Computer Systems",
+  "exam_subject_id": "87398f3d-0e6b-4454-a406-a3a4fd138f4a",
+  "exam_subject_code": "SYS",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Virtual Machines",
+    "courses": [
+     {
+      "code": "SYS310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Virtual Machines",
+      "language": "en",
+      "course_id": "9927e344-02c7-4f98-b061-ae151184aa1e",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "5a31102d-315a-424b-9c5b-80c75fb146f1",
+    "is_mandatory": false,
+    "module_exam_subject": "Computer Systems",
+    "module_exam_subject_code": "SYS"
+   },
+   {
+    "ects": 6.0,
+    "name": "Operating Systems",
+    "courses": [
+     {
+      "code": "SYS210",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Operating Systems",
+      "language": "en",
+      "course_id": "2815f02f-a87e-49d1-aea2-ad16a4a0c759",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "core",
+    "module_id": "7463f0e4-a39a-4e01-adee-aaa184a83268",
+    "is_mandatory": false,
+    "module_exam_subject": "Computer Systems",
+    "module_exam_subject_code": "SYS"
+   },
+   {
+    "ects": 6.0,
+    "name": "Computer Systems",
+    "courses": [
+     {
+      "code": "SYS220",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Computer Systems",
+      "language": "en",
+      "course_id": "15dc0751-949a-4810-92b9-34f96eb06b00",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "core",
+    "module_id": "fc701c41-688a-463b-a691-52b45112737e",
+    "is_mandatory": false,
+    "module_exam_subject": "Computer Systems",
+    "module_exam_subject_code": "SYS"
+   },
+   {
+    "ects": 6.0,
+    "name": "Digital Systems",
+    "courses": [
+     {
+      "code": "SYS110",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Digital Systems",
+      "language": "en",
+      "course_id": "fc4f15c7-bbef-4d4c-8803-a97ee038733e",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "531980de-09d4-4c77-9f29-1fe9aae8e858",
+    "is_mandatory": true,
+    "module_exam_subject": "Computer Systems",
+    "module_exam_subject_code": "SYS"
+   },
+   {
+    "ects": 6.0,
+    "name": "Parallel Programming",
+    "courses": [
+     {
+      "code": "SYS320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Parallel Programming",
+      "language": "en",
+      "course_id": "5610321c-5fff-4b67-870c-3f0ed6eba2b1",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "0fa53686-cbd6-4dda-8dcb-b9e085d0088a",
+    "is_mandatory": false,
+    "module_exam_subject": "Computer Systems",
+    "module_exam_subject_code": "SYS"
+   },
+   {
+    "ects": 5.0,
+    "name": "Embedded and Real-Time Systems",
+    "courses": [
+     {
+      "code": "SYS330",
+      "ects": 3.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Fault-Tolerant Systems",
+      "language": "en",
+      "course_id": "827c47bb-ad7a-47e0-83f8-1fba6ea73b45",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     },
+     {
+      "code": "SYS331",
+      "ects": 2.0,
+      "tags": [
+       "LEC",
+       "en"
+      ],
+      "type": "LEC",
+      "title": "Real-Time Systems",
+      "language": "en",
+      "course_id": "54bac422-bc0c-48a9-b067-1b498fc58862",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "c8aaaabb-3964-40ec-8340-0e99062fb3e2",
+    "is_mandatory": false,
+    "module_exam_subject": "Computer Systems",
+    "module_exam_subject_code": "SYS"
+   },
+   {
+    "ects": 6.0,
+    "name": "Compiler Construction",
+    "courses": [
+     {
+      "code": "SYS340",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Compiler Construction",
+      "language": "en",
+      "course_id": "c07662f8-2758-473d-a872-f774578709fc",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "42dcf2de-d63e-4a19-a645-8f7633196f2f",
+    "is_mandatory": false,
+    "module_exam_subject": "Computer Systems",
+    "module_exam_subject_code": "SYS"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Free Electives and Transferable Skills",
+  "exam_subject_id": "d492aa04-5606-436d-b68d-c21f8240c84f",
+  "exam_subject_code": "FETS",
+  "modules": [
+   {
+    "ects": 18.0,
+    "name": "Free Electives and Transferable Skills",
+    "courses": [],
+    "category": "elective",
+    "module_id": "f339944b-2da3-4c99-92a5-655902d2f0ad",
+    "is_mandatory": false,
+    "module_exam_subject": "Free Electives and Transferable Skills",
+    "module_exam_subject_code": "FETS"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Human-Computer Interaction",
+  "exam_subject_id": "2caf7fde-a872-4952-8439-ad8f8cc16b77",
+  "exam_subject_code": "HCI",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Accessible Computing",
+    "courses": [
+     {
+      "code": "HCI310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Accessible Computing",
+      "language": "en",
+      "course_id": "643306f7-f1bf-46a4-9336-61543494c329",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "1c26d133-d573-41fb-8260-90bdcf2da8d1",
+    "is_mandatory": false,
+    "module_exam_subject": "Human-Computer Interaction",
+    "module_exam_subject_code": "HCI"
+   },
+   {
+    "ects": 6.5,
+    "name": "Computational Thinking",
+    "courses": [
+     {
+      "code": "HCI110",
+      "ects": 5.5,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Computational Thinking",
+      "language": "en",
+      "course_id": "7fda34f8-dea5-4a38-ae42-9816a5f7670e",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     },
+     {
+      "code": "HCI100",
+      "ects": 1.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Study Orientation",
+      "language": "en",
+      "course_id": "3403ce22-4667-4d6c-9c87-f3e6317c036d",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "46628173-3962-4894-84d5-4c81652d55b6",
+    "is_mandatory": true,
+    "module_exam_subject": "Human-Computer Interaction",
+    "module_exam_subject_code": "HCI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Digital Fabrication",
+    "courses": [
+     {
+      "code": "HCI320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Digital Fabrication",
+      "language": "en",
+      "course_id": "8459a6af-d26b-469a-b80e-54e50db3762c",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "75584c36-61cf-4841-8f74-96af7325429f",
+    "is_mandatory": false,
+    "module_exam_subject": "Human-Computer Interaction",
+    "module_exam_subject_code": "HCI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Interaction Design",
+    "courses": [
+     {
+      "code": "HCI210",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Interaction Design",
+      "language": "en",
+      "course_id": "ea2a82dc-64cf-43fa-b40c-20f995b26a79",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "core",
+    "module_id": "b9346e38-f900-48b3-a6d6-61f5b86b4780",
+    "is_mandatory": false,
+    "module_exam_subject": "Human-Computer Interaction",
+    "module_exam_subject_code": "HCI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Human-Centred AI",
+    "courses": [
+     {
+      "code": "HCI330",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Human-Centred AI",
+      "language": "en",
+      "course_id": "5ce3e387-821b-4b05-9063-5ff586b02a7d",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "2a952967-40d3-4c68-b9d6-e656378af508",
+    "is_mandatory": false,
+    "module_exam_subject": "Human-Computer Interaction",
+    "module_exam_subject_code": "HCI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Socio-Technical Systems",
+    "courses": [
+     {
+      "code": "HCI340",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Socio-Technical Systems",
+      "language": "en",
+      "course_id": "487c5261-6398-42b7-9dca-bc2bfd409b3e",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     }
+    ],
+    "category": "elective",
+    "module_id": "a41b0b66-791b-4850-a153-028ed6a6f2f9",
+    "is_mandatory": false,
+    "module_exam_subject": "Human-Computer Interaction",
+    "module_exam_subject_code": "HCI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Usability Engineering",
+    "courses": [
+     {
+      "code": "HCI350",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Usability Engineering",
+      "language": "en",
+      "course_id": "7b08ec9c-c1e9-479f-bd29-99001c37a5fa",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "b055b1fc-6ce2-4e88-a7d3-6b1b2c615b5b",
+    "is_mandatory": false,
+    "module_exam_subject": "Human-Computer Interaction",
+    "module_exam_subject_code": "HCI"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Data Engineering",
+  "exam_subject_id": "3e0e354d-d105-4c60-b98b-ae04a360d73b",
+  "exam_subject_code": "DE",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Database Systems",
+    "courses": [
+     {
+      "code": "DE110",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Database Systems",
+      "language": "en",
+      "course_id": "e51b0556-1771-4233-99a0-a0a592ca017e",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "418f8848-dbc1-4def-b9a8-7268342c3de4",
+    "is_mandatory": true,
+    "module_exam_subject": "Data Engineering",
+    "module_exam_subject_code": "DE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Information Retrieval",
+    "courses": [
+     {
+      "code": "DE310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Information Retrieval",
+      "language": "en",
+      "course_id": "c8135f8a-fc92-4dee-94cd-84190a48f12b",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "d3a2cae1-a90c-43f6-ba70-9fc697eeb06f",
+    "is_mandatory": false,
+    "module_exam_subject": "Data Engineering",
+    "module_exam_subject_code": "DE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Knowledge-Based Systems",
+    "courses": [
+     {
+      "code": "DE320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Knowledge-Based Systems",
+      "language": "en",
+      "course_id": "f9464294-0f4d-4de9-826f-78616df27aaf",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "ae1be46a-97ba-401e-bd50-f26da5477f46",
+    "is_mandatory": false,
+    "module_exam_subject": "Data Engineering",
+    "module_exam_subject_code": "DE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Semi-Structured Data",
+    "courses": [
+     {
+      "code": "DE330",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Semi-Structured Data",
+      "language": "en",
+      "course_id": "4ff9725d-ebdc-4e55-90fa-8b02634b9d47",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "84bbd5e8-1de4-494b-81f0-2c5b48e6640c",
+    "is_mandatory": false,
+    "module_exam_subject": "Data Engineering",
+    "module_exam_subject_code": "DE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Web Application Development",
+    "courses": [
+     {
+      "code": "DE340",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Web Application Development",
+      "language": "en",
+      "course_id": "45611968-f0dc-4d52-bc36-f9a93f1b549a",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "91e5b03e-d6e3-4eb4-980f-77aa31e45869",
+    "is_mandatory": false,
+    "module_exam_subject": "Data Engineering",
+    "module_exam_subject_code": "DE"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Machine Learning and Logic",
+  "exam_subject_id": "593cf75f-45e1-4091-920e-98623e278ba0",
+  "exam_subject_code": "AI",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Proof Techniques",
+    "courses": [
+     {
+      "code": "AI310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Proof Techniques",
+      "language": "en",
+      "course_id": "5f64ad97-6cff-4444-9271-5f8844e90f8b",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "e0217378-b14a-4e28-a97a-32e250bdfafc",
+    "is_mandatory": false,
+    "module_exam_subject": "Machine Learning and Logic",
+    "module_exam_subject_code": "AI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Declarative Problem Solving",
+    "courses": [
+     {
+      "code": "AI320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Declarative Problem Solving",
+      "language": "en",
+      "course_id": "91b09a71-eac8-48ef-a7cc-5879c5ec4410",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "33614661-6557-4c16-a4cc-27ab671de331",
+    "is_mandatory": false,
+    "module_exam_subject": "Machine Learning and Logic",
+    "module_exam_subject_code": "AI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Introduction to Artificial Intelligence",
+    "courses": [
+     {
+      "code": "AI210",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Introduction to Artificial Intelligence",
+      "language": "en",
+      "course_id": "75344f26-e3ce-4e98-a379-2ee56135fe56",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "core",
+    "module_id": "c39f2128-2d28-4769-bd9d-3405a0f1117e",
+    "is_mandatory": true,
+    "module_exam_subject": "Machine Learning and Logic",
+    "module_exam_subject_code": "AI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Machine Learning",
+    "courses": [
+     {
+      "code": "AI330",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Machine Learning",
+      "language": "en",
+      "course_id": "19142a07-c5f5-4e10-9e43-b248421feafa",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     }
+    ],
+    "category": "elective",
+    "module_id": "589b9d13-d12e-4c12-9e78-7b1d70179512",
+    "is_mandatory": false,
+    "module_exam_subject": "Machine Learning and Logic",
+    "module_exam_subject_code": "AI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Logic in Computer Science",
+    "courses": [
+     {
+      "code": "AI220",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Logic in Computer Science",
+      "language": "en",
+      "course_id": "3f8af49c-0072-4b52-9477-92ffd18765a8",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "core",
+    "module_id": "14b32802-777d-4098-a3f8-edb534b64ee5",
+    "is_mandatory": true,
+    "module_exam_subject": "Machine Learning and Logic",
+    "module_exam_subject_code": "AI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Knowledge Representation",
+    "courses": [
+     {
+      "code": "AI340",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Knowledge Representation",
+      "language": "en",
+      "course_id": "2d41dc48-d666-4407-b2e4-9dd35762a817",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "b5156015-a0c4-4ea8-8081-763d881de0fa",
+    "is_mandatory": false,
+    "module_exam_subject": "Machine Learning and Logic",
+    "module_exam_subject_code": "AI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Mathematical Logic",
+    "courses": [
+     {
+      "code": "AI350",
+      "ects": 4.5,
+      "tags": [
+       "LEC",
+       "en"
+      ],
+      "type": "LEC",
+      "title": "Mathematical Logic (Lecture)",
+      "language": "en",
+      "course_id": "190531a4-bc9c-46fe-9bcd-90f05d95511a",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     },
+     {
+      "code": "AI351",
+      "ects": 1.5,
+      "tags": [
+       "EXC",
+       "en"
+      ],
+      "type": "EXC",
+      "title": "Mathematical Logic (Exercise)",
+      "language": "en",
+      "course_id": "b50d13af-2fd9-46d8-a0bc-579766d89244",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "68fa8cd5-047d-46a8-bd8e-9c411eb3ac3f",
+    "is_mandatory": false,
+    "module_exam_subject": "Machine Learning and Logic",
+    "module_exam_subject_code": "AI"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Health Informatics",
+  "exam_subject_id": "5298322d-bdee-4160-a08d-d480c54650c1",
+  "exam_subject_code": "HI",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Medical Visualisation",
+    "courses": [
+     {
+      "code": "HI310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Medical Visualisation",
+      "language": "en",
+      "course_id": "159c2c12-05e7-45ac-bcb1-1ec4b954c0e5",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "6be77ce0-fc0f-4c8f-b2d8-75b5fd96989b",
+    "is_mandatory": false,
+    "module_exam_subject": "Health Informatics",
+    "module_exam_subject_code": "HI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Health Software Design",
+    "courses": [
+     {
+      "code": "HI320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Health Software Design",
+      "language": "en",
+      "course_id": "962c43e0-9f9c-4c6d-a886-3786a89625d0",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "5ca0d914-9498-4d7a-a963-9fe0ce7b25c7",
+    "is_mandatory": false,
+    "module_exam_subject": "Health Informatics",
+    "module_exam_subject_code": "HI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Assistive Technologies",
+    "courses": [
+     {
+      "code": "HI330",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Assistive Technologies",
+      "language": "en",
+      "course_id": "61f3ed3a-55f9-4105-a25d-503b014051fd",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "8a36116b-90b6-43ea-b2da-d77fef06b902",
+    "is_mandatory": false,
+    "module_exam_subject": "Health Informatics",
+    "module_exam_subject_code": "HI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Health Information Systems",
+    "courses": [
+     {
+      "code": "HI340",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Health Information Systems",
+      "language": "en",
+      "course_id": "52817e67-cb58-43af-af41-2e266317580f",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "3534d01f-a800-4a48-9256-bf61711bfc39",
+    "is_mandatory": false,
+    "module_exam_subject": "Health Informatics",
+    "module_exam_subject_code": "HI"
+   },
+   {
+    "ects": 6.0,
+    "name": "Biomedical Data Analytics",
+    "courses": [
+     {
+      "code": "HI350",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Biomedical Data Analytics",
+      "language": "en",
+      "course_id": "e7828b21-9e9d-4f9f-92f2-6d5f608d5572",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "0753748b-fd78-4b31-b164-b1a4ea70b77c",
+    "is_mandatory": false,
+    "module_exam_subject": "Health Informatics",
+    "module_exam_subject_code": "HI"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Software Engineering",
+  "exam_subject_id": "8a5c5209-5b46-497a-95f4-e2753b8ffca0",
+  "exam_subject_code": "SE",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Software Verification",
+    "courses": [
+     {
+      "code": "SE310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Software Verification",
+      "language": "en",
+      "course_id": "f7dfeb9a-ebe9-4d10-8359-95cf0135ff86",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "dd52e025-0a07-451d-933d-ba682720ae94",
+    "is_mandatory": false,
+    "module_exam_subject": "Software Engineering",
+    "module_exam_subject_code": "SE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Software Engineering",
+    "courses": [
+     {
+      "code": "SE210",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Software Engineering",
+      "language": "en",
+      "course_id": "44735100-1bed-42b4-8576-d481e9628b36",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "core",
+    "module_id": "d4df8baa-363e-41ec-b36a-0561ad088fe0",
+    "is_mandatory": true,
+    "module_exam_subject": "Software Engineering",
+    "module_exam_subject_code": "SE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Software Project",
+    "courses": [
+     {
+      "code": "SE220",
+      "ects": 6.0,
+      "tags": [
+       "PRJ",
+       "en"
+      ],
+      "type": "PRJ",
+      "title": "Software Project",
+      "language": "en",
+      "course_id": "9b2a5760-4411-4545-93a2-b05fa65a5f19",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "core",
+    "module_id": "0b09902b-4564-4a6e-8b10-f71a411930b2",
+    "is_mandatory": true,
+    "module_exam_subject": "Software Engineering",
+    "module_exam_subject_code": "SE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Software Quality Assurance",
+    "courses": [
+     {
+      "code": "SE320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Software Quality Assurance",
+      "language": "en",
+      "course_id": "55bd46fa-b0cb-4e8c-8737-2e8d8268eefe",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "12992f59-8680-441b-8a5f-3f48b0421172",
+    "is_mandatory": false,
+    "module_exam_subject": "Software Engineering",
+    "module_exam_subject_code": "SE"
+   },
+   {
+    "ects": 6.0,
+    "name": "Distributed Systems",
+    "courses": [
+     {
+      "code": "SE230",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Distributed Systems",
+      "language": "en",
+      "course_id": "f589b15e-088f-4a63-87a5-a95bd991018a",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "core",
+    "module_id": "24bbd298-ffc4-401f-9d0c-85e16505fa63",
+    "is_mandatory": true,
+    "module_exam_subject": "Software Engineering",
+    "module_exam_subject_code": "SE"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Security",
+  "exam_subject_id": "dd574ba1-163e-483a-b325-5008baaa3668",
+  "exam_subject_code": "SEC",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Offensive Security",
+    "courses": [
+     {
+      "code": "SEC310",
+      "ects": 6.0,
+      "tags": [
+       "EXC",
+       "en"
+      ],
+      "type": "EXC",
+      "title": "Offensive Security",
+      "language": "en",
+      "course_id": "873af536-9b6c-476f-abd3-fcad97d821d7",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "056c49b2-91eb-47c8-ba8a-664415bdee39",
+    "is_mandatory": false,
+    "module_exam_subject": "Security",
+    "module_exam_subject_code": "SEC"
+   },
+   {
+    "ects": 6.0,
+    "name": "IT Law and Ethics",
+    "courses": [
+     {
+      "code": "SEC210",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "IT Law and Ethics",
+      "language": "en",
+      "course_id": "80f2ff80-e948-4272-8c3e-5f3e9fc1cfe7",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     }
+    ],
+    "category": "core",
+    "module_id": "00f1cefd-48c7-4e5f-b8a8-b572189f2374",
+    "is_mandatory": false,
+    "module_exam_subject": "Security",
+    "module_exam_subject_code": "SEC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Introduction to Security",
+    "courses": [
+     {
+      "code": "SEC110",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Introduction to Security",
+      "language": "en",
+      "course_id": "ca7e10f8-bfb2-483e-827e-5c602b352bcc",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "fcf8fea8-ac5c-48a3-9d82-a987236bd36e",
+    "is_mandatory": true,
+    "module_exam_subject": "Security",
+    "module_exam_subject_code": "SEC"
+   },
+   {
+    "ects": 6.0,
+    "name": "System Security",
+    "courses": [
+     {
+      "code": "SEC320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "System Security",
+      "language": "en",
+      "course_id": "f9817e1a-98e1-4a6f-acea-3ec54fe21151",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "15f33c77-5be6-4781-aa85-7136036e5e2a",
+    "is_mandatory": false,
+    "module_exam_subject": "Security",
+    "module_exam_subject_code": "SEC"
+   },
+   {
+    "ects": 6.0,
+    "name": "Privacy Engineering",
+    "courses": [
+     {
+      "code": "SEC330",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Privacy Engineering",
+      "language": "en",
+      "course_id": "8403839c-1a26-44f2-8006-eb5e442543ed",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "01f30156-2e66-4509-a3e2-8ef2926f2785",
+    "is_mandatory": false,
+    "module_exam_subject": "Security",
+    "module_exam_subject_code": "SEC"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Mathematics and Statistics",
+  "exam_subject_id": "b0b43244-7f40-4be8-9708-64b05c92e06f",
+  "exam_subject_code": "MATH",
+  "modules": [
+   {
+    "ects": 9.0,
+    "name": "Discrete Mathematics",
+    "courses": [
+     {
+      "code": "MATH110",
+      "ects": 4.0,
+      "tags": [
+       "LEC",
+       "en"
+      ],
+      "type": "LEC",
+      "title": "Discrete Mathematics (Lecture)",
+      "language": "en",
+      "course_id": "3f2790c1-f7ce-4a7a-ac26-20f9411ef4bc",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     },
+     {
+      "code": "MATH111",
+      "ects": 5.0,
+      "tags": [
+       "EXC",
+       "en"
+      ],
+      "type": "EXC",
+      "title": "Discrete Mathematics (Exercise)",
+      "language": "en",
+      "course_id": "4749cfef-6b68-4693-949c-5bc9f2eef67d",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     },
+     {
+      "code": "MATH112",
+      "ects": 9.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Discrete Mathematics (Integrated)",
+      "language": "en",
+      "course_id": "593c4aa5-dfd5-41b2-9edb-555b4d9e0eff",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "75afad37-84f8-48f4-a824-8243e118dbcf",
+    "is_mandatory": true,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 6.0,
+    "name": "Calculus",
+    "courses": [
+     {
+      "code": "MATH120",
+      "ects": 2.0,
+      "tags": [
+       "LEC",
+       "en"
+      ],
+      "type": "LEC",
+      "title": "Calculus (Lecture)",
+      "language": "en",
+      "course_id": "b6297d3e-b8b0-416d-af53-e2bb6c3409e7",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     },
+     {
+      "code": "MATH121",
+      "ects": 4.0,
+      "tags": [
+       "EXC",
+       "en"
+      ],
+      "type": "EXC",
+      "title": "Calculus (Exercise)",
+      "language": "en",
+      "course_id": "0944b0a8-976f-44e5-9d6c-05695a08b701",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     },
+     {
+      "code": "MATH122",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Calculus (Integrated)",
+      "language": "en",
+      "course_id": "6ac0086d-2cac-46a5-a9a4-ef7cf8efbdb8",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "68a8297d-b9cb-4ad9-858b-dae71e1b32a1",
+    "is_mandatory": true,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 6.0,
+    "name": "Computational Statistics",
+    "courses": [
+     {
+      "code": "MATH310",
+      "ects": 4.5,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Statistical Programming",
+      "language": "en",
+      "course_id": "953c5587-4a1f-4c95-988e-cc6db93ac7b4",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     },
+     {
+      "code": "MATH311",
+      "ects": 3.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Statistical Computing",
+      "language": "en",
+      "course_id": "d98f8bee-edbd-4b07-806b-1855230f1e22",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     },
+     {
+      "code": "MATH312",
+      "ects": 3.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Simulation Methods",
+      "language": "en",
+      "course_id": "8c2240b3-2cd7-4e12-844e-5a8815426fd6",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "8e1ecfee-1a59-4d1f-b49e-fecbe569e4b5",
+    "is_mandatory": false,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 6.0,
+    "name": "Data Analysis",
+    "courses": [
+     {
+      "code": "MATH320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Data Analysis",
+      "language": "en",
+      "course_id": "de9159ec-ebea-41fd-8a1f-d7918b90f497",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "0d849888-7067-4250-9e36-a9d2b58fe8fc",
+    "is_mandatory": false,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 2.0,
+    "name": "Mathematical Reasoning",
+    "courses": [
+     {
+      "code": "MATH100",
+      "ects": 2.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Mathematical Reasoning",
+      "language": "en",
+      "course_id": "2ed04d4c-1a1d-45d1-a2cb-8df0532bbf58",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "53ae7892-4536-4b4e-b33c-d66d6d911c9e",
+    "is_mandatory": true,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 6.0,
+    "name": "Applied Statistics",
+    "courses": [
+     {
+      "code": "MATH330",
+      "ects": 4.5,
+      "tags": [
+       "LEC",
+       "en"
+      ],
+      "type": "LEC",
+      "title": "Applied Statistics (Lecture)",
+      "language": "en",
+      "course_id": "8faefbac-dfad-40e7-abf5-d6b08af26575",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     },
+     {
+      "code": "MATH331",
+      "ects": 1.5,
+      "tags": [
+       "EXC",
+       "en"
+      ],
+      "type": "EXC",
+      "title": "Applied Statistics (Exercise)",
+      "language": "en",
+      "course_id": "250c1a6c-4ec5-43db-a8ac-b7808574c82c",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "31637f00-6304-4cbc-83d2-0d426b5b32ec",
+    "is_mandatory": false,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 6.0,
+    "name": "Multivariate Statistics",
+    "courses": [
+     {
+      "code": "MATH340",
+      "ects": 4.5,
+      "tags": [
+       "LEC",
+       "en"
+      ],
+      "type": "LEC",
+      "title": "Multivariate Statistics (Lecture)",
+      "language": "en",
+      "course_id": "0f1ed8fe-39c7-4eee-bd1f-c6d1daabb9da",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     },
+     {
+      "code": "MATH341",
+      "ects": 1.5,
+      "tags": [
+       "EXC",
+       "en"
+      ],
+      "type": "EXC",
+      "title": "Multivariate Statistics (Exercise)",
+      "language": "en",
+      "course_id": "3f09342e-a7ad-4180-ab94-a65dcdec4332",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "5622f653-59b7-460b-a4b5-713b4b7a729d",
+    "is_mandatory": false,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 6.0,
+    "name": "Numerical Methods",
+    "courses": [
+     {
+      "code": "MATH350",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Numerical Methods",
+      "language": "en",
+      "course_id": "f24f0b8c-c0b4-4c9e-a433-4d6a18f0b790",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "elective",
+    "module_id": "0eac467e-eeb1-4c16-8780-4dcea5cd49c0",
+    "is_mandatory": false,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   },
+   {
+    "ects": 6.0,
+    "name": "Probability and Statistics",
+    "courses": [
+     {
+      "code": "MATH210",
+      "ects": 3.0,
+      "tags": [
+       "LEC",
+       "en"
+      ],
+      "type": "LEC",
+      "title": "Probability and Statistics (Lecture)",
+      "language": "en",
+      "course_id": "d68b3fdd-a605-4a9e-b6c9-86ed001a2f5b",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     },
+     {
+      "code": "MATH211",
+      "ects": 3.0,
+      "tags": [
+       "EXC",
+       "en"
+      ],
+      "type": "EXC",
+      "title": "Probability and Statistics (Exercise)",
+      "language": "en",
+      "course_id": "e41b5c77-dcba-4628-9818-bcc964d53caa",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     },
+     {
+      "code": "MATH212",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Probability and Statistics (Integrated)",
+      "language": "en",
+      "course_id": "abad9fd5-f98a-4f2e-8de8-d1ab5688a92a",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "79f194df-a555-44b9-920e-6a56a973b6ba",
+    "is_mandatory": true,
+    "module_exam_subject": "Mathematics and Statistics",
+    "module_exam_subject_code": "MATH"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Bachelor Thesis",
+  "exam_subject_id": "d4fc75b6-3e3f-4360-bdde-c99de27b2b6d",
+  "exam_subject_code": "THESIS",
+  "modules": [
+   {
+    "ects": 13.0,
+    "name": "Bachelor Thesis",
+    "courses": [
+     {
+      "code": "THE390",
+      "ects": 10.0,
+      "tags": [
+       "PRJ",
+       "en"
+      ],
+      "type": "PRJ",
+      "title": "Bachelor Thesis",
+      "language": "en",
+      "course_id": "3b1182f5-68ea-4f21-9e0a-348bc26349b5",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     },
+     {
+      "code": "THE380",
+      "ects": 3.0,
+      "tags": [
+       "SEM",
+       "en"
+      ],
+      "type": "SEM",
+      "title": "Scientific Writing",
+      "language": "en",
+      "course_id": "fe7f3098-32c7-4de0-afe0-902b389f2e4d",
+      "is_core_to_module": true,
+      "term_availability": "both"
+     }
+    ],
+    "category": "elective",
+    "module_id": "84dc89be-6126-48aa-ac51-ddb486a702ef",
+    "is_mandatory": true,
+    "module_exam_subject": "Bachelor Thesis",
+    "module_exam_subject_code": "THESIS"
+   }
+  ]
+ },
+ {
+  "exam_subject": "Theoretical Computer Science",
+  "exam_subject_id": "187cb23f-f93f-4cee-a86e-64fcd14e45dc",
+  "exam_subject_code": "TCS",
+  "modules": [
+   {
+    "ects": 6.0,
+    "name": "Quantum Computing",
+    "courses": [
+     {
+      "code": "TCS310",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Quantum Computing",
+      "language": "en",
+      "course_id": "9dee6ea2-41ba-4c16-9a4a-8cef818fae8f",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "6e163a6c-31c1-49fc-9889-2f71baf508e2",
+    "is_mandatory": false,
+    "module_exam_subject": "Theoretical Computer Science",
+    "module_exam_subject_code": "TCS"
+   },
+   {
+    "ects": 6.0,
+    "name": "Cryptography",
+    "courses": [
+     {
+      "code": "TCS320",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Cryptography",
+      "language": "en",
+      "course_id": "c0522eba-1db5-4697-99f1-cd8f152304c1",
+      "is_core_to_module": true,
+      "term_availability": "winter"
+     }
+    ],
+    "category": "elective",
+    "module_id": "4c9b9ed7-e76d-44fe-a2bb-4638ef2e35c2",
+    "is_mandatory": false,
+    "module_exam_subject": "Theoretical Computer Science",
+    "module_exam_subject_code": "TCS"
+   },
+   {
+    "ects": 6.0,
+    "name": "Theoretical Computer Science",
+    "courses": [
+     {
+      "code": "TCS210",
+      "ects": 6.0,
+      "tags": [
+       "LEX",
+       "en"
+      ],
+      "type": "LEX",
+      "title": "Theoretical Computer Science",
+      "language": "en",
+      "course_id": "7b6b3af0-3ada-4a00-b718-a1da6bf792e3",
+      "is_core_to_module": true,
+      "term_availability": "summer"
+     }
+    ],
+    "category": "mandatory",
+    "module_id": "4982cf4d-eb06-4a58-a4b2-0ac946408094",
+    "is_mandatory": true,
+    "module_exam_subject": "Theoretical Computer Science",
+    "module_exam_subject_code": "TCS"
+   }
+  ]
+ }
+]
