@@ -11,7 +11,7 @@ branch. No application code, layout or styling was changed.
 
 | File | What it is |
 |---|---|
-| `table_view.png` | Figure A: Table View with Parking Stage and seven semester lanes |
+| `table_view.png` | Figure A: Table View with Parking Stage and semester lanes 1–5 |
 | `shell_graph_view_crop.png` | Figure B: filter panel, Graph View and Dashboard composed side by side |
 | `panel_filters.png`, `panel_graph.png`, `panel_dashboard.png` | The three single-panel crops of Figure B |
 | `fixture/mapping.json` | Real → generic names and codes (internal) |
@@ -29,15 +29,16 @@ All PNG, white background, rendered by Chromium (Playwright) with
 
 | Image | Pixels (w × h) |
 |---|---|
-| `table_view.png` | 4569 × 1815 |
+| `table_view.png` | 3429 × 1815 |
 | `shell_graph_view_crop.png` | 3609 × 3468 |
 | `panel_filters.png` | 999 × 2403 |
 | `panel_graph.png` | 1209 × 3468 |
 | `panel_dashboard.png` | 1329 × 3099 |
 
 Figure A: viewport 1600 × 1000 CSS px, sidebar hidden, board at React Flow's
-minimum zoom (0.5), cropped to the Parking Stage and lanes 1–7 down to the
-lowest card. Figure B: viewport 1600 × 1250 CSS px (taller so the Dashboard
+minimum zoom (0.5), cropped to the Parking Stage and lanes 1–5 down to the
+lowest card (the plan has seven semesters; 6–7 are left out of the crop so
+the cards stay legible at column width). Figure B: viewport 1600 × 1250 CSS px (taller so the Dashboard
 fits without scrolling), Graph View with "Algorithms and Programming" and
 "Software Engineering" expanded (plus the two-course module "Introduction to
 Programming", so all four levels show), fitted to view. The three panels are

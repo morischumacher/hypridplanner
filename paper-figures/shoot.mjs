@@ -10,6 +10,9 @@ const BACHELOR = "033 521";
 // multi-course module opened inside them so all four levels show.
 const EXPANDED_SUBJECTS = ["Algorithms and Programming", "Software Engineering"];
 const EXPANDED_MODULES = ["Introduction to Programming"];
+// Semester lanes shown in Figure A. The plan has seven; the last two are left
+// out of the crop so the cards stay legible at column width.
+const TABLE_LANES = 5;
 
 function demoState(FIXTURE) {
     const state = JSON.parse(fs.readFileSync(path.join(FIXTURE, "demo_plan_state.json"), "utf8"));
@@ -72,7 +75,8 @@ async function tableView(page, OUT) {
     await page.mouse.move(1599, 500);
     await page.waitForTimeout(800);
 
-    const lanes = await unionBox(page, '#parking-stage-lane, [id^="semester-lane-"]');
+    const laneIds = ["#parking-stage-lane", ...Array.from({ length: TABLE_LANES }, (_, i) => `#semester-lane-${i + 1}`)];
+    const lanes = await unionBox(page, laneIds.join(", "));
     const cards = await unionBox(page, '[data-testid="course-card"]');
     const margin = 6;
     const clip = { x: lanes.x - margin, y: lanes.y - margin, width: lanes.width + 2 * margin, height: cards.y + cards.height - lanes.y + 2 * margin + 10 };
