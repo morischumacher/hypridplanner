@@ -6,19 +6,15 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 
 const BACHELOR = "033 521";
-// Exam subjects opened in the Graph View, by their generic names, and the
-// multi-course module opened inside them so all four levels show.
-const EXPANDED_SUBJECTS = ["Algorithms and Programming", "Software Engineering"];
-const EXPANDED_MODULES = ["Introduction to Programming"];
-// Exam subjects left out of Figure B, as if switched off in the filter panel.
-// Switching them off in the application makes it expand every remaining
-// subject, so instead they are hidden in the rendered graph (node and edge
-// from the root), and their filter chips are switched off only after the graph
-// has been captured, for the filter-panel crop.
-const HIDDEN_SUBJECTS = ["Mathematics and Statistics", "Bachelor Thesis", "Theoretical Computer Science"];
-// Semester lanes shown in Figure A. The plan has seven; the last two are left
-// out of the crop so the cards stay legible at column width.
-const TABLE_LANES = 5;
+const SUBJECT_NAMES = Object.values(JSON.parse(fs.readFileSync(new URL("./fixture/mapping.json", import.meta.url), "utf8")).examSubjects).map((s) => s.name);
+// Exam subjects kept in the Graph View, by their generic names. Every other
+// subject is switched off in the filter panel; the application then removes
+// those subjects from the tree and opens the two that remain (with their
+// multi-course module), so all four levels show at a legible size.
+const KEPT_SUBJECTS = (process.env.FIG_B_SUBJECTS ?? "Computer Systems,Free Electives and Transferable Skills").split(",");
+// Semester lanes shown in Figure A. The plan has seven; only the first three
+// are in the crop so the cards stay legible at column width.
+const TABLE_LANES = 3;
 
 function demoState(FIXTURE) {
     const state = JSON.parse(fs.readFileSync(path.join(FIXTURE, "demo_plan_state.json"), "utf8"));
@@ -107,48 +103,71 @@ async function graphView(page, OUT) {
         const expand = dashboardSection(page, title).getByRole("button", { name: "Expand" });
         if (await expand.count()) await expand.click();
     }
-    await page.getByRole("button", { name: /Collapse/ }).first().click();
-    await page.waitForTimeout(800);
-    for (const label of [...EXPANDED_SUBJECTS, ...EXPANDED_MODULES]) {
-        await page.locator(".react-flow__node").filter({ hasText: label }).first().click();
-        await page.waitForTimeout(700);
+    const subjects = await page.locator("#graph-filters-panel button").evaluateAll((els, kept) => els
+        .map((el) => el.innerText.trim())
+        .filter((t) => t && !kept.includes(t)), KEPT_SUBJECTS);
+    // A chip is on while it carries its subject's colour; clicked until it is off.
+    const isOn = (name) => page.locator("#graph-filters-panel button", { hasText: new RegExp(`^${name}$`) }).first()
+        .evaluate((el) => getComputedStyle(el).backgroundColor !== "rgb(255, 255, 255)");
+    for (const name of subjects.filter((t) => SUBJECT_NAMES.includes(t))) {
+        for (let i = 0; i < 3 && await isOn(name); i += 1) {
+            await page.locator("#graph-filters-panel button", { hasText: new RegExp(`^${name}$`) }).first().click();
+            await page.waitForTimeout(500);
+        }
+        if (await isOn(name)) throw new Error(`could not switch off ${name}`);
     }
-    await page.addStyleTag({
-        content: HIDDEN_SUBJECTS.map((name) =>
-            `.react-flow__node[data-id$="-${name}"], .react-flow__edge[data-testid$="-${name}"] { visibility: hidden !important; }`).join("\n"),
-    });
+    // Re-lay out the remaining subjects without the gaps the removed ones left.
+    await page.getByRole("button", { name: /Align/ }).click();
+    await page.waitForTimeout(1500);
     await waitForToasts(page);
     await page.mouse.move(1599, 5);
 
-    // The Dashboard ends below Warnings (the sections underneath are not part of
-    // the figure). The viewport height is adjusted until the fitted tree is as
-    // tall as that, so the two panels end in line.
+    // The filter panel is cropped first and then hidden, so the tree can use
+    // the canvas under it. The Dashboard ends below Warnings (the sections
+    // underneath are not part of the figure). The tree is fitted to the canvas
+    // and cropped to its own nodes.
+    const panels = { "panel_filters.png": await box(page, "#graph-filters-panel") };
+    await page.screenshot({ path: path.join(OUT, "panel_filters.png"), clip: panels["panel_filters.png"] });
+    await page.getByRole("button", { name: /Hide Filters/ }).click();
+    await page.waitForTimeout(800);
+    // Canvas overlays (minimap, zoom controls, axis legend, the view toolbar)
+    // are not part of the figure and would otherwise overlap the tree crop.
+    for (const label of [/Table View/, /Show Filters/, /Show Recs/]) {
+        await page.getByRole("button", { name: label }).first().evaluate((el) => { el.style.visibility = "hidden"; });
+    }
+    await page.addStyleTag({ content: ".react-flow__minimap, .react-flow__controls { visibility: hidden !important; }" });
+    await page.getByText("Horizontal:", { exact: false }).first().evaluate((el) => {
+        let n = el;
+        while (n.parentElement && getComputedStyle(n).position === "static") n = n.parentElement;
+        n.style.visibility = "hidden";
+    });
+    await page.mouse.move(1599, 5);
+    // The viewport height is adjusted until the fitted tree is as tall as the
+    // Dashboard, so the panels end in line and keep a balanced text size.
     const measure = async () => {
-        // The controls sit under the filter panel, so the button is clicked directly.
+        // The controls are hidden, so the button is clicked directly.
         await page.locator(".react-flow__controls-fitview").evaluate((b) => b.click());
-        await page.waitForTimeout(1200);
+        await page.waitForTimeout(1500);
         const dash = await box(page, "#planner-dashboard-container");
         const warnings = await dashboardSection(page, "Warnings").evaluate((el) => el.getBoundingClientRect().bottom);
-        const dashboard = { x: dash.x + 2, y: dash.y, width: dash.width - 2, height: warnings - dash.y + 8 };
-        const tree = pad(await unionBox(page, ".react-flow__node"), 10);
-        return { dashboard, tree };
+        return {
+            tree: pad(await unionBox(page, ".react-flow__node"), 10),
+            dashboard: { x: dash.x + 2, y: dash.y, width: dash.width - 2, height: warnings - dash.y + 8 },
+        };
     };
-    let { dashboard, tree } = await measure();
-    for (let i = 0; i < 3 && Math.abs(tree.height - dashboard.height) > 12; i += 1) {
+    let { tree, dashboard } = await measure();
+    for (let i = 0; i < 4 && Math.abs(tree.height - dashboard.height) > 10; i += 1) {
         const { width, height } = page.viewportSize();
-        await page.setViewportSize({ width, height: Math.round(height * dashboard.height / tree.height) });
-        ({ dashboard, tree } = await measure());
+        const next = Math.round(height * dashboard.height / tree.height);
+        await page.setViewportSize({ width, height: Math.max(next, Math.ceil(dashboard.y + dashboard.height + 12)) });
+        ({ tree, dashboard } = await measure());
     }
-
-    await page.screenshot({ path: path.join(OUT, "panel_graph.png"), clip: tree });
-    await page.screenshot({ path: path.join(OUT, "panel_dashboard.png"), clip: dashboard });
-    for (const name of HIDDEN_SUBJECTS) {
-        await page.locator("#graph-filters-panel button", { hasText: name }).first().click();
-        await page.waitForTimeout(500);
+    panels["panel_graph.png"] = tree;
+    panels["panel_dashboard.png"] = dashboard;
+    console.log(JSON.stringify(panels));
+    for (const name of ["panel_graph.png", "panel_dashboard.png"]) {
+        await page.screenshot({ path: path.join(OUT, name), clip: panels[name] });
     }
-    await page.mouse.move(1599, 5);
-    await page.waitForTimeout(800);
-    await page.screenshot({ path: path.join(OUT, "panel_filters.png"), clip: await box(page, "#graph-filters-panel") });
     execFileSync("python3", [path.join(OUT, "compose.py"), OUT], { stdio: "inherit" });
 }
 

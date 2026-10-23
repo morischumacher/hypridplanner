@@ -11,7 +11,7 @@ branch. No application code, layout or styling was changed.
 
 | File | What it is |
 |---|---|
-| `table_view.png` | Figure A: Table View with Parking Stage and semester lanes 1–5 |
+| `table_view.png` | Figure A: Table View with Parking Stage and semester lanes 1–3 |
 | `shell_graph_view_crop.png` | Figure B: filter panel, Graph View and Dashboard composed side by side |
 | `panel_filters.png`, `panel_graph.png`, `panel_dashboard.png` | The three single-panel crops of Figure B |
 | `fixture/mapping.json` | Real → generic names and codes (internal) |
@@ -29,29 +29,30 @@ All PNG, white background, rendered by Chromium (Playwright) with
 
 | Image | Pixels (w × h) |
 |---|---|
-| `table_view.png` | 3429 × 1815 |
-| `shell_graph_view_crop.png` | 3645 × 3099 |
+| `table_view.png` | 2289 × 1815 |
+| `shell_graph_view_crop.png` | 5079 × 3108 |
 | `panel_filters.png` | 999 × 2403 |
-| `panel_graph.png` | 1245 × 3099 |
+| `panel_graph.png` | 2679 × 3108 |
 | `panel_dashboard.png` | 1329 × 3099 |
 
 Figure A: viewport 1600 × 1000 CSS px, sidebar hidden, board at React Flow's
-minimum zoom (0.5), cropped to the Parking Stage and lanes 1–5 down to the
-lowest card (the plan has seven semesters; 6–7 are left out of the crop so
+minimum zoom (0.5), cropped to the Parking Stage and lanes 1–3 down to the
+lowest card (the plan has seven semesters; only three are in the crop so
 the cards stay legible at column width). Figure B: viewport 1600 × about 1320 CSS px (tall enough for the
-Dashboard to fit without scrolling), Graph View with "Algorithms and Programming" and
-"Software Engineering" expanded (plus the two-course module "Introduction to
-Programming", so all four levels show), fitted to view. The three panels are
-cropped to their own content and composed top-aligned. Three exam subjects are left out of the tree (Mathematics and Statistics,
-Bachelor Thesis, Theoretical Computer Science) and shown as switched off in the
-filter panel. **Figure B is therefore not a single unedited state:** switching
-these subjects off in the application makes it expand every remaining subject,
-so the graph is captured with the two subjects open and the three subject nodes
-and their edges from the root hidden in the rendered page (CSS), and the three
-chips are switched off afterwards for the filter-panel crop. The viewport
-height (starting from 1320 CSS px) is adjusted so the fitted tree ends level
-with the Dashboard. The panels are composed top-aligned with a 36 px (12 CSS px)
-gap. The Dashboard crop ends below *Warnings*. Scrollbars and the text caret
+Dashboard to fit without scrolling), Graph View filtered to two exam subjects,
+"Computer Systems" and "Free Electives and Transferable Skills": the other
+eleven chips are switched off in the filter panel, upon which the application
+removes those subjects from the tree and opens the two that remain (including
+the two-course module "Embedded and Real-Time Systems"), so all four levels
+show. The two subjects are neighbours in curriculum order, because the tree
+keeps each subject in its own horizontal band and two distant subjects would
+leave a large gap. This is one real application state. The filter panel is
+cropped first and then hidden (Hide Filters) so the tree can use the full
+canvas; the view toolbar, minimap, zoom controls and axis legend are hidden
+for the tree crop because they would overlap it. The viewport height (from
+1320 CSS px) is adjusted until the fitted tree is as tall as the Dashboard,
+which ends below *Warnings*. The panels are composed top-aligned with a 36 px
+(12 CSS px) gap. Scrollbars and the text caret
 are hidden by an injected stylesheet. The application's page grey `#f9fafb`
 is mapped to white in all crops. The pointer is parked outside the crops, so
 no hover state shows.
