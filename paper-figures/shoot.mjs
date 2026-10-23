@@ -10,6 +10,12 @@ const BACHELOR = "033 521";
 // multi-course module opened inside them so all four levels show.
 const EXPANDED_SUBJECTS = ["Algorithms and Programming", "Software Engineering"];
 const EXPANDED_MODULES = ["Introduction to Programming"];
+// Exam subjects left out of Figure B, as if switched off in the filter panel.
+// Switching them off in the application makes it expand every remaining
+// subject, so instead they are hidden in the rendered graph (node and edge
+// from the root), and their filter chips are switched off only after the graph
+// has been captured, for the filter-panel crop.
+const HIDDEN_SUBJECTS = ["Mathematics and Statistics", "Bachelor Thesis", "Theoretical Computer Science"];
 // Semester lanes shown in Figure A. The plan has seven; the last two are left
 // out of the crop so the cards stay legible at column width.
 const TABLE_LANES = 5;
@@ -40,9 +46,11 @@ const box = (page, selector) => page.locator(selector).first().evaluate((el) => 
     return { x: r.left, y: r.top, width: r.width, height: r.height };
 });
 
-/** Union of the client rects of every element matching the selector. */
+/** Union of the client rects of every visible element matching the selector. */
 const unionBox = (page, selector) => page.evaluate((selector) => {
-    const rects = [...document.querySelectorAll(selector)].map((el) => el.getBoundingClientRect()).filter((r) => r.width && r.height);
+    const rects = [...document.querySelectorAll(selector)]
+        .filter((el) => getComputedStyle(el).visibility !== "hidden")
+        .map((el) => el.getBoundingClientRect()).filter((r) => r.width && r.height);
     const x = Math.min(...rects.map((r) => r.left));
     const y = Math.min(...rects.map((r) => r.top));
     return { x, y, width: Math.max(...rects.map((r) => r.right)) - x, height: Math.max(...rects.map((r) => r.bottom)) - y };
@@ -105,37 +113,42 @@ async function graphView(page, OUT) {
         await page.locator(".react-flow__node").filter({ hasText: label }).first().click();
         await page.waitForTimeout(700);
     }
-    // The controls sit under the filter panel, so the button is clicked directly.
-    await page.locator(".react-flow__controls-fitview").evaluate((b) => b.click());
+    await page.addStyleTag({
+        content: HIDDEN_SUBJECTS.map((name) =>
+            `.react-flow__node[data-id$="-${name}"], .react-flow__edge[data-testid$="-${name}"] { visibility: hidden !important; }`).join("\n"),
+    });
     await waitForToasts(page);
     await page.mouse.move(1599, 5);
-    await page.waitForTimeout(1000);
 
-    // Three panels, each cropped to its own content. The Dashboard ends below
-    // Warnings (the sections underneath are not part of the figure), and the tree
-    // is cut at the same height so the panels end in line; the collapsed subjects
-    // at the bottom of the tree fall outside the crop. Excluding them with the
-    // subject filter instead would make the application expand every remaining
-    // subject. The cut is moved up above any node it would slice.
-    const filters = await box(page, "#graph-filters-panel");
-    const dash = await box(page, "#planner-dashboard-container");
-    const warnings = await dashboardSection(page, "Warnings").evaluate((el) => el.getBoundingClientRect().bottom);
-    const dashboard = { x: dash.x + 2, y: dash.y, width: dash.width - 2, height: warnings - dash.y + 8 };
-    const tree = pad(await unionBox(page, ".react-flow__node"), 10);
-    const nodes = await page.locator(".react-flow__node").evaluateAll((els) => els.map((el) => {
-        const r = el.getBoundingClientRect();
-        return { top: r.top, bottom: r.bottom };
-    }));
-    let cut = tree.y + dashboard.height;
-    for (const n of nodes) if (n.top < cut && n.bottom + 10 > cut) cut = Math.min(cut, n.top - 10);
-    const panels = {
-        "panel_filters.png": filters,
-        "panel_graph.png": { ...tree, height: Math.min(tree.height, cut - tree.y) },
-        "panel_dashboard.png": dashboard,
+    // The Dashboard ends below Warnings (the sections underneath are not part of
+    // the figure). The viewport height is adjusted until the fitted tree is as
+    // tall as that, so the two panels end in line.
+    const measure = async () => {
+        // The controls sit under the filter panel, so the button is clicked directly.
+        await page.locator(".react-flow__controls-fitview").evaluate((b) => b.click());
+        await page.waitForTimeout(1200);
+        const dash = await box(page, "#planner-dashboard-container");
+        const warnings = await dashboardSection(page, "Warnings").evaluate((el) => el.getBoundingClientRect().bottom);
+        const dashboard = { x: dash.x + 2, y: dash.y, width: dash.width - 2, height: warnings - dash.y + 8 };
+        const tree = pad(await unionBox(page, ".react-flow__node"), 10);
+        return { dashboard, tree };
     };
-    for (const [name, clip] of Object.entries(panels)) {
-        await page.screenshot({ path: path.join(OUT, name), clip });
+    let { dashboard, tree } = await measure();
+    for (let i = 0; i < 3 && Math.abs(tree.height - dashboard.height) > 12; i += 1) {
+        const { width, height } = page.viewportSize();
+        await page.setViewportSize({ width, height: Math.round(height * dashboard.height / tree.height) });
+        ({ dashboard, tree } = await measure());
     }
+
+    await page.screenshot({ path: path.join(OUT, "panel_graph.png"), clip: tree });
+    await page.screenshot({ path: path.join(OUT, "panel_dashboard.png"), clip: dashboard });
+    for (const name of HIDDEN_SUBJECTS) {
+        await page.locator("#graph-filters-panel button", { hasText: name }).first().click();
+        await page.waitForTimeout(500);
+    }
+    await page.mouse.move(1599, 5);
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: path.join(OUT, "panel_filters.png"), clip: await box(page, "#graph-filters-panel") });
     execFileSync("python3", [path.join(OUT, "compose.py"), OUT], { stdio: "inherit" });
 }
 
