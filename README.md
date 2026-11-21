@@ -9,14 +9,21 @@ Informatics (033 521) and the Master in Software Engineering (066 937).
 This repository is the software artefact of a diploma thesis. `userstudy/` holds
 the guide application used to run the evaluation sessions.
 
-## At a glance
+## Features
 
-| | |
-|---|---|
-| **What** | A degree-planning tool for TU Wien Informatics students: plan courses in a semester table or a curriculum graph, with a live compliance check against the official curriculum. Software artefact of my diploma thesis (grade 1.0). |
-| **My role** | Solo project: features derived from an interview study, design, full-stack development, and an evaluation in think-aloud sessions with 11 students. Built with Claude Code as an AI pair programmer. |
-| **Highlights** | Rule engine that checks a plan against two curricula (Bachelor 033 521, Master 066 937) after every change.<br>Explainable recommendations from six channels; each states the reason the student reads.<br>Usability findings from the study rated on Nielsen's severity scale: [known defects](docs/known-defects.md).<br>Layered backend (handlers, services, repositories) described in [architecture](docs/architecture.md). |
-| **Stack** | Python, FastAPI, PostgreSQL, React, TypeScript, Vite; pytest, Playwright |
+- A rule engine checks the plan against two curricula (Bachelor 033 521, Master 066 937) after every change.
+- Plan in a semester table or a curriculum graph.
+- Explainable recommendations from six channels; each one states its reason in words the student reads.
+- Usability findings from the study, rated on Nielsen's severity scale: [known defects](docs/known-defects.md).
+- Layered backend (handlers, services, repositories), described in [architecture](docs/architecture.md).
+
+## My role
+
+Solo project: features derived from an interview study, design, full-stack development, and an evaluation in think-aloud sessions with 11 students. Built with Claude Code as an AI pair programmer.
+
+## Tech stack
+
+Python, FastAPI, PostgreSQL, React, TypeScript, Vite; pytest, Playwright
 
 ## Requirements
 
